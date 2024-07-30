@@ -1,0 +1,18 @@
+<?xml version="1.0" ?>
+<launch>
+  <!-- [30-7-24] This is the 2nd launch file, used for p2024_3 -->
+  <!-- This is launched from: /smm_ros_gazebo_pkg/launch/smm_ros_gazebo_custom_control.launch -->
+  
+  <!-- -Init the master node that hosts the shared library for smm robot -->
+  <node pkg="smm_control" type="init_robot_shared" name="init_robot_shared" output="screen"/>
+  
+  <!-- Load the idosc controller with structure parameter -->
+  <node name="idosc_controller" pkg="smm_control" type="idosc" output="screen" respawn="false">
+    <param name="robot_structure" value="STRUCTURE_3_PSEUDOS"/>
+  </node>
+  
+  <!-- Here all smm structure parameters must be provide by user -->
+  <!-- [30-7-24] to bo done -->
+  
+</launch>
+

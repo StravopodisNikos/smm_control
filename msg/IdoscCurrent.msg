@@ -1,0 +1,2 @@
+geometry_msgs/Twist twist_cur
+geometry_msgs/Pose pose_cur

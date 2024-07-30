@@ -1,0 +1,25 @@
+smm_ros_gazebo:
+  joint_state_controller:
+    type: joint_state_controller/JointStateController
+    publish_rate: 50
+  joint1_effort_controller:
+    type: effort_controllers/JointEffortController
+    joint: base_plate__base_link
+    pid: {p: 100.0, i: 0.05, d: 10.0}
+  joint2_effort_controller:
+    type: effort_controllers/JointEffortController
+    joint: active_module_a_1__active_module_b_1
+    pid: {p: 100.0, i: 0.05, d: 10.0}
+  joint3_effort_controller:
+    type: effort_controllers/JointEffortController
+    joint: active_module_a_2__active_module_b_2
+    pid: {p: 100.0, i: 0.05, d: 10.0}
+  idosc:
+    type: smm_control/idosc
+    joints:
+      - base_plate__base_link
+      - active_module_a_1__active_module_b_1
+      - active_module_a_2__active_module_b_2
+    pd:
+      p: 400
+      d: 20
