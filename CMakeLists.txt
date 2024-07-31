@@ -10,6 +10,7 @@ project(smm_control)
 find_package(catkin REQUIRED COMPONENTS
   control_msgs
   controller_interface
+  controller_manager
   geometry_msgs
   hardware_interface
   pluginlib
@@ -124,7 +125,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
   LIBRARIES idosc # [30-7-24] Added for using idosc class as ROS library
-  CATKIN_DEPENDS control_msgs controller_interface geometry_msgs hardware_interface pluginlib roscpp rospy sensor_msgs smm_screws std_msgs message_runtime 
+  CATKIN_DEPENDS control_msgs controller_interface controller_manager geometry_msgs hardware_interface pluginlib roscpp rospy sensor_msgs smm_screws std_msgs message_runtime 
 #  DEPENDS system_lib
 )
 
@@ -148,7 +149,8 @@ include_directories(
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/smm_control.cpp
 # )
-add_library(idosc
+#add_library idosc
+add_library(smm_control_lib # [31-7-24] set idosc as library
 src/idosc.cpp
 )
 ## Add cmake target dependencies of the library
@@ -160,7 +162,7 @@ src/idosc.cpp
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/smm_control_node.cpp)
-add_executable(example_idosc src/example_idosc.cpp)
+add_executable(initialize_robot_shared src/initialize_robot_shared.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -176,11 +178,12 @@ add_executable(example_idosc src/example_idosc.cpp)
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
-target_link_libraries(idosc
+#target_link_libraries(idosc
+target_link_libraries(smm_control_lib
  ${catkin_LIBRARIES}
  robot_shared 
 ) 
-target_link_libraries(example_idosc
+target_link_libraries(initialize_robot_shared
  ${catkin_LIBRARIES}
  robot_shared 
 ) 
@@ -211,7 +214,8 @@ target_link_libraries(example_idosc
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
 # )
-install(TARGETS idosc
+#install(TARGETS idosc
+install(TARGETS smm_control_lib
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}

@@ -2,13 +2,23 @@
 
 namespace smm_control_ns
 {
+    idosc::idosc() : kin_(nullptr), dyn_(nullptr), smm_robot_(nullptr) {
+    }
+
+    idosc::~idosc() {
+        // Clean up if needed
+    }
+
     //bool idosc::init(hardware_interface::EffortJointInterface *hw, ros::NodeHandle &nh, robot_shared* robot_ptr)
-    bool idosc::init(hardware_interface::EffortJointInterface* hw, ros::NodeHandle& nh)
+    //bool idosc::init(hardware_interface::EffortJointInterface* hw, ros::NodeHandle& nh)
+bool idosc::init(hardware_interface::EffortJointInterface* hw, ros::NodeHandle& nh, robot_shared* robot_ptr)
     {
         nh_ = nh; // nh_("smm_ros_gazebo/idosc") ???
+        smm_robot_ = robot_ptr;
 
-        // Initialize the robot pointer
-        //smm_robot_ = robot_ptr;
+        // Initialize kinematics and dynamics libraries
+        kin_ = &smm_robot_->get_screws_kinematics_solver();
+        dyn_ = &smm_robot_->get_screws_dynamics_solver();
 
         // Initialize kinematics and dynamics libraries
         //if (!smm_robot_->initializeSharedLib()) {
@@ -17,6 +27,8 @@ namespace smm_control_ns
         //}
         //kin_ = &smm_robot_->get_screws_kinematics_solver();
         //dyn_ = &smm_robot_->get_screws_dynamics_solver();
+        
+        //smm_custom_init();
 
         // Load joint names from the parameter server
         if (!nh_.getParam("joints", joint_names_)) {
@@ -54,25 +66,45 @@ namespace smm_control_ns
         xd_.setZero(IDOSC_POS_DIM); dxd_.setZero(IDOSC_VEL_DIM); ddxd_.setZero(IDOSC_VEL_DIM);
         q_.setZero(IDOSC_POS_DIM); dq_.setZero(IDOSC_VEL_DIM);
         xe_.setZero(IDOSC_POS_DIM); dxe_.setZero(IDOSC_VEL_DIM);
-        X_.setZero(); Xhat_.setZero();
+        Xd_.setZero(); Xe_.setZero(); Xhat_.setZero();
 
         return true;
     }
 
-    bool idosc::smm_custom_init(robot_shared* robot_ptr) {
+    //bool idosc::smm_custom_init(robot_shared* robot_ptr) {
         // Initialize the robot pointer
-        smm_robot_ = robot_ptr;
+    //    smm_robot_ = robot_ptr;
 
         // Initialize kinematics and dynamics libraries
-        if (!smm_robot_->initializeSharedLib()) {
-            ROS_ERROR("[idosc/smm_custom_init] Failed to initialize shared library.");
-            return false;
-        }
-        kin_ = &smm_robot_->get_screws_kinematics_solver();
-        dyn_ = &smm_robot_->get_screws_dynamics_solver();
+    //    if (!smm_robot_->initializeSharedLib()) {
+    //        ROS_ERROR("[idosc/smm_custom_init] Failed to initialize shared library.");
+    //        return false;
+    //    }
+    //    kin_ = &smm_robot_->get_screws_kinematics_solver();
+    //    dyn_ = &smm_robot_->get_screws_dynamics_solver();
 
-        return true;
-    }
+
+    //    return true;
+    //}
+
+    //bool idosc::smm_custom_init() {
+        // Initialize the robot pointer
+    //    RobotAbstractBase* robot_ptr = new Structure3Pseudos();
+    //    robot_shared my_shared_lib(robot_ptr, nh_);
+        
+    //    smm_robot_ = &my_shared_lib;
+
+        // Initialize kinematics and dynamics libraries
+    //    if (!my_shared_lib.initializeSharedLib()) {
+    //        ROS_ERROR("[idosc/smm_custom_init] Failed to initialize shared library.");
+    //        return false;
+    //    }
+    //    ROS_ERROR("[idosc/smm_custom_init] Initialized Shared Library.");
+    //    kin_ = smm_robot_.get_screws_kinematics_solver();
+    //    dyn_ = my_shared_lib.get_screws_dynamics_solver();
+
+    //    return true;
+    //}
 
     void idosc::starting(const ros::Time &time)
     {
@@ -140,7 +172,7 @@ namespace smm_control_ns
     bool idosc::initializePDgains() {
         double kp, kd;
         if (!nh_.getParam("pd/p", kp) || !nh_.getParam("pd/d", kd)) {
-            ROS_ERROR("[IDOSC] Failed to get PD gains.");
+            ROS_ERROR("[idosc/initializePDgains] Failed to get PD gains.");
             return false;
         }
         Kp_.setIdentity();
@@ -165,8 +197,8 @@ namespace smm_control_ns
         }
 
         // Update kinematics and dynamics from smm_screws analytical tools
-        updateKinDynJointStates();
-        
+        //updateKinDynJointStates();
+
         // Compute the IDOSC
         compute_u_vector();
 
@@ -181,16 +213,62 @@ namespace smm_control_ns
     //    kinematic and dynamic classes for smm analytical calculations
     void idosc::updateKinDynJointStates() 
     {
-        kin_->updateJointState(qf_, dqf_);
-        dyn_->updateJointPos(qf_);
-        dyn_->updateJointVel(dqf_);
+        //kin_.updateJointState(qf_, dqf_);
+        //dyn_.updateJointPos(qf_);
+        //dyn_.updateJointVel(dqf_);
         return;
     }
 
+    // 3. updateErrorState. New desired and current states
+    //    must be previously updated
+    void idosc::updateErrorState() 
+    {
+        // Xe_ : updated from updateCurrentState
+        // Xd_ : updated from updateDesiredState
+        Xhat_  = Xd_ - Xe_;
 
-    //
+        for (int i = 0; i < 6; i++) {
+            ROS_INFO("[idosc/updateErrorState] Xhat [ %d ]: %f", i, Xhat_(i));
+        }
+
+        return;
+    }
+
+    // 3. updateErrorState. New desired and current states
+    //    must be previously updated
+    void idosc::updateCurrentState() 
+    {
+        // xe_ : updated from ScrewsKinematics::updatePositionTCP
+        // dxe_: updated from ScrewsKinematics::updateSpatialVelocityTCP
+        //xe_ = kin_.updatePositionTCP(qf_);
+
+        //kin_.ForwardKinematics3DOF_2();
+        //kin_.SpatialJacobian_Tool_1(kin_.ptr2Jsp1);
+        //dxe_ = kin_.updateSpatialVelocityTCP(qf_, dqf_);
+
+        Xe_.block<IDOSC_DOF,1>(0,0) = dxe_;
+        Xe_.block<IDOSC_DOF,1>(IDOSC_DOF,0) = xe_;
+        return;
+    }
+
+    void idosc::updateDesiredState() 
+    {
+        // xd_ : updated from idosc::desiredStateCallback
+        // dxd_: updated from idosc::desiredStateCallback
+        Xd_.block<IDOSC_DOF,1>(0,0) = dxd_;
+        Xd_.block<IDOSC_DOF,1>(IDOSC_DOF,0) = xd_;
+        return;
+    }
+
+    // 
     void idosc::compute_u_vector()
     {
+        updateKinDynJointStates(); // update {q,dq}
+
+        updateCurrentState();
+        updateDesiredState();
+        updateErrorState();
+
 
     }
 

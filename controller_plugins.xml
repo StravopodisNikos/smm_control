@@ -1,0 +1,5 @@
+<library path="lib/libsmm_control_lib">
+	<class name="smm_control/idosc"
+	       type="smm_control_ns::idosc"
+	       base_class_type="controller_interface::ControllerBase" />
+</library>

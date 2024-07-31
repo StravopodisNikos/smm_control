@@ -23,26 +23,37 @@ namespace smm_control_ns {
 
 class idosc : public controller_interface::Controller<hardware_interface::EffortJointInterface> {
 public:
-    //idosc(); 
-    //~idosc(); 
+    idosc(); 
+    ~idosc(); 
 
     //bool init(hardware_interface::EffortJointInterface *hw, ros::NodeHandle &nh, robot_shared* robot_ptr) override;
-    bool init(hardware_interface::EffortJointInterface* hw, ros::NodeHandle& nh) override;
-    bool smm_custom_init(robot_shared* robot_ptr);
+    //bool init(hardware_interface::EffortJointInterface* hw, ros::NodeHandle& nh) override;
+    bool init(hardware_interface::EffortJointInterface *hw, ros::NodeHandle &nh, robot_shared* robot_ptr);
+    //bool smm_custom_init(robot_shared* robot_ptr);
+    //bool smm_custom_init();
 
     void starting(const ros::Time &time) override;
     void update(const ros::Time &time, const ros::Duration &period) override;
     void stopping(const ros::Time &time) override;
 
+    //void setSharedLib(std::shared_ptr<ScrewsKinematics> kin, std::shared_ptr<ScrewsDynamics> dyn);
+
 private:
     void jointStateCallback(const sensor_msgs::JointState::ConstPtr& msg);
     void desiredStateCallback(const smm_control::IdoscDesired::ConstPtr& msg);
-    void compute_u_vector();
     void publishIdoscError();
     void publishIdoscCurrent();
-    bool initializePDgains();
 
+    // Initialization from ROS Parameter Service
+    bool initializePDgains();
+    
+    // Functions for torques calculation
     void updateKinDynJointStates();
+    void updateErrorState();
+    void updateCurrentState();
+    void updateDesiredState();
+
+    void compute_u_vector();
 
     ros::NodeHandle nh_;  // Private NodeHandle
 
@@ -66,7 +77,7 @@ private:
     float dqf_[IDOSC_DOF];
     Eigen::Vector3f xe_, dxe_; // current tcp pos-vel
     Eigen::Vector3f xd_, dxd_, ddxd_; // desired tcp pos-vel-accel
-    Eigen::Matrix<float, IDOSC_STATE_DIM, 1> X_, Xhat_; // idosc state vectors
+    Eigen::Matrix<float, IDOSC_STATE_DIM, 1> Xhat_, Xd_, Xe_; // idosc state vectors
     Eigen::Matrix3f Kp_, Kd_; // gain matrices of idosc internal dynamics in y vector calculation
     size_t num_joints_;
     std::vector<std::string> joint_names_;
