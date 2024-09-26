@@ -39,7 +39,7 @@ public:
     //void setSharedLib(std::shared_ptr<ScrewsKinematics> kin, std::shared_ptr<ScrewsDynamics> dyn);
 
 private:
-    void jointStateCallback(const sensor_msgs::JointState::ConstPtr& msg);
+    //void jointStateCallback(const sensor_msgs::JointState::ConstPtr& msg);
     void desiredStateCallback(const smm_control::IdoscDesired::ConstPtr& msg);
     void publishIdoscError();
     void publishIdoscCurrent();
@@ -55,10 +55,24 @@ private:
 
     void compute_u_vector();
 
+    //void setCommandCB(const std_msgs::Float64ConstPtr& msg);
+
     ros::NodeHandle nh_;  // Private NodeHandle
 
     // Handles to the joints
+    std::vector<std::string> joint_names_;
     std::vector<hardware_interface::JointHandle> joint_handles_;
+    /*
+    hardware_interface::JointHandle joint1_;
+    hardware_interface::JointHandle joint2_;
+    hardware_interface::JointHandle joint3_;
+    float command1_;
+    float command2_;
+    float command3_;
+    ros::Subscriber sub_command1_;
+    ros::Subscriber sub_command2_;
+    ros::Subscriber sub_command3_;
+*/
 
     // ROS interfaces
     ros::Subscriber joint_state_sub_;           // reads q,dq from robot
@@ -80,7 +94,7 @@ private:
     Eigen::Matrix<float, IDOSC_STATE_DIM, 1> Xhat_, Xd_, Xe_; // idosc state vectors
     Eigen::Matrix3f Kp_, Kd_; // gain matrices of idosc internal dynamics in y vector calculation
     size_t num_joints_;
-    std::vector<std::string> joint_names_;
+    
 };
 
 } // namespace smm_control

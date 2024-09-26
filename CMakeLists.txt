@@ -90,7 +90,7 @@ add_message_files(
 generate_messages(
   DEPENDENCIES
   std_msgs
-  geometry_msgs # for IdoscError
+  geometry_msgs # for IdoscError/Current/Desired
 )
 
 ################################################
@@ -163,7 +163,8 @@ src/idosc.cpp
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/smm_control_node.cpp)
 add_executable(initialize_robot_shared src/initialize_robot_shared.cpp)
-
+add_executable(updateJointState_idosc_simple src/updateJointState_idosc_simple.cpp)
+add_executable(updateCartesianState_idosc_simple src/updateCartesianState_idosc_simple.cpp)
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -173,6 +174,7 @@ add_executable(initialize_robot_shared src/initialize_robot_shared.cpp)
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(updateCartesianState_idosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
@@ -184,6 +186,14 @@ target_link_libraries(smm_control_lib
  robot_shared 
 ) 
 target_link_libraries(initialize_robot_shared
+ ${catkin_LIBRARIES}
+ robot_shared 
+) 
+target_link_libraries(updateJointState_idosc_simple
+ ${catkin_LIBRARIES}
+ robot_shared 
+) 
+target_link_libraries(updateCartesianState_idosc_simple
  ${catkin_LIBRARIES}
  robot_shared 
 ) 

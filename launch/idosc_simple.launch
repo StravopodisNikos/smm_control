@@ -1,0 +1,58 @@
+<?xml version="1.0" ?>
+<!-- [25-9-24] Constructed for simulating a 3 DoF SMM, with 3 joint effort controllers && idosc centralized node -->
+<!--           - idosc_master node executes the "update" function and publishes the joint torques 
+               - the controller yaml is located in the ros_pkg of the robot xacro file: smm_ros_gazebo_pkg
+-->
+     
+<launch>
+    <!-- I. Init Gazebo with robot and all controller settings for Gazebo -->
+    
+    <!-- Params of preference -->
+    <arg name="paused" default="false"/>
+    <arg name="use_sim_time" default="true"/>
+    <arg name="gui" default="true"/>
+    <arg name="headless" default="false"/>
+    <arg name="debug" default="false"/>
+
+    <!-- Start Gazebo with empty_world.launch -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="debug" value="$(arg debug)" />
+        <arg name="gui" value="$(arg gui)" />
+        <arg name="paused" value="$(arg paused)"/>
+        <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+        <arg name="headless" value="$(arg headless)"/>
+        <arg name="verbose" value="true"/>
+    </include>
+    
+    <!-- Load the robot 3D model -->
+    <!-- Added xacro input for robot model-->	
+    <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find smm_ros_gazebo_pkg)/xacro/smm_ros_gazebo.xacro'" />
+    
+    <!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
+    <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+        args="-urdf -model smm_ros_gazebo -param robot_description"/>
+
+    <!-- load the controllers -->
+    <!-- First load the controller parameter file. This file defines the standard pid controllers -->
+    <rosparam file="$(find smm_ros_gazebo_pkg)/config/yaml/smm_ros_gazebo_controllers.yaml" command="load"/>
+    <!-- Spawn the controllers in gazebo-->
+    <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+        output="screen" ns="smm_ros_gazebo" args="joint_state_controller
+                        joint1_effort_controller
+                        joint2_effort_controller
+                        joint3_effort_controller"/>
+
+    <!-- Node to publish Gazebo robot joint states -->
+    <node name="joint_state_publisher_gui" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" />
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
+        respawn="false" output="screen">
+        <remap from="/joint_states" to="/smm_ros_gazebo/joint_states" />
+    </node>
+
+    <!-- Node that generates the topic /joint_current_state -->
+    <node name="updateJointState_idosc_simple" pkg="smm_control" type="updateJointState_idosc_simple" output="screen" />
+
+    <!-- Node that generates the topic /cartesian_current_state -->
+    <node name="updateCartesianState_idosc_simple" pkg="smm_control" type="updateCartesianState_idosc_simple" output="screen" />
+
+</launch>

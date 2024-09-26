@@ -13,31 +13,27 @@ namespace smm_control_ns
     //bool idosc::init(hardware_interface::EffortJointInterface* hw, ros::NodeHandle& nh)
 bool idosc::init(hardware_interface::EffortJointInterface* hw, ros::NodeHandle& nh, robot_shared* robot_ptr)
     {
+        ROS_INFO("[idosc/init] Starting initialization of idosc...");
+
+        // 1. Start with nodehandle and shared class pointer
         nh_ = nh; // nh_("smm_ros_gazebo/idosc") ???
         smm_robot_ = robot_ptr;
 
-        // Initialize kinematics and dynamics libraries
+        // 2. Initialize pointers to kinematics and dynamics libraries solvers
         kin_ = &smm_robot_->get_screws_kinematics_solver();
         dyn_ = &smm_robot_->get_screws_dynamics_solver();
 
-        // Initialize kinematics and dynamics libraries
-        //if (!smm_robot_->initializeSharedLib()) {
-        //    ROS_ERROR("[idosc-init] Failed to initialize shared library.");
-        //    return false;
-        //}
-        //kin_ = &smm_robot_->get_screws_kinematics_solver();
-        //dyn_ = &smm_robot_->get_screws_dynamics_solver();
-        
-        //smm_custom_init();
-
-        // Load joint names from the parameter server
-        if (!nh_.getParam("joints", joint_names_)) {
+        // 3. Load joint names from the parameter server
+        if (!nh_.getParam("/smm_ros_gazebo/idosc/joints", joint_names_)) {
             ROS_ERROR("[idosc/init] No 'joints' parameter in namespace: %s", nh_.getNamespace().c_str());
             return false;
+        } else {
+            ROS_INFO("[idosc/init] Joint names loaded from ROS PARAMETER SERVER");
         }
         num_joints_ = joint_names_.size();
+        ROS_INFO("[idosc/init] SMM TOTAL JOINTS : %zu", num_joints_ );
 
-        // Assign joint to hardware
+        // 4. Assign joint to hardware
         for (const auto &joint_name : joint_names_) {
             try {
                 joint_handles_.push_back(hw->getHandle(joint_name));
@@ -47,7 +43,17 @@ bool idosc::init(hardware_interface::EffortJointInterface* hw, ros::NodeHandle& 
             }
         }
 
+        // 5. Print initial robot joints' positions/velocities
+        for (size_t i = 0; i < num_joints_; ++i) {
+            q_[i] = joint_handles_[i].getPosition();
+            dq_[i] = joint_handles_[i].getVelocity();
+            ROS_INFO("[idosc/init] Joint [%zu] Pos: [%f]  Vel: [%f]", num_joints_, q_[i], dq_[i] );
+        }
+
         // Assign current position to 1st command (retain position in initialization)
+        //command1_ = q_[0];
+        //command2_ = q_[1];
+        //command3_ = q_[2];
 
         // Assign the gain matrices
         if (!initializePDgains()) {
@@ -55,8 +61,11 @@ bool idosc::init(hardware_interface::EffortJointInterface* hw, ros::NodeHandle& 
             return false;
         }
 
+        // Initialize command subscribers
+        //sub_command1_ = nh_.subscribe<std_msgs::Float64>("command1", 1, &idosc::setCommandCB, this);
+
         // Initialize subscribers and publisher
-        joint_state_sub_ = nh_.subscribe("/joint_states", 10, &idosc::jointStateCallback, this);
+        //joint_state_sub_ = nh_.subscribe("/joint_states", 10, &idosc::jointStateCallback, this);
         desired_tcp_state_sub_ = nh_.subscribe("/desired_tcp_state", 10, &idosc::desiredStateCallback, this);
         
         idosc_error_pub_ = nh_.advertise<smm_control::IdoscError>("/idosc_error_state", 10);
@@ -105,7 +114,12 @@ bool idosc::init(hardware_interface::EffortJointInterface* hw, ros::NodeHandle& 
 
     //    return true;
     //}
-
+    /*
+    void idosc::setCommandCB(const std_msgs::Float64ConstPtr& msg)
+    {
+        command1_ = msg-> data;
+    }
+    */
     void idosc::starting(const ros::Time &time)
     {
         // Initialize the controller (e.g., reset error integrators, etc.)
@@ -118,6 +132,7 @@ bool idosc::init(hardware_interface::EffortJointInterface* hw, ros::NodeHandle& 
         // Perform clean-up actions if necessary
     }
 
+/*
     void idosc::jointStateCallback(const sensor_msgs::JointState::ConstPtr& msg)
     {
         for (size_t i = 0; i < num_joints_; ++i)
@@ -128,7 +143,14 @@ bool idosc::init(hardware_interface::EffortJointInterface* hw, ros::NodeHandle& 
             qf_[i] = static_cast<float>(q_[i]);
             dqf_[i] = static_cast<float>(dq_[i]);
         }
+        for (int i = 0; i < IDOSC_DOF; i++) {
+            ROS_INFO("[idosc/jointStateCallback] q[ %d ]: %f", i+1, qf_[i]);
+        }
+        for (int i = 0; i < IDOSC_DOF; i++) {
+            ROS_INFO("[idosc/jointStateCallback] dq[ %d ]: %f", i+1, dqf_[i]);
+        }        
     }
+*/
 
     void idosc::desiredStateCallback(const smm_control::IdoscDesired::ConstPtr& msg)
     {
@@ -171,7 +193,7 @@ bool idosc::init(hardware_interface::EffortJointInterface* hw, ros::NodeHandle& 
 
     bool idosc::initializePDgains() {
         double kp, kd;
-        if (!nh_.getParam("pd/p", kp) || !nh_.getParam("pd/d", kd)) {
+        if (!nh_.getParam("/smm_ros_gazebo/idosc/pd/p", kp) || !nh_.getParam("/smm_ros_gazebo/idosc/pd/d", kd)) {
             ROS_ERROR("[idosc/initializePDgains] Failed to get PD gains.");
             return false;
         }
@@ -194,10 +216,13 @@ bool idosc::init(hardware_interface::EffortJointInterface* hw, ros::NodeHandle& 
         {
             q[i] = joint_handles_[i].getPosition();
             dq[i] = joint_handles_[i].getVelocity();
+
+            qf_[i] = static_cast<float>(q_[i]);
+            dqf_[i] = static_cast<float>(dq_[i]);            
         }
 
         // Update kinematics and dynamics from smm_screws analytical tools
-        //updateKinDynJointStates();
+        updateKinDynJointStates();
 
         // Compute the IDOSC
         compute_u_vector();
@@ -205,17 +230,17 @@ bool idosc::init(hardware_interface::EffortJointInterface* hw, ros::NodeHandle& 
         // Publish torques to joint controllers
         
         // Publish the error/current states
-        publishIdoscError();
-        publishIdoscCurrent();
+        //publishIdoscError();
+        //publishIdoscCurrent();
     }
 
     // 2. updateKinDynJointStates: inserts the {q,dq} to the custom 
     //    kinematic and dynamic classes for smm analytical calculations
     void idosc::updateKinDynJointStates() 
     {
-        //kin_.updateJointState(qf_, dqf_);
-        //dyn_.updateJointPos(qf_);
-        //dyn_.updateJointVel(dqf_);
+        kin_->updateJointState(qf_, dqf_);
+        //dyn_->updateJointPos(qf_);
+        //dyn_->updateJointVel(dqf_);
         return;
     }
 
@@ -227,9 +252,9 @@ bool idosc::init(hardware_interface::EffortJointInterface* hw, ros::NodeHandle& 
         // Xd_ : updated from updateDesiredState
         Xhat_  = Xd_ - Xe_;
 
-        for (int i = 0; i < 6; i++) {
-            ROS_INFO("[idosc/updateErrorState] Xhat [ %d ]: %f", i, Xhat_(i));
-        }
+        //for (int i = 0; i < IDOSC_STATE_DIM; i++) {
+        //    ROS_INFO("[idosc/updateErrorState] Xhat [ %d ]: %f", i, Xhat_(i));
+        //}
 
         return;
     }
@@ -240,11 +265,11 @@ bool idosc::init(hardware_interface::EffortJointInterface* hw, ros::NodeHandle& 
     {
         // xe_ : updated from ScrewsKinematics::updatePositionTCP
         // dxe_: updated from ScrewsKinematics::updateSpatialVelocityTCP
-        //xe_ = kin_.updatePositionTCP(qf_);
+        //xe_ = kin_->updatePositionTCP(qf_);
 
-        //kin_.ForwardKinematics3DOF_2();
-        //kin_.SpatialJacobian_Tool_1(kin_.ptr2Jsp1);
-        //dxe_ = kin_.updateSpatialVelocityTCP(qf_, dqf_);
+        //kin_->ForwardKinematics3DOF_2();
+        //kin_->SpatialJacobian_Tool_1(kin_->ptr2Jsp1);
+        //dxe_ = kin_->updateSpatialVelocityTCP(qf_, dqf_);
 
         Xe_.block<IDOSC_DOF,1>(0,0) = dxe_;
         Xe_.block<IDOSC_DOF,1>(IDOSC_DOF,0) = xe_;
