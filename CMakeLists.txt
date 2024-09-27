@@ -165,6 +165,10 @@ src/idosc.cpp
 add_executable(initialize_robot_shared src/initialize_robot_shared.cpp)
 add_executable(updateJointState_idosc_simple src/updateJointState_idosc_simple.cpp)
 add_executable(updateCartesianState_idosc_simple src/updateCartesianState_idosc_simple.cpp)
+add_executable(publishCartesianPath_idosc_simple src/publishCartesianPath_idosc_simple.cpp)
+add_executable(updateErrorState_idosc_simple src/updateErrorState_idosc_simple.cpp)
+add_executable(updateToolJacobian src/updateToolJacobian.cpp)
+
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -175,6 +179,9 @@ add_executable(updateCartesianState_idosc_simple src/updateCartesianState_idosc_
 ## same as for the library above
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(updateCartesianState_idosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(publishCartesianPath_idosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(updateErrorState_idosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(updateToolJacobian ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
@@ -197,6 +204,18 @@ target_link_libraries(updateCartesianState_idosc_simple
  ${catkin_LIBRARIES}
  robot_shared 
 ) 
+target_link_libraries(publishCartesianPath_idosc_simple
+ ${catkin_LIBRARIES}
+ robot_shared 
+)
+target_link_libraries(updateErrorState_idosc_simple
+ ${catkin_LIBRARIES}
+ robot_shared 
+)
+target_link_libraries(updateToolJacobian
+ ${catkin_LIBRARIES}
+ robot_shared 
+)
 #############
 ## Install ##
 #############

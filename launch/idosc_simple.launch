@@ -8,7 +8,7 @@
     <!-- I. Init Gazebo with robot and all controller settings for Gazebo -->
     
     <!-- Params of preference -->
-    <arg name="paused" default="false"/>
+    <arg name="paused" default="true"/>
     <arg name="use_sim_time" default="true"/>
     <arg name="gui" default="true"/>
     <arg name="headless" default="false"/>
@@ -52,7 +52,17 @@
     <!-- Node that generates the topic /joint_current_state -->
     <node name="updateJointState_idosc_simple" pkg="smm_control" type="updateJointState_idosc_simple" output="screen" />
 
-    <!-- Node that generates the topic /cartesian_current_state -->
+        <!-- Analytical Kinematics using screws /joint_current_state -->
+        <node name="updateToolJacobian" pkg="smm_control" type="updateToolJacobian" output="screen" />
+
+    <!-- Node that generates the topic /tcp_current_state -->
     <node name="updateCartesianState_idosc_simple" pkg="smm_control" type="updateCartesianState_idosc_simple" output="screen" />
+
+    <!-- Node that publishes to /tcp_desired_state -->
+    <rosparam file="$(find smm_control)/config/yaml/paths/path_reid16.yaml" command="load"/>
+    <node name="publishCartesianPath_idosc_simple" pkg="smm_control" type="publishCartesianPath_idosc_simple" output="screen" />
+
+    <!-- Node that publishes to /idosc_error_state -->
+    <node name="updateErrorState_idosc_simple" pkg="smm_control" type="updateErrorState_idosc_simple" output="screen" />
 
 </launch>

@@ -1,0 +1,15 @@
+waypoints: # cartesian {x,y,z} in [m]
+  names: [waypoint_0,waypoint_1,waypoint_2]
+  waypoint_0: [0.1572, -0.2925, 0.5708]  # gst_1|pos
+  waypoint_1: [0.0363, -0.1290, 0.5746]  # gst_2|pos
+  waypoint_2: [-0.0508, -0.1685, 0.5756] # gst_3|pos
+velocities: # cartesian {x,y,z} in [m/s]
+  names: [velocity_0,velocity_1,velocity_2]
+  velocity_0: [0.0000, 0.0000, 0.0000]
+  velocity_1: [0.0000, 0.0000, 0.0000]
+  velocity_2: [0.0000, 0.0000, 0.0000]
+configurations: # joint space {q1,q2,q3} in [rad]
+  names: [configuration_0,configuration_1,configuration_2]
+  configuration_0: [0.4178, 0.6866, 0.3692]   # n_0=1
+  configuration_1: [0.0865, 1.3307, -0.3122]  # n_1=10
+  configuration_2: [-0.4351, 1.1903, -0.2139] # n_2=15

@@ -28,11 +28,11 @@ void idosc_simple_JointStateCallback(const sensor_msgs::JointState::ConstPtr& jo
     //ROS_INFO("[updateCartesianState_idosc_simple/idosc_simple_JointStateCallback] Updating joint states and velocities");
 
     // Update joint states
-    smm_robot_kin_solver.updateJointState(q, dq);
+    //smm_robot_kin_solver.updateJointState(q, dq);
 
     // Extract and publish the TCP spatial position [tcp_pos = xe]
     tcp_pos = smm_robot_kin_solver.updatePositionTCP(q);
-    ROS_INFO("[idosc_simple_JointStateCallback] TCP Position: x: %f, y: %f, z: %f", tcp_pos.x(), tcp_pos.y(), tcp_pos.z());
+    ROS_INFO("[updateCartesianState_idosc_simple/idosc_simple_JointStateCallback] TCP Position: x: %f, y: %f, z: %f", tcp_pos.x(), tcp_pos.y(), tcp_pos.z());
     //smm_robot_viz_solver.publishTCPpos(tcp_pos);
 
     // Extract and publish the Active Twists
@@ -42,7 +42,7 @@ void idosc_simple_JointStateCallback(const sensor_msgs::JointState::ConstPtr& jo
     // Extract and publish the TCP spatial velocity [tcp_vel = dxe]
     smm_robot_kin_solver.SpatialJacobian_Tool_1(smm_robot_kin_solver.ptr2Jsp1);
     tcp_vel = smm_robot_kin_solver.updateSpatialVelocityTCP(q, dq);
-    ROS_INFO("[idosc_simple_JointStateCallback] TCP Velocity: x: %f, y: %f, z: %f", tcp_vel.x(), tcp_vel.y(), tcp_vel.z());
+    ROS_INFO("[updateCartesianState_idosc_simple/idosc_simple_JointStateCallback] TCP Velocity: x: %f, y: %f, z: %f", tcp_vel.x(), tcp_vel.y(), tcp_vel.z());
     //smm_robot_viz_solver.publishTCPvel(tcp_pos,tcp_vel);
 }
 
@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
     );
 
     // Define publisher for custom IdoscCurrent message
-    ros::Publisher idosc_cartesian_current_state_pub = nh.advertise<smm_control::IdoscCurrent>("/cartesian_current_state", 10);
+    ros::Publisher idosc_cartesian_current_state_pub = nh.advertise<smm_control::IdoscCurrent>("/tcp_current_state", 10);
 
     // Run in loop
     ros::Rate loop_rate(10);
