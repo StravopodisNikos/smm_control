@@ -53,7 +53,7 @@
     <node name="updateJointState_idosc_simple" pkg="smm_control" type="updateJointState_idosc_simple" output="screen" />
 
         <!-- Analytical Kinematics using screws /joint_current_state -->
-        <node name="updateToolJacobian" pkg="smm_control" type="updateToolJacobian" output="screen" />
+        <node name="updateToolJacobians" pkg="smm_control" type="updateToolJacobians" output="screen" />
 
     <!-- Node that generates the topic /tcp_current_state -->
     <node name="updateCartesianState_idosc_simple" pkg="smm_control" type="updateCartesianState_idosc_simple" output="screen" />
@@ -65,4 +65,9 @@
     <!-- Node that publishes to /idosc_error_state -->
     <node name="updateErrorState_idosc_simple" pkg="smm_control" type="updateErrorState_idosc_simple" output="screen" />
 
+    <!-- Launch your node -->
+    <node name="updateGains_idosc_simple" pkg="smm_control" type="updateGains_idosc_simple" output="screen" />
+
+        <!-- Launch rqt_reconfigure for manual gain setting -->
+        <!--<node name="rqt_reconfigure" pkg="rqt_reconfigure" type="rqt_reconfigure" output="screen" />-->
 </launch>

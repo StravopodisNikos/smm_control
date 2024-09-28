@@ -60,9 +60,10 @@
   <build_depend>sensor_msgs</build_depend>
   <build_depend>smm_screws</build_depend>
   <build_depend>std_msgs</build_depend>
+  <build_depend>dynamic_reconfigure</build_depend>
   <build_export_depend>control_msgs</build_export_depend>
   <build_export_depend>controller_interface</build_export_depend>
-    <build_export_depend>controller_manager</build_export_depend>
+  <build_export_depend>controller_manager</build_export_depend>
   <build_export_depend>geometry_msgs</build_export_depend>
   <build_export_depend>hardware_interface</build_export_depend>
   <build_export_depend>pluginlib</build_export_depend>
@@ -82,7 +83,7 @@
   <exec_depend>sensor_msgs</exec_depend>
   <exec_depend>smm_screws</exec_depend>
   <exec_depend>std_msgs</exec_depend>
-
+  <exec_depend>dynamic_reconfigure</exec_depend>
   <!-- [29-7-24] Added for custom  messages -->
   <build_depend>message_generation</build_depend>
   <build_export_depend>message_generation</build_export_depend>
