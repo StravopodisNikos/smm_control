@@ -43,7 +43,7 @@
                         joint3_effort_controller"/>
 
     <!-- Node to publish Gazebo robot joint states -->
-    <node name="joint_state_publisher_gui" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" />
+    <!--<node name="joint_state_publisher_gui" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" /> -->
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
         respawn="false" output="screen">
         <remap from="/joint_states" to="/smm_ros_gazebo/joint_states" />
@@ -52,8 +52,11 @@
     <!-- Node that generates the topic /joint_current_state -->
     <node name="updateJointState_idosc_simple" pkg="smm_control" type="updateJointState_idosc_simple" output="screen" />
 
-        <!-- Analytical Kinematics using screws /joint_current_state -->
-        <node name="updateToolJacobians" pkg="smm_control" type="updateToolJacobians" output="screen" />
+        <!-- Analytical Kinematics/Jacobians using screws @ /joint_current_state -->
+        <node name="serverToolJacobians" pkg="smm_control" type="serverToolJacobians" output="screen" />
+
+        <!-- Analytical Dynamics using screws @ /joint_current_state -->
+        <!--<node name="updateDynamics" pkg="smm_control" type="updateDynamcis" output="screen" /> -->
 
     <!-- Node that generates the topic /tcp_current_state -->
     <node name="updateCartesianState_idosc_simple" pkg="smm_control" type="updateCartesianState_idosc_simple" output="screen" />
@@ -65,9 +68,15 @@
     <!-- Node that publishes to /idosc_error_state -->
     <node name="updateErrorState_idosc_simple" pkg="smm_control" type="updateErrorState_idosc_simple" output="screen" />
 
-    <!-- Launch your node -->
+    <!-- Launch node for controller gains setting -->
     <node name="updateGains_idosc_simple" pkg="smm_control" type="updateGains_idosc_simple" output="screen" />
 
-        <!-- Launch rqt_reconfigure for manual gain setting -->
+        <!-- Manual launch: rqt_reconfigure for manual gain setting -->
         <!--<node name="rqt_reconfigure" pkg="rqt_reconfigure" type="rqt_reconfigure" output="screen" />-->
+    
+    <!-- Launch controller node-->
+    <node name="updateControlOutput_idosc_simple" pkg="smm_control" type="updateControlOutput_idosc_simple" output="screen" >
+        <param name="rosconsole_config_file" value="$(find smm_control)/config/rosconsole.config"/>
+    </node>
+
 </launch>

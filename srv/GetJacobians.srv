@@ -1,0 +1,7 @@
+bool get_op_jacobian          # Flag to request operational Jacobian
+bool get_inv_op_jacobian      # Flag to request inverse operational Jacobian
+bool get_dt_op_jacobian       # Flag to request time derivative of operational Jacobian
+---
+float32[9] op_jacobian        # 3x3 operational Jacobian, row-major
+float32[9] inv_op_jacobian    # 3x3 inverse operational Jacobian, row-major
+float32[9] dt_op_jacobian     # 3x3 time derivative of operational Jacobian, row-major

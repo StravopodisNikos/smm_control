@@ -68,6 +68,7 @@ add_message_files(
   IdoscDesired.msg 
   IdoscCurrent.msg 
   IdoscGainMatrices.msg
+  IdoscControlOutput.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -76,6 +77,10 @@ add_message_files(
 #   Service1.srv
 #   Service2.srv
 # )
+add_service_files(
+  FILES
+  GetJacobians.srv
+)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -172,8 +177,10 @@ add_executable(updateJointState_idosc_simple src/updateJointState_idosc_simple.c
 add_executable(updateCartesianState_idosc_simple src/updateCartesianState_idosc_simple.cpp)
 add_executable(publishCartesianPath_idosc_simple src/publishCartesianPath_idosc_simple.cpp)
 add_executable(updateErrorState_idosc_simple src/updateErrorState_idosc_simple.cpp)
-add_executable(updateToolJacobians src/updateToolJacobians.cpp)
+#add_executable(updateToolJacobians src/updateToolJacobians.cpp) ##DEPRECATED##
+add_executable(serverToolJacobians src/serverToolJacobians.cpp)
 add_executable(updateGains_idosc_simple src/updateGains_idosc_simple.cpp)
+add_executable(updateControlOutput_idosc_simple src/updateControlOutput_idosc_simple.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -187,9 +194,10 @@ add_executable(updateGains_idosc_simple src/updateGains_idosc_simple.cpp)
 add_dependencies(updateCartesianState_idosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(publishCartesianPath_idosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(updateErrorState_idosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_dependencies(updateToolJacobians ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-#add_dependencies(updateGains_idosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(serverToolJacobians ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(updateGains_idosc_simple ${PROJECT_NAME}_gencfg)
+add_dependencies(updateControlOutput_idosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
@@ -219,11 +227,15 @@ target_link_libraries(updateErrorState_idosc_simple
  ${catkin_LIBRARIES}
  robot_shared 
 )
-target_link_libraries(updateToolJacobians
+target_link_libraries(serverToolJacobians
  ${catkin_LIBRARIES}
  robot_shared 
 )
 target_link_libraries(updateGains_idosc_simple
+ ${catkin_LIBRARIES}
+ robot_shared 
+)
+target_link_libraries(updateControlOutput_idosc_simple
  ${catkin_LIBRARIES}
  robot_shared 
 )
