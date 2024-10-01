@@ -13,6 +13,10 @@
     <arg name="gui" default="true"/>
     <arg name="headless" default="false"/>
     <arg name="debug" default="false"/>
+  
+    <arg name="j1_init_pos" value="0.4178" />
+    <arg name="j2_init_pos" value="0.6866" /> 
+    <arg name="j3_init_pos" value="0.3692" /> 
 
     <!-- Start Gazebo with empty_world.launch -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
@@ -29,8 +33,11 @@
     <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find smm_ros_gazebo_pkg)/xacro/smm_ros_gazebo.xacro'" />
     
     <!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
-    <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
-        args="-urdf -model smm_ros_gazebo -param robot_description"/>
+    <!-- <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+        args="-urdf -model smm_ros_gazebo -param robot_description"/> -->
+
+	<node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+	    args="-urdf -model smm_ros_gazebo -param robot_description -J base_plate__base_link $(arg j1_init_pos) -J active_module_a_1__active_module_b_1 $(arg j2_init_pos) -J active_module_a_2__active_module_b_2 $(arg j3_init_pos)"/> 
 
     <!-- load the controllers -->
     <!-- First load the controller parameter file. This file defines the standard pid controllers -->
@@ -56,7 +63,7 @@
         <node name="serverToolJacobians" pkg="smm_control" type="serverToolJacobians" output="screen" />
 
         <!-- Analytical Dynamics using screws @ /joint_current_state -->
-        <!--<node name="updateDynamics" pkg="smm_control" type="updateDynamcis" output="screen" /> -->
+        <node name="serverRobotDynamics" pkg="smm_control" type="serverRobotDynamics" output="screen" /> -->
 
     <!-- Node that generates the topic /tcp_current_state -->
     <node name="updateCartesianState_idosc_simple" pkg="smm_control" type="updateCartesianState_idosc_simple" output="screen" />
@@ -79,4 +86,11 @@
         <param name="rosconsole_config_file" value="$(find smm_control)/config/rosconsole.config"/>
     </node>
 
+    <!-- Launch torque publisher node-->
+    <node name="updateTorques_idosc_simple" pkg="smm_control" type="updateTorques_idosc_simple" output="screen" >
+        <param name="rosconsole_config_file" value="$(find smm_control)/config/rosconsole.config"/>
+    </node>
+
+    <!-- Robot joints effort publisher node-->
+    <node name="robot_effort_publisher" pkg="smm_control" type="robot_effort_publisher" output="screen" />
 </launch>

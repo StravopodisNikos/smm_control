@@ -13,6 +13,7 @@ std::mutex jacobian_mutex;  // Mutex for protecting Jacobian updates
  *  [30-9-24] Calculates all task-space Jacobians. Don't change sequence of method calls!
  *            Implements rosservice. Here all operational jacobians are calculated
  */
+
 void JointStateCallback(const sensor_msgs::JointState::ConstPtr& joint_state, ScrewsKinematics& smm_robot_kin_solver) {
     if (joint_state->position.size() < DOF || joint_state->velocity.size() < DOF) {
         ROS_WARN("[serverToolJacobians/JointStateCallback] Expected 3 joint positions and velocities, received %zu positions and %zu velocities", 

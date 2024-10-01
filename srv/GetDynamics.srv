@@ -1,0 +1,7 @@
+bool get_Mass          # Flag to request Mass matrix
+bool get_Coriolis      # Flag to request Coriolis matrix
+bool get_Gravity       # Flag to request Gravity vector
+---
+float32[9] Mass        # 3x3 operational Jacobian, row-major
+float32[9] Coriolis   # 3x3 inverse operational Jacobian, row-major
+float32[3] Gravity    # 3x3 time derivative of operational Jacobian, row-major

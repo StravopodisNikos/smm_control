@@ -43,7 +43,7 @@ bool getJacobiansFromService(ros::NodeHandle& nh, bool get_op, bool get_inv_op, 
                     _iJop(i, j) = srv.response.inv_op_jacobian[i * 3 + j];
                 }
             }
-            ROS_INFO("[updateControlOutput_idosc_simple/getJacobiansFromService] Inverse Operational Jacobian retrieved.");
+            //ROS_INFO("[updateControlOutput_idosc_simple/getJacobiansFromService] Inverse Operational Jacobian retrieved.");
         }
         if (get_dt_op) {
             // Convert the flat array back to 3x3 matrix
@@ -52,7 +52,7 @@ bool getJacobiansFromService(ros::NodeHandle& nh, bool get_op, bool get_inv_op, 
                     _dtJop(i, j) = srv.response.dt_op_jacobian[i * 3 + j];
                 }
             }
-            ROS_INFO("[updateControlOutput_idosc_simple/getJacobiansFromService] Time Derivative of Operational Jacobian retrieved.");
+            //ROS_INFO("[updateControlOutput_idosc_simple/getJacobiansFromService] Time Derivative of Operational Jacobian retrieved.");
         }
         return true;
     } else {
@@ -107,6 +107,7 @@ void computeControlOutput(ros::NodeHandle& nh) {
     
     getJacobiansFromService(nh, false, true, true);
 
+/*
     ROS_INFO("[updateControlOutput_idosc_simple/computeControlOutput] Inverse Jacobian:\n%f %f %f\n%f %f %f\n%f %f %f",
               _iJop(0, 0), _iJop(0, 1), _iJop(0, 2),
               _iJop(1, 0), _iJop(1, 1), _iJop(1, 2),
@@ -116,7 +117,7 @@ void computeControlOutput(ros::NodeHandle& nh) {
               _dtJop(0, 0), _dtJop(0, 1), _dtJop(0, 2),
               _dtJop(1, 0), _dtJop(1, 1), _dtJop(1, 2),
               _dtJop(2, 0), _dtJop(2, 1), _dtJop(2, 2));
-    
+*/    
     // Compute controller output: _y = _iJop * ( _Kd * _x1 + _Kp * _x2 - _dtJop * _dq);
     _y = _iJop * (Kd * _x1 + Kp * _x2 - _dtJop * _dq);
 

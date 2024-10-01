@@ -69,6 +69,7 @@ add_message_files(
   IdoscCurrent.msg 
   IdoscGainMatrices.msg
   IdoscControlOutput.msg
+  IdoscTorques.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -80,6 +81,7 @@ add_message_files(
 add_service_files(
   FILES
   GetJacobians.srv
+  GetDynamics.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -181,6 +183,9 @@ add_executable(updateErrorState_idosc_simple src/updateErrorState_idosc_simple.c
 add_executable(serverToolJacobians src/serverToolJacobians.cpp)
 add_executable(updateGains_idosc_simple src/updateGains_idosc_simple.cpp)
 add_executable(updateControlOutput_idosc_simple src/updateControlOutput_idosc_simple.cpp)
+add_executable(serverRobotDynamics src/serverRobotDynamics.cpp)
+add_executable(updateTorques_idosc_simple src/updateTorques_idosc_simple.cpp)
+add_executable(robot_effort_publisher src/robot_effort_publisher.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -197,6 +202,9 @@ add_dependencies(updateErrorState_idosc_simple ${${PROJECT_NAME}_EXPORTED_TARGET
 add_dependencies(serverToolJacobians ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(updateGains_idosc_simple ${PROJECT_NAME}_gencfg)
 add_dependencies(updateControlOutput_idosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(serverRobotDynamics ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(updateTorques_idosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(robot_effort_publisher ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
@@ -236,6 +244,18 @@ target_link_libraries(updateGains_idosc_simple
  robot_shared 
 )
 target_link_libraries(updateControlOutput_idosc_simple
+ ${catkin_LIBRARIES}
+ robot_shared 
+)
+target_link_libraries(serverRobotDynamics
+ ${catkin_LIBRARIES}
+ robot_shared 
+)
+target_link_libraries(updateTorques_idosc_simple
+ ${catkin_LIBRARIES}
+ robot_shared 
+)
+target_link_libraries(robot_effort_publisher
  ${catkin_LIBRARIES}
  robot_shared 
 )
