@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
     // Publisher for the error state
     ros::Publisher error_state_pub = nh.advertise<smm_control::IdoscError>("/idosc_error_state", 10);
 
-    ros::Rate loop_rate(10);  // 10 Hz
+    ros::Rate loop_rate(1000);  // 10 Hz
 
     while (ros::ok()) {
         if (desired_received && current_received) {

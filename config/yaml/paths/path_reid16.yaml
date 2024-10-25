@@ -10,6 +10,6 @@ velocities: # cartesian {x,y,z} in [m/s]
   velocity_2: [0.0000, 0.0000, 0.0000]
 configurations: # joint space {q1,q2,q3} in [rad]
   names: [configuration_0,configuration_1,configuration_2]
-  configuration_0: [0.4178, 0.6866, 0.3692]   # n_0=1
-  configuration_1: [0.0865, 1.3307, -0.3122]  # n_1=10
-  configuration_2: [-0.4351, 1.1903, -0.2139] # n_2=15
+  configuration_0: [0.4178, 0.6866, 0.3692]   # n_0 = 1
+  configuration_1: [0.0865, 1.3307, -0.3122]  # n_1 = 10
+  configuration_2: [-0.4351, 1.1903, -0.2139] # n_2 = 15

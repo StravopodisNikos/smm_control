@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+<!-- [25-10-24] Constructed for simulating a 3 DoF SMM, with 3 joint effort controllers && fasmc centralized node -->
+<!--           - fasmc_master node executes the "update" function and publishes the joint torques 
+               - the controller yaml is located in the ros_pkg of the robot xacro file: smm_ros_gazebo_pkg
+-->
+     
+<launch>
+    <!-- Include launch file Gazebo with robot and all controller settings -->
+     <include file="$(find smm_control)/launch/idosc_gazebo_settings.launch"/> <!--use same settings for fasmc and idosc -->
+    
+    <!-- FASMC SIMPLE IMPLEMENTATION -->
+    
+    <!-- Node that generates the topic /joint_current_state -->
+    <node name="updateJointState_fasmc_simple" pkg="smm_control" type="updateJointState_fasmc_simple" output="screen" />
+
+        <!-- Analytical Dynamics using screws @ /joint_current_state -->
+         <!--<node name="serverRobotDynamics" pkg="smm_control" type="serverRobotDynamics" output="screen" /> -->
+
+    <!-- Node that publishes to /tcp_desired_state -->
+    <rosparam file="$(find smm_control)/config/yaml/paths/cspace_path_reid16.yaml" command="load"/> <!-- "cspace_ prefix used to define joint commands. naming also changes" -->
+    <node name="publishJointPathLoop_fasmc_simple" pkg="smm_control" type="publishJointPathLoop_fasmc_simple" output="screen" />
+
+</launch>

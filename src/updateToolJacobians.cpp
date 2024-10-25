@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
     );
 
     // Run in loop
-    ros::Rate loop_rate(10);
+    ros::Rate loop_rate(500);
     while (ros::ok()) {
         ros::spinOnce();
         loop_rate.sleep();

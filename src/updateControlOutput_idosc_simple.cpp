@@ -121,7 +121,7 @@ void computeControlOutput(ros::NodeHandle& nh) {
     // Compute controller output: _y = _iJop * ( _Kd * _x1 + _Kp * _x2 - _dtJop * _dq);
     _y = _iJop * (Kd * _x1 + Kp * _x2 - _dtJop * _dq);
 
-    ROS_INFO(" [updateControlOutput_idosc_simple/computeControlOutput] y: %f, %f, %f", _y[0], _y[1], _y[2]);
+    //ROS_INFO(" [updateControlOutput_idosc_simple/computeControlOutput] y: %f, %f, %f", _y[0], _y[1], _y[2]);
 }
 
 int main(int argc, char** argv) {
@@ -140,7 +140,7 @@ int main(int argc, char** argv) {
     // Publisher for the control output
     ros::Publisher control_output_pub = nh.advertise<smm_control::IdoscControlOutput>("/idosc_control_output", 10);
 
-    ros::Rate loop_rate(10);  // Run at 10 Hz
+    ros::Rate loop_rate(1000);  // Run at 10 Hz
 
     // Dummy initializaation
     _y.setZero();

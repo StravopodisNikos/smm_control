@@ -58,7 +58,7 @@ bool sendDynamics(smm_control::GetDynamics::Request &req, smm_control::GetDynami
                 res.Mass[i * 3 + j] = Mass_Matrix(i, j);
             }
         }
-        ROS_INFO("[serverRobotDynamics/sendDynamics] Mass Matrix sent.");
+        //ROS_INFO("[serverRobotDynamics/sendDynamics] Mass Matrix sent.");
     }
 
     // If client requests Coriolis Matrix
@@ -68,7 +68,7 @@ bool sendDynamics(smm_control::GetDynamics::Request &req, smm_control::GetDynami
                 res.Coriolis[i * 3 + j] = Coriolis_Matrix(i, j);
             }
         }
-        ROS_INFO("[serverRobotDynamics/sendDynamics] Coriolis Matrix sent.");
+        //ROS_INFO("[serverRobotDynamics/sendDynamics] Coriolis Matrix sent.");
     }
 
     // If client requests Gravity Vector
@@ -76,7 +76,7 @@ bool sendDynamics(smm_control::GetDynamics::Request &req, smm_control::GetDynami
         for (int i = 0; i < 3; i++) {
             res.Gravity[i] = Gravity_Vector(i);
         }
-        ROS_INFO("[serverRobotDynamics/sendDynamics] Gravity vector sent.");
+        //ROS_INFO("[serverRobotDynamics/sendDynamics] Gravity vector sent.");
     }
 
     return true;
@@ -106,7 +106,7 @@ int main(int argc, char **argv) {
     ros::ServiceServer service = nh.advertiseService("GetRobotDynamics", sendDynamics);
 
     // Run in loop
-    ros::Rate loop_rate(10);
+    ros::Rate loop_rate(1000);
     while (ros::ok()) {
         ros::spinOnce();
         loop_rate.sleep();

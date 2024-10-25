@@ -32,18 +32,15 @@ void idosc_simple_JointStateCallback(const sensor_msgs::JointState::ConstPtr& jo
 
     // Extract and publish the TCP spatial position [tcp_pos = xe]
     tcp_pos = smm_robot_kin_solver.updatePositionTCP(q);
-    ROS_INFO("[updateCartesianState_idosc_simple/idosc_simple_JointStateCallback] TCP Position: x: %f, y: %f, z: %f", tcp_pos.x(), tcp_pos.y(), tcp_pos.z());
-    //smm_robot_viz_solver.publishTCPpos(tcp_pos);
+    //ROS_INFO("[updateCartesianState_idosc_simple/idosc_simple_JointStateCallback] TCP Position: x: %f, y: %f, z: %f", tcp_pos.x(), tcp_pos.y(), tcp_pos.z());
 
     // Extract and publish the Active Twists
     smm_robot_kin_solver.ForwardKinematics3DOF_2(); // Always run before use of SpatialJacobian_Tool_2() OR publishTwists().
-    //smm_robot_viz_solver.publishTwists(smm_robot_kin_solver.g_ptr);
 
     // Extract and publish the TCP spatial velocity [tcp_vel = dxe]
     smm_robot_kin_solver.SpatialJacobian_Tool_1(smm_robot_kin_solver.ptr2Jsp1);
     tcp_vel = smm_robot_kin_solver.updateSpatialVelocityTCP(q, dq);
-    ROS_INFO("[updateCartesianState_idosc_simple/idosc_simple_JointStateCallback] TCP Velocity: x: %f, y: %f, z: %f", tcp_vel.x(), tcp_vel.y(), tcp_vel.z());
-    //smm_robot_viz_solver.publishTCPvel(tcp_pos,tcp_vel);
+    //ROS_INFO("[updateCartesianState_idosc_simple/idosc_simple_JointStateCallback] TCP Velocity: x: %f, y: %f, z: %f", tcp_vel.x(), tcp_vel.y(), tcp_vel.z());
 }
 
 int main(int argc, char **argv) {
@@ -51,13 +48,13 @@ int main(int argc, char **argv) {
     ros::NodeHandle nh;
 
     // Debug statement
-    ROS_INFO("[updateCartesianState_idosc_simple] Initializing robot structure");
+    //ROS_INFO("[updateCartesianState_idosc_simple] Initializing robot structure");
 
     // Initialize the robot structure
     RobotAbstractBase* robot_ptr = new Structure3Pseudos();
 
     // Debug statement
-    ROS_INFO("[updateCartesianState_idosc_simple] Initializing shared library");
+    //ROS_INFO("[updateCartesianState_idosc_simple] Initializing shared library");
 
     // Create an instance of your shared library with NodeHandle
     robot_shared my_shared_lib(robot_ptr, nh);
@@ -67,7 +64,7 @@ int main(int argc, char **argv) {
     }
 
     // Initialize the shared library for robot analytical solvers using screws
-    ROS_INFO("[updateCartesianState_idosc_simple] Initialized Shared Library.");
+    //ROS_INFO("[updateCartesianState_idosc_simple] Initialized Shared Library.");
     ScrewsKinematics& smm_robot_kin_solver = my_shared_lib.get_screws_kinematics_solver();
     ScrewsDynamics& smm_robot_dyn_solver = my_shared_lib.get_screws_dynamics_solver();  
     ScrewsVisualization& smm_robot_viz_solver = my_shared_lib.get_screws_visualization_solver(); 
@@ -81,7 +78,7 @@ int main(int argc, char **argv) {
     ros::Publisher idosc_cartesian_current_state_pub = nh.advertise<smm_control::IdoscCurrent>("/tcp_current_state", 10);
 
     // Run in loop
-    ros::Rate loop_rate(10);
+    ros::Rate loop_rate(1000);
     while (ros::ok()) {
         // Create and populate the IdoscCurrent message
         smm_control::IdoscCurrent idosc_msg;

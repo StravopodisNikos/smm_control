@@ -107,7 +107,7 @@ int main(int argc, char** argv) {
     // Publisher for the joint effort controllers
     ros::Publisher torques_pub = nh.advertise<smm_control::IdoscTorques>("/idosc_torques", 10);
 
-    ros::Rate loop_rate(10);  // Run at 10 Hz
+    ros::Rate loop_rate(500);  // Run at 10 Hz
 
     while (ros::ok()) {
         // Compute the control output

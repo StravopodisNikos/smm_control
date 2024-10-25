@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
     Kp.setZero();
     Kd.setZero();
 
-    ros::Rate loop_rate(10);  // 10 Hz
+    ros::Rate loop_rate(100);  // 10 Hz
 
     while (ros::ok()) {
         // Create and populate the gains message

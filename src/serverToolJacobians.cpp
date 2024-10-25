@@ -83,7 +83,7 @@ bool sendJacobians(smm_control::GetJacobians::Request &req, smm_control::GetJaco
                 res.op_jacobian[i * 3 + j] = op_jacobian_matrix(i, j);
             }
         }
-        ROS_INFO("[serverToolJacobians/sendJacobians] Operational Jacobian sent.");
+        //ROS_INFO("[serverToolJacobians/sendJacobians] Operational Jacobian sent.");
     }
 
     // If client requests inverse operational Jacobian
@@ -93,7 +93,7 @@ bool sendJacobians(smm_control::GetJacobians::Request &req, smm_control::GetJaco
                 res.inv_op_jacobian[i * 3 + j] = inverse_jacobian_matrix(i, j);
             }
         }
-        ROS_INFO("[serverToolJacobians/sendJacobians] Inverse Operational Jacobian sent.");
+        //ROS_INFO("[serverToolJacobians/sendJacobians] Inverse Operational Jacobian sent.");
     }
 
     // If client requests time derivative of operational Jacobian
@@ -103,7 +103,7 @@ bool sendJacobians(smm_control::GetJacobians::Request &req, smm_control::GetJaco
                 res.dt_op_jacobian[i * 3 + j] = derivative_jacobian_matrix(i, j);
             }
         }
-        ROS_INFO("[serverToolJacobians/sendJacobians] Time Derivative of Operational Jacobian sent.");
+        //ROS_INFO("[serverToolJacobians/sendJacobians] Time Derivative of Operational Jacobian sent.");
     }
 
     return true;
@@ -119,7 +119,7 @@ int main(int argc, char **argv) {
     // Create an instance of your shared library with NodeHandle
     robot_shared my_shared_lib(robot_ptr, nh);
     if (!my_shared_lib.initializeSharedLib()) {
-        ROS_ERROR("[serverToolJacobians] Failed to initialize shared library.");
+        //ROS_ERROR("[serverToolJacobians] Failed to initialize shared library.");
         return -1;
     }
 
@@ -134,7 +134,7 @@ int main(int argc, char **argv) {
     ros::ServiceServer service = nh.advertiseService("GetOperationalJacobians", sendJacobians);
 
     // Run in loop
-    ros::Rate loop_rate(10);
+    ros::Rate loop_rate(1000);
     while (ros::ok()) {
         ros::spinOnce();
         loop_rate.sleep();

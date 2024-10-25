@@ -1,0 +1,26 @@
+<?xml version="1.0" ?>
+<!-- [1-10-24] Called from [idosc_simple.launch] -->
+<!--           - plots data and creates rosbag files -->
+     
+<launch>
+    <!-- Joint Controller Effort   -->
+    <node name="rqt_plot_torques"  pkg="rqt_plot" type="rqt_plot" output="screen" 
+        args="args = /idosc_torques/robot_torques[0] /idosc_torques/robot_torques[1] /idosc_torques/robot_torques[2]"/> 
+
+    <node pkg="rosbag" type="record" name="record_torques"
+        args="record -O $(find smm_control)/rosbags/idosc_torques.bag /idosc_torques"/> 
+    
+    <!-- Cartesian State   -->
+    <node name="rqt_plot_cartesian_pos" pkg="rqt_plot" type="rqt_plot" output="screen" 
+        args="/tcp_current_state/pose_cur/position/x /tcp_current_state/pose_cur/position/y /tcp_current_state/pose_cur/position/z " />
+        <!-- args for velocities: /tcp_current_state/twist_cur/linear/x /tcp_current_state/twist_cur/linear/y /tcp_current_state/twist_cur/linear/z --> <!-- not used -->
+
+    <!-- Start rosbag recording of the /tcp_current_state topic -->
+    <node name="rosbag_record" pkg="rosbag" type="record" output="screen" args="record -O $(find smm_control)/rosbags/tcp_current_state.bag /tcp_current_state" />
+
+    <!-- IDOSC error state-->
+    <node name="rqt_plot_error" pkg="rqt_plot" type="rqt_plot" output="screen" 
+        args="/idosc_error_state/pose_error/position/x /idosc_error_state/pose_error/position/y /idosc_error_state/pose_error/position/z " />
+        <!-- args for velocities: /idosc_error_state/twist_error/linear/x /idosc_error_state/twist_error/linear/y /idosc_error_state/twist_error/linear/z --> <!-- not used -->
+
+</launch>
