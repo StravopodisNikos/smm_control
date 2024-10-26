@@ -71,6 +71,8 @@ add_message_files(
   IdoscControlOutput.msg
   IdoscTorques.msg
   CustomJointState.msg
+  FasmcError.msg
+  FasmcFuzzyParams.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -148,16 +150,23 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-include_directories(
-  include # [30-7-24] Added for using idosc class as ROS library
-  ${catkin_INCLUDE_DIRS}
-)
+#include_directories(
+#  include # [30-7-24] Added for using idosc class as ROS library
+#  ${catkin_INCLUDE_DIRS}
+#)
 include_directories(
   include
   ~/cpp_ws/libraries/eigen-3.4.0
   ~/cpp_ws/libraries/odeint-v2-master
+  ~/cpp_ws/libraries/fuzzylite/include
   ${catkin_INCLUDE_DIRS}
 )
+## Declare a C++ library
+add_library(fuzzylite_lib SHARED IMPORTED)
+set_target_properties(fuzzylite_lib PROPERTIES
+    IMPORTED_LOCATION ~/cpp_ws/libraries/fuzzylite/build/bin/libfuzzylite.so
+)
+
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/smm_control.cpp
@@ -192,6 +201,9 @@ add_executable(robot_effort_publisher src/robot_effort_publisher.cpp)
 ## FASMC
 add_executable(updateJointState_fasmc_simple src/updateJointState_fasmc_simple.cpp)
 add_executable(publishJointPathLoop_fasmc_simple src/publishJointPathLoop_fasmc_simple.cpp)
+add_executable(updateErrorState_fasmc_simple src/updateErrorState_fasmc_simple.cpp)
+add_executable(updateSlidingState_fasmc_simple src/updateSlidingState_fasmc_simple.cpp)
+add_executable(updateFuzzyParams_fasmc_simple src/updateFuzzyParams_fasmc_simple.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -216,6 +228,10 @@ add_dependencies(robot_effort_publisher ${${PROJECT_NAME}_EXPORTED_TARGETS} ${ca
 ## FASMC
 add_dependencies(updateJointState_fasmc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(publishJointPathLoop_fasmc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(updateErrorState_fasmc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(updateSlidingState_fasmc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(updateFuzzyParams_fasmc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
@@ -280,6 +296,19 @@ target_link_libraries(updateJointState_fasmc_simple
 target_link_libraries(publishJointPathLoop_fasmc_simple
  ${catkin_LIBRARIES}
  robot_shared 
+)
+target_link_libraries(updateErrorState_fasmc_simple
+ ${catkin_LIBRARIES}
+ robot_shared 
+)
+target_link_libraries(updateSlidingState_fasmc_simple
+ ${catkin_LIBRARIES}
+ robot_shared 
+)
+target_link_libraries(updateFuzzyParams_fasmc_simple 
+ ${catkin_LIBRARIES}
+ robot_shared
+ /home/nikos/cpp_ws/libraries/fuzzylite/build/bin/libfuzzylite.so
 )
 #############
 ## Install ##

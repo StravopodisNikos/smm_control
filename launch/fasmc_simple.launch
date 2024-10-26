@@ -16,8 +16,19 @@
         <!-- Analytical Dynamics using screws @ /joint_current_state -->
          <!--<node name="serverRobotDynamics" pkg="smm_control" type="serverRobotDynamics" output="screen" /> -->
 
-    <!-- Node that publishes to /tcp_desired_state -->
+    <!-- Node that publishes to /joint_desired_state -->
     <rosparam file="$(find smm_control)/config/yaml/paths/cspace_path_reid16.yaml" command="load"/> <!-- "cspace_ prefix used to define joint commands. naming also changes" -->
     <node name="publishJointPathLoop_fasmc_simple" pkg="smm_control" type="publishJointPathLoop_fasmc_simple" output="screen" />
 
+    <!-- Node that publishes to /fasmc_error_state -->
+    <node name="updateErrorState_fasmc_simple" pkg="smm_control" type="updateErrorState_fasmc_simple" output="screen" />
+
+    <!-- FASMC -->
+
+    <!-- Sliding state 
+    <rosparam file="$(find smm_control)/config/yaml/fasmc/fixed_params.yaml" command="load"/>
+    <node name="updateSlidingState_fasmc_simple" pkg="smm_control" type="updateSlidingState_fasmc_simple" output="screen" /> -->
+
+    <!-- Fuzzy Parameters -->
+    <node name="updateFuzzyParams_fasmc_simple" pkg="smm_control" type="updateFuzzyParams_fasmc_simple" output="screen" />
 </launch>
