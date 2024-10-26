@@ -25,10 +25,19 @@
 
     <!-- FASMC -->
 
-    <!-- Sliding state 
+    <!-- Sliding state -->
     <rosparam file="$(find smm_control)/config/yaml/fasmc/fixed_params.yaml" command="load"/>
-    <node name="updateSlidingState_fasmc_simple" pkg="smm_control" type="updateSlidingState_fasmc_simple" output="screen" /> -->
+    <node name="updateSlidingState_fasmc_simple" pkg="smm_control" type="updateSlidingState_fasmc_simple" output="screen" /> 
 
     <!-- Fuzzy Parameters -->
     <node name="updateFuzzyParams_fasmc_simple" pkg="smm_control" type="updateFuzzyParams_fasmc_simple" output="screen" />
+
+    <!-- Adaptive Parameters -->
+    <node name="updateParams_fasmc_simple" pkg="smm_control" type="updateParams_fasmc_simple" output="screen" />  
+
+    <!-- Robust torque term -->
+    <node name="updateRobustTorque_fasmc_simple" pkg="smm_control" type="updateRobustTorque_fasmc_simple" output="screen" />
+
+    <!-- Dynamic Model torque term -->  
+
 </launch>
