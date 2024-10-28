@@ -3,6 +3,7 @@
 #include <smm_control/FasmcError.h>
 #include <smm_control/FasmcAdaptiveParams.h>  // Custom message with eta and epsilon
 #include <cmath>
+#include "smm_control/timing.h"
 
 std::vector<double> eta_0(3, 0.01);
 std::vector<double> epsilon_0(3, 0.01);
@@ -78,7 +79,7 @@ int main(int argc, char** argv) {
     // Publisher for calculated eta and epsilon values
     adaptive_params_pub = nh.advertise<smm_control::FasmcAdaptiveParams>("/fasmc_adaptive_params", 10);
 
-    ros::Rate rate(10);  // Adjust rate as needed
+    ros::Rate rate(UPDATE_PARAMS_RATE);  // Adjust rate as needed
     while (ros::ok()) {
         ros::spinOnce();
         calculateEtaEpsilon();

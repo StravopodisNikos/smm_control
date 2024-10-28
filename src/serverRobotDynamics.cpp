@@ -2,6 +2,7 @@
 #include <sensor_msgs/JointState.h>
 #include "smm_screws/robot_shared.h"
 #include "smm_control/GetDynamics.h"  // Include the service header
+#include "smm_control/timing.h"
 
 Eigen::Matrix3f Mass_Matrix;       // Marc Marquez (!), or Mass Matrix
 Eigen::Matrix3f Coriolis_Matrix;   // Coriolis Matrix
@@ -106,7 +107,7 @@ int main(int argc, char **argv) {
     ros::ServiceServer service = nh.advertiseService("GetRobotDynamics", sendDynamics);
 
     // Run in loop
-    ros::Rate loop_rate(1000);
+    ros::Rate loop_rate(UPDATE_SERVER_DYNAMICS_RATE);
     while (ros::ok()) {
         ros::spinOnce();
         loop_rate.sleep();

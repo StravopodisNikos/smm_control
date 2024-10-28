@@ -4,6 +4,7 @@
 #include <smm_control/FasmcTorques.h>
 #include <geometry_msgs/Vector3.h>
 #include <cmath>
+#include "smm_control/timing.h"
 
 // Global variables for parameters
 boost::array<double, 3> eta = {0.0, 0.0, 0.0};
@@ -61,7 +62,7 @@ int main(int argc, char** argv) {
     // Publisher for calculated torque values
     torque_pub = nh.advertise<smm_control::FasmcTorques>("/fasmc_robust_term", 10);
 
-    ros::Rate rate(10);  // Adjust rate as needed
+    ros::Rate rate(UPDATE_ROBUST_TORQUE_RATE);
     while (ros::ok()) {
         ros::spinOnce();
         calculateTorque();

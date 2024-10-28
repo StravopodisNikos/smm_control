@@ -1,0 +1,13 @@
+<?xml version="1.0" ?>
+<!-- [1-10-24] Called from [fasmc_simple.launch] -->
+<!--           - plots data and creates rosbag files -->
+     
+<launch>
+    <!-- Joint Controller Effort   -->
+    <node name="rqt_plot_torques"  pkg="rqt_plot" type="rqt_plot" output="screen" 
+        args="args = /robot_torque_command/torques[0] /robot_torque_command/torques[1] /robot_torque_command/torques[2]"/> 
+
+    <!-- Controller Fuzzy Parameters   -->
+    <node name="rqt_plot_fuzzy_alpha"  pkg="rqt_plot" type="rqt_plot" output="screen" 
+        args="args = /fasmc_fuzzy_params/alpha[0] /fasmc_fuzzy_params/alpha[1] /fasmc_fuzzy_params/alpha[2]"/>   
+</launch>

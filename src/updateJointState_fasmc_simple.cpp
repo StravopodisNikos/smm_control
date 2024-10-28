@@ -8,6 +8,7 @@
 #include <ros/ros.h>
 #include <sensor_msgs/JointState.h>
 #include "smm_screws/robot_shared.h"
+#include "smm_control/timing.h"
 
 // Global variables for joint positions/ velocities/ accelerations
 float q[DOF] = {0.0, 0.0, 0.0};
@@ -79,7 +80,7 @@ int main(int argc, char **argv) {
     ros::Publisher joint_current_state_pub = nh.advertise<sensor_msgs::JointState>("/joint_current_state", 10);
 
     // Run in loop
-    ros::Rate loop_rate(10);
+    ros::Rate loop_rate(1000);
     while (ros::ok()) {
 
         sensor_msgs::JointState joint_current_state;

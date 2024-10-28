@@ -3,6 +3,7 @@
 #include <sensor_msgs/JointState.h>
 #include <smm_control/FasmcError.h>  
 #include <vector>
+#include "smm_control/timing.h"
 
 // Global variables to store the latest desired and current joint states
 smm_control::CustomJointState latest_desired_state;
@@ -34,7 +35,7 @@ void computeAndPublishErrors(ros::Publisher& error_pub) {
     // Ensure both messages have data for 3 joints
     if (latest_desired_state.position.size() != 3 || latest_current_state.position.size() != 3 ||
         latest_desired_state.velocity.size() != 3 || latest_current_state.velocity.size() != 3) {
-        ROS_ERROR("[updateErrorState_fasmc_simple/computeAndPublishErrors] Incorrect number of joints in the received messages. Expected 3.");
+        ROS_ERROR("Incorrect number of joints in the received messages. Expected 3.");
         return;
     }
 
@@ -61,7 +62,7 @@ int main(int argc, char** argv) {
     // Publisher for the error state
     ros::Publisher error_pub = nh.advertise<smm_control::FasmcError>("/fasmc_error_state", 10);
 
-    ros::Rate loop_rate(10);
+    ros::Rate loop_rate(UPDATE_ERROR_STATE_RATE);
 
     while (ros::ok()) {
         computeAndPublishErrors(error_pub);  // Compute and publish position and velocity errors

@@ -2,6 +2,7 @@
 #include <smm_control/FasmcError.h>
 #include <geometry_msgs/Vector3.h>
 #include <vector>
+#include "smm_control/timing.h"
 
 // Global variables
 std::vector<double> lambda_0(3, 0.01);  // Default values, overwritten by YAML
@@ -58,7 +59,11 @@ int main(int argc, char** argv) {
     // Publisher for the sliding surface
     sliding_surface_pub = nh.advertise<geometry_msgs::Vector3>("/fasmc_sliding_surface", 10);
 
-    ros::spin();  // Keep the node alive to process callbacks
+    ros::Rate loop_rate(UPDATE_SLIDING_SURFACE_RATE);
 
+    while (ros::ok()) {
+        ros::spinOnce();
+        loop_rate.sleep();  // Sleep according to the defined rate
+    }
     return 0;
 }

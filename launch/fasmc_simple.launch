@@ -14,7 +14,7 @@
     <node name="updateJointState_fasmc_simple" pkg="smm_control" type="updateJointState_fasmc_simple" output="screen" />
 
         <!-- Analytical Dynamics using screws @ /joint_current_state -->
-         <!--<node name="serverRobotDynamics" pkg="smm_control" type="serverRobotDynamics" output="screen" /> -->
+        <node name="serverRobotDynamics" pkg="smm_control" type="serverRobotDynamics" output="screen" />
 
     <!-- Node that publishes to /joint_desired_state -->
     <rosparam file="$(find smm_control)/config/yaml/paths/cspace_path_reid16.yaml" command="load"/> <!-- "cspace_ prefix used to define joint commands. naming also changes" -->
@@ -39,5 +39,14 @@
     <node name="updateRobustTorque_fasmc_simple" pkg="smm_control" type="updateRobustTorque_fasmc_simple" output="screen" />
 
     <!-- Dynamic Model torque term -->  
+    <node name="updateDynamicsTorque_fasmc_simple" pkg="smm_control" type="updateDynamicsTorque_fasmc_simple" output="screen" />
 
+    <!-- Add fasmc torques-->
+    <node name="updateTorqueCommand_fasmc_simple" pkg="smm_control" type="updateTorqueCommand_fasmc_simple" output="screen" />
+
+    <!-- Publish to robot effort controllers -->
+    <node name="robot_torque_command_publisher" pkg="smm_control" type="robot_torque_command_publisher" output="screen" />
+
+    <!-- Include launch file for data logging and real time monitoring -->
+    <include file="$(find smm_control)/launch/fasmc_data_monitor.launch"/>
 </launch>

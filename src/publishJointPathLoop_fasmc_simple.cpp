@@ -2,6 +2,7 @@
 #include <smm_control/CustomJointState.h>  // Ensure this path matches your package structure
 #include <vector>
 #include <string>
+#include "smm_control/timing.h"
 
 // Global vector to hold each joint state message
 std::vector<smm_control::CustomJointState> joint_path;
@@ -89,9 +90,11 @@ int main(int argc, char** argv) {
     // Initialize the publisher for /joint_desired_state
     desired_state_pub = nh.advertise<smm_control::CustomJointState>("/joint_desired_state", 10);
 
-    // Loop rate (publish every 5 seconds)
-    ros::Rate loop_rate(0.2);
+    publishDesiredState();
 
+    // Loop rate (publish every 5 seconds: 0.2)
+    ros::Rate loop_rate(UPDATE_JOINT_PATH_LOOP_RATE);
+    
     while (ros::ok()) {
         publishDesiredState();  // Publish the current desired state
         ros::spinOnce();

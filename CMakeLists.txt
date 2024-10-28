@@ -75,6 +75,7 @@ add_message_files(
   FasmcFuzzyParams.msg
   FasmcAdaptiveParams.msg
   FasmcTorques.msg
+  RobotTorques.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -208,7 +209,9 @@ add_executable(updateSlidingState_fasmc_simple src/updateSlidingState_fasmc_simp
 add_executable(updateFuzzyParams_fasmc_simple src/updateFuzzyParams_fasmc_simple.cpp)
 add_executable(updateParams_fasmc_simple src/updateParams_fasmc_simple.cpp)
 add_executable(updateRobustTorque_fasmc_simple src/updateRobustTorque_fasmc_simple.cpp)
-
+add_executable(updateDynamicsTorque_fasmc_simple src/updateDynamicsTorque_fasmc_simple.cpp)
+add_executable(updateTorqueCommand_fasmc_simple src/updateTorqueCommand_fasmc_simple.cpp)
+add_executable(robot_torque_command_publisher src/robot_torque_command_publisher.cpp)
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -237,6 +240,9 @@ add_dependencies(updateSlidingState_fasmc_simple ${${PROJECT_NAME}_EXPORTED_TARG
 add_dependencies(updateFuzzyParams_fasmc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(updateParams_fasmc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(updateRobustTorque_fasmc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(updateDynamicsTorque_fasmc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(updateTorqueCommand_fasmc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(robot_torque_command_publisher ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
@@ -321,6 +327,18 @@ target_link_libraries(updateParams_fasmc_simple
  robot_shared 
 )
 target_link_libraries(updateRobustTorque_fasmc_simple
+ ${catkin_LIBRARIES}
+ robot_shared 
+)
+target_link_libraries(updateDynamicsTorque_fasmc_simple
+ ${catkin_LIBRARIES}
+ robot_shared 
+)
+target_link_libraries(updateTorqueCommand_fasmc_simple
+ ${catkin_LIBRARIES}
+ robot_shared 
+)
+target_link_libraries(robot_torque_command_publisher
  ${catkin_LIBRARIES}
  robot_shared 
 )
