@@ -1,5 +1,10 @@
 <launch>
     <include file="$(find smm_control)/launch/idosc_gazebo_settings.launch"/> <!--use same settings for fasmc and idosc -->
 
+    <!-- <rosparam file="$(find smm_control)/config/yaml/paths/cspace_goal.yaml" command="load"/>
+    <node name="publishSingleJointGoal" pkg="smm_control" type="publishSingleJointGoal" output="screen" /> -->
+
     <node name="stabilizeRobot" pkg="smm_control" type="stabilizeRobot" output="screen" />
+
+    <node name="robot_torque_command_publisher" pkg="smm_control" type="robot_torque_command_publisher" output="screen" />
 </launch>

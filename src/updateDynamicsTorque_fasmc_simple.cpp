@@ -106,11 +106,11 @@ void computeJointEffort(ros::NodeHandle& nh) {
 
     smm_control::FasmcTorques torque_msg;
     torque_msg.torques[0] = _u[0];
-    torque_msg.torques[1] = _u[1];
+    torque_msg.torques[0] = _u[1];
     torque_msg.torques[2] = _u[2];
     torque_pub.publish(torque_msg);
 
-    ROS_INFO("[updateDynamicsTorque_fasmc_simple] Dynamic Model Torques: [%f, %f, %f]", _u[0], _u[1], _u[2]);
+    ROS_INFO("[updateDynamicsTorque_fasmc_simple] Dynamic Model Torques: [%f, %f, %f]", torque_msg.torques[0],torque_msg.torques[0], torque_msg.torques[2]);
     
 }
 
