@@ -80,7 +80,7 @@ int main(int argc, char **argv) {
     ros::Publisher joint_current_state_pub = nh.advertise<sensor_msgs::JointState>("/joint_current_state", 10);
 
     // Run in loop
-    ros::Rate loop_rate(1000);
+    ros::Rate loop_rate(UPDATE_JOINT_STATE_RATE);
     while (ros::ok()) {
 
         sensor_msgs::JointState joint_current_state;

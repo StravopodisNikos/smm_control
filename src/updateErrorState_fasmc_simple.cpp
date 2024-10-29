@@ -56,11 +56,11 @@ int main(int argc, char** argv) {
     ros::NodeHandle nh;
 
     // Subscriber for the desired and current joint states
-    ros::Subscriber desired_state_sub = nh.subscribe("/joint_desired_state", 10, desiredStateCallback);
-    ros::Subscriber current_state_sub = nh.subscribe("/joint_current_state", 10, currentStateCallback);
+    ros::Subscriber desired_state_sub = nh.subscribe("/joint_desired_state", 100, desiredStateCallback);
+    ros::Subscriber current_state_sub = nh.subscribe("/joint_current_state", 100, currentStateCallback);
 
     // Publisher for the error state
-    ros::Publisher error_pub = nh.advertise<smm_control::FasmcError>("/fasmc_error_state", 10);
+    ros::Publisher error_pub = nh.advertise<smm_control::FasmcError>("/fasmc_error_state", 100);
 
     ros::Rate loop_rate(UPDATE_ERROR_STATE_RATE);
 

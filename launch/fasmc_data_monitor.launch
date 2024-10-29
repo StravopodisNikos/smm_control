@@ -3,11 +3,44 @@
 <!--           - plots data and creates rosbag files -->
      
 <launch>
+    <arg name="run_name" default="default_run" />
+
+    <!-- Joint Error State   -->
+    <node name="rqt_plot_pos_error"  pkg="rqt_plot" type="rqt_plot" output="screen" 
+        args="args = /fasmc_error_state/position_error[0] /fasmc_error_state/position_error[1] /fasmc_error_state/position_error[2] "/> 
+    <node name="rqt_plot_vel_error"  pkg="rqt_plot" type="rqt_plot" output="screen" 
+        args="args = /fasmc_error_state/velocity_error[0] /fasmc_error_state/velocity_error[1] /fasmc_error_state/velocity_error[2] "/> 
+
     <!-- Joint Controller Effort   -->
     <node name="rqt_plot_torques"  pkg="rqt_plot" type="rqt_plot" output="screen" 
         args="args = /robot_torque_command/torques[0] /robot_torque_command/torques[1] /robot_torque_command/torques[2]"/> 
 
+    <!-- Torque terms DYN+SMC   -->
+    <node name="rqt_plot_torque_terms"  pkg="rqt_plot" type="rqt_plot" output="screen" 
+        args="args = /fasmc_robust_term/torques[0] /fasmc_robust_term/torques[1] /fasmc_robust_term/torques[2] 
+                     /fasmc_dyn_term/torques[0] /fasmc_dyn_term/torques[1] /fasmc_dyn_term/torques[2] " /> 
+
     <!-- Controller Fuzzy Parameters   -->
     <node name="rqt_plot_fuzzy_alpha"  pkg="rqt_plot" type="rqt_plot" output="screen" 
-        args="args = /fasmc_fuzzy_params/alpha[0] /fasmc_fuzzy_params/alpha[1] /fasmc_fuzzy_params/alpha[2]"/>   
+        args="args = /fasmc_fuzzy_params/alpha[0] /fasmc_fuzzy_params/alpha[1] /fasmc_fuzzy_params/alpha[2] " />
+    <node name="rqt_plot_fuzzy_beta"  pkg="rqt_plot" type="rqt_plot" output="screen" 
+        args="args = /fasmc_fuzzy_params/beta[0] /fasmc_fuzzy_params/beta[1] /fasmc_fuzzy_params/beta[2] " /> 
+    <node name="rqt_plot_fuzzy_gamma"  pkg="rqt_plot" type="rqt_plot" output="screen" 
+        args="args = /fasmc_fuzzy_params/gamma[0] /fasmc_fuzzy_params/gamma[1] /fasmc_fuzzy_params/gamma[2] " />   
+
+    <!-- Controller Sliding Surface   -->
+    <node name="rqt_plot_sliding_surface" pkg="rqt_plot" type="rqt_plot" output="screen" args="/fasmc_sliding_surface/x /fasmc_sliding_surface/y /fasmc_sliding_surface/z"  />   
+
+    <!-- ROSBAGS -->
+    <node pkg="rosbag" type="record" name="record_error_state" args="record -O $(find smm_control)/rosbags/$(arg run_name)/fasmc_error_state.bag /fasmc_error_state"/> 
+
+    <node pkg="rosbag" type="record" name="record_torques" args="record -O $(find smm_control)/rosbags/$(arg run_name)/fasmc_torques.bag /robot_torque_command"/>     
+
+    <node pkg="rosbag" type="record" name="record_dyn_term" args="record -O $(find smm_control)/rosbags/$(arg run_name)/fasmc_dyn_torques.bag /fasmc_dyn_term"/> 
+
+    <node pkg="rosbag" type="record" name="record_smc_term" args="record -O $(find smm_control)/rosbags/$(arg run_name)/fasmc_smc_torques.bag /fasmc_robust_term"/> 
+
+    <node pkg="rosbag" type="record" name="record_slide_surface" args="record -O $(find smm_control)/rosbags/$(arg run_name)/fasmc_slide_surf.bag /fasmc_sliding_surface"/>
+
+    <node pkg="rosbag" type="record" name="record_fuzzy_params" args="record -O $(find smm_control)/rosbags/$(arg run_name)/fasmc_fuzzy_params.bag /fasmc_fuzzy_params"/> 
 </launch>

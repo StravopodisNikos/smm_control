@@ -60,6 +60,8 @@
   <build_depend>sensor_msgs</build_depend>
   <build_depend>smm_screws</build_depend>
   <build_depend>std_msgs</build_depend>
+  <build_depend>urdf</build_depend>
+  <build_depend>kdl_parser</build_depend>
   <build_depend>dynamic_reconfigure</build_depend>
   <build_export_depend>control_msgs</build_export_depend>
   <build_export_depend>controller_interface</build_export_depend>
@@ -72,6 +74,8 @@
   <build_export_depend>sensor_msgs</build_export_depend>
   <build_export_depend>smm_screws</build_export_depend>
   <build_export_depend>std_msgs</build_export_depend>
+  <build_export_depend>urdf</build_export_depend>
+  <build_export_depend>kdl_parser</build_export_depend>
   <exec_depend>control_msgs</exec_depend>
   <exec_depend>controller_interface</exec_depend>
   <exec_depend>controller_manager</exec_depend>
@@ -83,6 +87,8 @@
   <exec_depend>sensor_msgs</exec_depend>
   <exec_depend>smm_screws</exec_depend>
   <exec_depend>std_msgs</exec_depend>
+  <exec_depend>urdf</exec_depend>
+  <exec_depend>kdl_parser</exec_depend>  
   <exec_depend>dynamic_reconfigure</exec_depend>
   <!-- [29-7-24] Added for custom  messages -->
   <build_depend>message_generation</build_depend>

@@ -5,26 +5,32 @@
 -->
      
 <launch>
+    <arg name="run_name" default="default_run" />
+
     <!-- Include launch file Gazebo with robot and all controller settings -->
      <include file="$(find smm_control)/launch/idosc_gazebo_settings.launch"/> <!--use same settings for fasmc and idosc -->
     
     <!-- FASMC SIMPLE IMPLEMENTATION -->
     
+    <!-- I. PUBLISH DESIRED STATES -->
+    <!-- Node that publishes to /joint_desired_state 
+    <rosparam file="$(find smm_control)/config/yaml/paths/cspace_path_reid16.yaml" command="load"/>
+    <node name="publishJointPathLoop_fasmc_simple" pkg="smm_control" type="publishJointPathLoop_fasmc_simple" output="screen" /> -->
+
+    <rosparam file="$(find smm_control)/config/yaml/paths/cspace_goal.yaml" command="load"/>
+    <node name="publishSingleJointGoal" pkg="smm_control" type="publishSingleJointGoal" output="screen" />
+
+    <!-- II. ROBOT DATA -->
     <!-- Node that generates the topic /joint_current_state -->
     <node name="updateJointState_fasmc_simple" pkg="smm_control" type="updateJointState_fasmc_simple" output="screen" />
 
-        <!-- Analytical Dynamics using screws @ /joint_current_state -->
-        <node name="serverRobotDynamics" pkg="smm_control" type="serverRobotDynamics" output="screen" />
+    <!-- Analytical Dynamics using screws @ /joint_current_state -->
+    <node name="serverRobotDynamics" pkg="smm_control" type="serverRobotDynamics" output="screen" />
 
-    <!-- Node that publishes to /joint_desired_state -->
-    <rosparam file="$(find smm_control)/config/yaml/paths/cspace_path_reid16.yaml" command="load"/> <!-- "cspace_ prefix used to define joint commands. naming also changes" -->
-    <node name="publishJointPathLoop_fasmc_simple" pkg="smm_control" type="publishJointPathLoop_fasmc_simple" output="screen" />
-
+    <!-- III. FASMC -->
     <!-- Node that publishes to /fasmc_error_state -->
-    <node name="updateErrorState_fasmc_simple" pkg="smm_control" type="updateErrorState_fasmc_simple" output="screen" />
-
-    <!-- FASMC -->
-
+    <node name="updateErrorState_fasmc_simple" pkg="smm_control" type="updateErrorState_fasmc_simple" output="screen" /> 
+    
     <!-- Sliding state -->
     <rosparam file="$(find smm_control)/config/yaml/fasmc/fixed_params.yaml" command="load"/>
     <node name="updateSlidingState_fasmc_simple" pkg="smm_control" type="updateSlidingState_fasmc_simple" output="screen" /> 
@@ -47,6 +53,10 @@
     <!-- Publish to robot effort controllers -->
     <node name="robot_torque_command_publisher" pkg="smm_control" type="robot_torque_command_publisher" output="screen" />
 
+    <!-- IV. DATA LOGGING -->
     <!-- Include launch file for data logging and real time monitoring -->
-    <include file="$(find smm_control)/launch/fasmc_data_monitor.launch"/>
+    <include file="$(find smm_control)/launch/fasmc_data_monitor.launch">
+        <arg name="run_name" value="$(arg run_name)"/>
+    </include>
+     
 </launch>

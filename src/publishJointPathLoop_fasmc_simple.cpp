@@ -92,7 +92,6 @@ int main(int argc, char** argv) {
 
     publishDesiredState();
 
-    // Loop rate (publish every 5 seconds: 0.2)
     ros::Rate loop_rate(UPDATE_JOINT_PATH_LOOP_RATE);
     
     while (ros::ok()) {

@@ -1,0 +1,5 @@
+<launch>
+    <include file="$(find smm_control)/launch/idosc_gazebo_settings.launch"/> <!--use same settings for fasmc and idosc -->
+
+    <node name="stabilizeRobot" pkg="smm_control" type="stabilizeRobot" output="screen" />
+</launch>

@@ -21,10 +21,11 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   message_generation # [29-7-24] Added for custom controllers messages
   dynamic_reconfigure
+  kdl_parser
 )
-
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
+# Find orocos_kdl (for KDL)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -143,8 +144,8 @@ generate_dynamic_reconfigure_options(
 catkin_package(
 #  INCLUDE_DIRS include
   LIBRARIES idosc # [30-7-24] Added for using idosc class as ROS library
-  CATKIN_DEPENDS control_msgs controller_interface controller_manager geometry_msgs hardware_interface pluginlib roscpp rospy sensor_msgs smm_screws std_msgs message_runtime dynamic_reconfigure
-#  DEPENDS system_lib
+  CATKIN_DEPENDS control_msgs controller_interface controller_manager geometry_msgs hardware_interface pluginlib roscpp rospy sensor_msgs smm_screws std_msgs message_runtime dynamic_reconfigure kdl_parser
+  #DEPENDS
 )
 
 ###########
@@ -212,6 +213,11 @@ add_executable(updateRobustTorque_fasmc_simple src/updateRobustTorque_fasmc_simp
 add_executable(updateDynamicsTorque_fasmc_simple src/updateDynamicsTorque_fasmc_simple.cpp)
 add_executable(updateTorqueCommand_fasmc_simple src/updateTorqueCommand_fasmc_simple.cpp)
 add_executable(robot_torque_command_publisher src/robot_torque_command_publisher.cpp)
+
+## BUILT-IN DYNAMICS AND SIMPLE GRAVITY COMPENSATION
+add_executable(publishSingleJointGoal src/publishSingleJointGoal.cpp)
+add_executable(stabilizeRobot src/stabilizeRobot.cpp)
+
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -243,6 +249,11 @@ add_dependencies(updateRobustTorque_fasmc_simple ${${PROJECT_NAME}_EXPORTED_TARG
 add_dependencies(updateDynamicsTorque_fasmc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(updateTorqueCommand_fasmc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(robot_torque_command_publisher ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+## BUILT-IN DYNAMICS AND SIMPLE GRAVITY COMPENSATION
+add_dependencies(publishSingleJointGoal ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(stabilizeRobot ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
@@ -342,6 +353,15 @@ target_link_libraries(robot_torque_command_publisher
  ${catkin_LIBRARIES}
  robot_shared 
 )
+target_link_libraries(publishSingleJointGoal
+ ${catkin_LIBRARIES}
+ robot_shared 
+)
+target_link_libraries(stabilizeRobot
+ ${catkin_LIBRARIES}
+ robot_shared 
+)
+
 #############
 ## Install ##
 #############
