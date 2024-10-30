@@ -37,7 +37,7 @@ void calculateTorque() {
     // Calculate torque for each joint
     for (int i = 0; i < 3; ++i) {
         double s = (i == 0 ? sliding_surface.x : (i == 1 ? sliding_surface.y : sliding_surface.z));
-        torque_msg.torques[i] = -eta[i] * std::tanh(gamma_h[i] * s) - epsilon[i] * s; //  - - were replaced with + + !!! [29-10-24]
+        torque_msg.torques[i] = eta[i] * std::tanh(gamma_h[i] * s) + epsilon[i] * s; //  [29-10-24] based on book p.305
     }
 
     // Publish the calculated torques

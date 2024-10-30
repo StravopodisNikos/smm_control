@@ -102,7 +102,7 @@ void computeJointEffort(ros::NodeHandle& nh) {
         return;
     }
 
-    _u = _M * (_ddqd - lambda_0.asDiagonal() * velocity_error) + (_C * _dq + _G);
+    _u = _M * (_ddqd + lambda_0.asDiagonal() * velocity_error) + (_C * _dq + _G);
 
     smm_control::FasmcTorques torque_msg;
     torque_msg.torques[0] = _u[0];
