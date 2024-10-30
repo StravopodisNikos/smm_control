@@ -54,17 +54,17 @@ void setupFuzzyEngine() {
         alpha[i]->setDefaultValue(fl::nan);               
         alpha[i]->setLockPreviousValue(false);           
         alpha[i]->setAggregation(new fl::Maximum());
-        alpha[i]->addTerm(new fl::Gaussian("AO1", 0.01, 0.05));  // 0.001, 0.0005
-        alpha[i]->addTerm(new fl::Gaussian("AO2", 0.10, 0.05));    // 0.01, 0.005
-        alpha[i]->addTerm(new fl::Gaussian("AO3", 0.25, 0.05));      // 0.1, 0.05
+        alpha[i]->addTerm(new fl::Gaussian("AO1", 0.001, 0.005));  // 0.001, 0.0005
+        alpha[i]->addTerm(new fl::Gaussian("AO2", 0.050, 0.005));    // 0.01, 0.005
+        alpha[i]->addTerm(new fl::Gaussian("AO3", 0.1, 0.05));      // 0.1, 0.05
         engine->addOutputVariable(alpha[i]);
 
         beta[i] = new fl::OutputVariable;
         beta[i]->setName("Beta" + std::to_string(i + 1));
         beta[i]->setRange(0.01, 1.0);
-        beta[i]->addTerm(new fl::Gaussian("BO1", 0.01, 0.05)); // 0.001, 0.0005
-        beta[i]->addTerm(new fl::Gaussian("BO2", 0.10, 0.05));   // 0.01, 0.005
-        beta[i]->addTerm(new fl::Gaussian("BO3", 0.25, 0.05));     // 0.1, 0.05
+        beta[i]->addTerm(new fl::Gaussian("BO1", 0.001, 0.005)); // 0.001, 0.0005
+        beta[i]->addTerm(new fl::Gaussian("BO2", 0.050, 0.005));   // 0.01, 0.005
+        beta[i]->addTerm(new fl::Gaussian("BO3", 0.1, 0.05));     // 0.1, 0.05
         beta[i]->setDefuzzifier(new fl::Centroid(100));  
         beta[i]->setDefaultValue(fl::nan);               
         beta[i]->setLockPreviousValue(false);
@@ -74,9 +74,9 @@ void setupFuzzyEngine() {
         gammaParams[i] = new fl::OutputVariable; 
         gammaParams[i]->setName("Gamma" + std::to_string(i + 1));
         gammaParams[i]->setRange(0.01, 1.0);
-        gammaParams[i]->addTerm(new fl::Gaussian("GO1", 0.1, 0.05));  // 0.1, 0.05
-        gammaParams[i]->addTerm(new fl::Gaussian("GO2", 0.25, 0.15)); // 0.25, 0.15
-        gammaParams[i]->addTerm(new fl::Gaussian("GO3", 0.50, 0.25)); // 0.50, 0.25
+        gammaParams[i]->addTerm(new fl::Gaussian("GO1", 0.001, 0.005));  // 0.1, 0.05
+        gammaParams[i]->addTerm(new fl::Gaussian("GO2", 0.1, 0.05)); // 0.25, 0.15
+        gammaParams[i]->addTerm(new fl::Gaussian("GO3", 0.2, 0.1)); // 0.50, 0.25
         gammaParams[i]->setDefuzzifier(new fl::Centroid(100));  
         gammaParams[i]->setDefaultValue(fl::nan);               
         gammaParams[i]->setLockPreviousValue(false);

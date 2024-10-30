@@ -14,6 +14,8 @@ Eigen::Matrix3f _M;
 Eigen::Matrix3f _C;
 Eigen::Vector3f _G;
 Eigen::Vector3f _u;  // Control effort vector
+Eigen::Matrix3f _B = Eigen::Matrix3f::Identity() * 1.0;  // Damping coefficient matrix
+Eigen::Matrix3f _F = Eigen::Matrix3f::Identity() * 2.0;  // Friction coefficient matrix
 
 // Error state
 Eigen::Vector3f velocity_error = Eigen::Vector3f::Zero();
@@ -102,7 +104,8 @@ void computeJointEffort(ros::NodeHandle& nh) {
         return;
     }
 
-    _u = _M * (_ddqd + lambda_0.asDiagonal() * velocity_error) + (_C * _dq + _G);
+    //_u = _M * (_ddqd + lambda_0.asDiagonal() * velocity_error) + (_C * _dq + _G);
+    _u = _M * (_ddqd + lambda_0.asDiagonal() * velocity_error) + (_C * _dq + _G) - _B * _dq - _F * _dq.array().sign().matrix(); 
 
     smm_control::FasmcTorques torque_msg;
     torque_msg.torques[0] = _u[0];

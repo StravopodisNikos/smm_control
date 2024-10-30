@@ -1,5 +1,5 @@
 positions:  # joint angles {j1,j2,j3} in [rad]
-  position: [0.0000, 0.48, 0.0000]
+  position: [0.42, 0.58, 0.37]
 
 velocities:  # joint velocities {j1,j2,j3} in [rad/s]
   velocity: [0.0000, 0.0000, 0.0000]

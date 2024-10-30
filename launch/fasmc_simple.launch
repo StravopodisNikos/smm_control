@@ -25,7 +25,8 @@
     <node name="updateJointState_fasmc_simple" pkg="smm_control" type="updateJointState_fasmc_simple" output="screen" />
 
     <!-- Analytical Dynamics using screws @ /joint_current_state -->
-    <node name="serverRobotDynamics" pkg="smm_control" type="serverRobotDynamics" output="screen" />
+    <node name="serverRobotDynamics" pkg="smm_control" type="serverRobotDynamics" output="screen" /> 
+    <!--<node name="serverRobotDynamicsKDL" pkg="smm_control" type="serverRobotDynamicsKDL" output="screen" /> -->
 
     <!-- III. FASMC -->
     <!-- Node that publishes to /fasmc_error_state -->

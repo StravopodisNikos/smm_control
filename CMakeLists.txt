@@ -200,6 +200,7 @@ add_executable(serverToolJacobians src/serverToolJacobians.cpp)
 add_executable(updateGains_idosc_simple src/updateGains_idosc_simple.cpp)
 add_executable(updateControlOutput_idosc_simple src/updateControlOutput_idosc_simple.cpp)
 add_executable(serverRobotDynamics src/serverRobotDynamics.cpp)
+add_executable(serverRobotDynamicsKDL src/serverRobotDynamicsKDL.cpp)
 add_executable(updateTorques_idosc_simple src/updateTorques_idosc_simple.cpp)
 add_executable(robot_effort_publisher src/robot_effort_publisher.cpp)
 ## FASMC
@@ -236,6 +237,7 @@ add_dependencies(serverToolJacobians ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catki
 add_dependencies(updateGains_idosc_simple ${PROJECT_NAME}_gencfg)
 add_dependencies(updateControlOutput_idosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(serverRobotDynamics ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(serverRobotDynamicsKDL ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(updateTorques_idosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(robot_effort_publisher ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 ## FASMC
@@ -301,6 +303,10 @@ target_link_libraries(updateControlOutput_idosc_simple
  robot_shared 
 )
 target_link_libraries(serverRobotDynamics
+ ${catkin_LIBRARIES}
+ robot_shared 
+)
+target_link_libraries(serverRobotDynamicsKDL
  ${catkin_LIBRARIES}
  robot_shared 
 )
