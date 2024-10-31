@@ -47,6 +47,7 @@ bool getDynamicsFromService(ros::NodeHandle& nh, bool get_M, bool get_Cor, bool 
                     _M(i, j) = srv.response.Mass[i * 3 + j];
                 }
             }
+            ROS_INFO_STREAM("[updateDynamicsTorque_fasmc_simple/getDynamicsFromService] Mass Matrix:\n" << _M);
         }
         if (get_Cor) {
             for (int i = 0; i < 3; i++) {
@@ -54,11 +55,13 @@ bool getDynamicsFromService(ros::NodeHandle& nh, bool get_M, bool get_Cor, bool 
                     _C(i, j) = srv.response.Coriolis[i * 3 + j];
                 }
             }
+            ROS_INFO_STREAM("[updateDynamicsTorque_fasmc_simple/getDynamicsFromService] Coriolis Matrix:\n" << _C);
         }
         if (get_Grav) {
             for (int i = 0; i < 3; i++) {
                 _G(i) = srv.response.Gravity[i];
             }
+            ROS_INFO_STREAM("[updateDynamicsTorque_fasmc_simple/getDynamicsFromService] Gravity Vector:\n" << _G);
         }
         return true;        
     } else {
@@ -105,11 +108,11 @@ void computeJointEffort(ros::NodeHandle& nh) {
     }
 
     //_u = _M * (_ddqd + lambda_0.asDiagonal() * velocity_error) + (_C * _dq + _G);
-    _u = _M * (_ddqd + lambda_0.asDiagonal() * velocity_error) + (_C * _dq + _G) - _B * _dq - _F * _dq.array().sign().matrix(); 
+    _u = _M * (_ddqd + lambda_0.asDiagonal() * velocity_error) + (_C * _dq + _G) - ( _B * _dq ) - ( _F * _dq.array().sign().matrix() ); 
 
     smm_control::FasmcTorques torque_msg;
     torque_msg.torques[0] = _u[0];
-    torque_msg.torques[0] = _u[1];
+    torque_msg.torques[1] = _u[1];
     torque_msg.torques[2] = _u[2];
     torque_pub.publish(torque_msg);
 

@@ -43,4 +43,7 @@
     <node pkg="rosbag" type="record" name="record_slide_surface" args="record -O $(find smm_control)/rosbags/$(arg run_name)/fasmc_slide_surf.bag /fasmc_sliding_surface"/>
 
     <node pkg="rosbag" type="record" name="record_fuzzy_params" args="record -O $(find smm_control)/rosbags/$(arg run_name)/fasmc_fuzzy_params.bag /fasmc_fuzzy_params"/> 
+
+    <node pkg="rosbag" type="record" name="record_adaptive_params" args="record -O $(find smm_control)/rosbags/$(arg run_name)/fasmc_adaptive_params.bag /fasmc_adaptive_params"/> 
+
 </launch>

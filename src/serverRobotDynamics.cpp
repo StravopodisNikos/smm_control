@@ -75,7 +75,7 @@ bool sendDynamics(smm_control::GetDynamics::Request &req, smm_control::GetDynami
     // If client requests Gravity Vector
     if (req.get_Gravity) {
         for (int i = 0; i < 3; i++) {
-            res.Gravity[i] = Gravity_Vector(i);
+            res.Gravity[i] = -Gravity_Vector(i);
         }
         //ROS_INFO("[serverRobotDynamics/sendDynamics] Gravity vector sent.");
     }

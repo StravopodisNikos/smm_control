@@ -7,18 +7,19 @@
 
 std::vector<double> eta_0(3, 0.01);
 std::vector<double> epsilon_0(3, 0.01);
-boost::array<double, 3> alpha = {0.0, 0.0, 0.0};
-boost::array<double, 3> beta = {0.0, 0.0, 0.0};
+boost::array<double, 3> alpha = {0.2, 0.4, 0.2};
+boost::array<double, 3> beta = {0.2, 0.4, 0.2};
 boost::array<double, 3> position_error = {0.0, 0.0, 0.0};
 
 ros::Publisher adaptive_params_pub;
 
 // Callback for /fasmc_fuzzy_params
+/*
 void fuzzyParamsCallback(const smm_control::FasmcFuzzyParams::ConstPtr& msg) {
     alpha = msg->alpha;
     beta = msg->beta;
 }
-
+*/
 // Callback for /fasmc_error_state
 void errorStateCallback(const smm_control::FasmcError::ConstPtr& msg) {
     position_error = msg->position_error;
@@ -32,6 +33,15 @@ void calculateEtaEpsilon() {
         double abs_position_error = std::abs(position_error[i]);
         eta_epsilon_msg.eta[i] = eta_0[i] * (1.0 + alpha[i] * abs_position_error);
         eta_epsilon_msg.epsilon[i] = epsilon_0[i] * (1.0 + beta[i] * abs_position_error);
+/*
+        if (abs_position_error < 0.1) {
+            eta_epsilon_msg.eta[i] = eta_0[i] * (1.0 - alpha[i] * abs_position_error);
+            eta_epsilon_msg.epsilon[i] = epsilon_0[i] * (1.0 - beta[i] * abs_position_error);
+        } else {
+            eta_epsilon_msg.eta[i] = eta_0[i] * (1.0 + alpha[i] * abs_position_error);
+            eta_epsilon_msg.epsilon[i] = epsilon_0[i] * (1.0 + beta[i] * abs_position_error);
+        }
+*/
     }
 
     // Publish the calculated eta and epsilon values
@@ -73,7 +83,7 @@ int main(int argc, char** argv) {
     }
 
     // Subscribe to topics
-    ros::Subscriber fuzzy_params_sub = nh.subscribe("/fasmc_fuzzy_params", 10, fuzzyParamsCallback);
+    //ros::Subscriber fuzzy_params_sub = nh.subscribe("/fasmc_fuzzy_params", 10, fuzzyParamsCallback);
     ros::Subscriber error_state_sub = nh.subscribe("/fasmc_error_state", 10, errorStateCallback);
 
     // Publisher for calculated eta and epsilon values
