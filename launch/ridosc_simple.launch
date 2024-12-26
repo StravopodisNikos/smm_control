@@ -1,34 +1,31 @@
 <?xml version="1.0" ?>
-<!-- [25-10-24] Constructed for simulating a 3 DoF SMM, with 3 joint effort controllers && fasmc centralized node -->
-<!--           - fasmc_master node executes the "update" function and publishes the joint torques 
-               - the controller yaml is located in the ros_pkg of the robot xacro file: smm_ros_gazebo_pkg
--->
+<!-- [6-11-24] Constructed for simulating a 3 DoF SMM, with 3 joint effort controllers && R-idosc centralized node -->
+<!-- [26-12-24] Resumed working. It implements the algorithm in MATLAB script smm_ridosc_test2.m-->
      
 <launch>
     <arg name="run_name" default="default_run" />
 
     <!-- Include launch file Gazebo with robot and all controller settings -->
-     <include file="$(find smm_control)/launch/idosc_gazebo_settings.launch"/> <!--use same settings for fasmc and idosc -->
+     <include file="$(find smm_control)/launch/idosc_gazebo_settings.launch"/> <!--use same settings for idosc/fasmc/ridosc -->
     
-    <!-- FASMC SIMPLE IMPLEMENTATION -->
+    <!-- R-idosc SIMPLE IMPLEMENTATION -->
     
     <!-- I. PUBLISH DESIRED STATES -->
-    <!-- Node that publishes to /joint_desired_state -->
-    <!--<rosparam file="$(find smm_control)/config/yaml/paths/cspace_path_reid16.yaml" command="load"/>
-    <node name="publishJointPathLoop_fasmc_simple" pkg="smm_control" type="publishJointPathLoop_fasmc_simple" output="screen" /> -->
-
-    <rosparam file="$(find smm_control)/config/yaml/paths/cspace_goal.yaml" command="load"/>
-    <node name="publishSingleJointGoal" pkg="smm_control" type="publishSingleJointGoal" output="screen" />
+    <!-- Node that publishes to /tcp_desired_state -->
+    <rosparam file="$(find smm_control)/config/yaml/paths/tspace_goal.yaml" command="load"/>
+    <node name="publishSingleTaskGoal" pkg="smm_control" type="publishSingleTaskGoal" output="screen" />
 
     <!-- II. ROBOT DATA -->
     <!-- Node that generates the topic /joint_current_state -->
-    <node name="updateJointState_fasmc_simple" pkg="smm_control" type="updateJointState_fasmc_simple" output="screen" />
+    <node name="updateJointState_simple" pkg="smm_control" type="updateJointState_simple" output="screen" />
 
     <!-- Analytical Dynamics using screws @ /joint_current_state -->
     <node name="serverRobotDynamics" pkg="smm_control" type="serverRobotDynamics" output="screen" /> 
-    <!--<node name="serverRobotDynamicsKDL" pkg="smm_control" type="serverRobotDynamicsKDL" output="screen" /> -->
 
-    <!-- III. FASMC -->
+    <!-- Analytical Jacobians using screws @ /joint_current_state -->
+    <node name="serverOperationalJacobians" pkg="smm_control" type="serverOperationalJacobians" output="screen" />
+
+    <!-- III. RIDOSC -->
     <!-- Node that publishes to /fasmc_error_state -->
     <node name="updateErrorState_fasmc_simple" pkg="smm_control" type="updateErrorState_fasmc_simple" output="screen" /> 
     

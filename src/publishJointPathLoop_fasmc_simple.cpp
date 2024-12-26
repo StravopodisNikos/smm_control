@@ -90,7 +90,7 @@ int main(int argc, char** argv) {
     // Initialize the publisher for /joint_desired_state
     desired_state_pub = nh.advertise<smm_control::CustomJointState>("/joint_desired_state", 10);
 
-    publishDesiredState();
+    //publishDesiredState();
 
     ros::Rate loop_rate(UPDATE_JOINT_PATH_LOOP_RATE);
     
