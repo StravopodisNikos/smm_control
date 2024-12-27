@@ -4,6 +4,8 @@
      
 <launch>
     <arg name="run_name" default="default_run" />
+    <arg name="tcp_link_name" default="massage_tool" />
+    <arg name="str_digit" default="3" />
 
     <!-- Include launch file Gazebo with robot and all controller settings -->
      <include file="$(find smm_control)/launch/idosc_gazebo_settings.launch"/> <!--use same settings for idosc/fasmc/ridosc -->
@@ -13,7 +15,9 @@
     <!-- I. PUBLISH DESIRED STATES -->
     <!-- Node that publishes to /tcp_desired_state -->
     <rosparam file="$(find smm_control)/config/yaml/paths/tspace_goal.yaml" command="load"/>
-    <node name="publishSingleTaskGoal" pkg="smm_control" type="publishSingleTaskGoal" output="screen" />
+    <node name="publishSingleTcpGoal" pkg="smm_control" type="publishSingleTcpGoal" output="screen">
+        <param name="TCP_LINK_NAME" value="$(arg tcp_link_name)" />     
+    </node>
 
     <!-- II. ROBOT DATA -->
     <!-- Node that generates the topic /joint_current_state -->
@@ -23,38 +27,45 @@
     <node name="serverRobotDynamics" pkg="smm_control" type="serverRobotDynamics" output="screen" /> 
 
     <!-- Analytical Jacobians using screws @ /joint_current_state -->
-    <node name="serverOperationalJacobians" pkg="smm_control" type="serverOperationalJacobians" output="screen" />
+    <!-- tried something else-->
+    <!--<node name="serverSpatialJacobians" pkg="smm_control" type="serverSpatialJacobians" output="screen" /> -->
 
     <!-- III. RIDOSC -->
-    <!-- Node that publishes to /fasmc_error_state -->
-    <node name="updateErrorState_fasmc_simple" pkg="smm_control" type="updateErrorState_fasmc_simple" output="screen" /> 
+
+    <!-- Node that generates the topic /tcp_current_state -->
+    <node name="updateCartesianState_ridosc_simple" pkg="smm_control" type="updateCartesianState_ridosc_simple" output="screen" >
+        <param name="STR_DIGIT" value="$(arg str_digit)" />
+    </node>
+
+    <!-- Node that publishes to /ridosc_error_state -->
+    <!-- <node name="updateErrorState_ridosc_simple" pkg="smm_control" type="updateErrorState_ridosc_simple" output="screen" /> -->
     
     <!-- Sliding state -->
-    <rosparam file="$(find smm_control)/config/yaml/fasmc/fixed_params.yaml" command="load"/>
-    <node name="updateSlidingState_fasmc_simple" pkg="smm_control" type="updateSlidingState_fasmc_simple" output="screen" /> 
+    <!--<rosparam file="$(find smm_control)/config/yaml/fasmc/fixed_params.yaml" command="load"/> -->
+    <!--<node name="updateSlidingState_fasmc_simple" pkg="smm_control" type="updateSlidingState_fasmc_simple" output="screen" />  -->
 
     <!-- Fuzzy Parameters -->
-    <node name="updateFuzzyParams_fasmc_simple" pkg="smm_control" type="updateFuzzyParams_fasmc_simple" output="screen" />
+    <!--<node name="updateFuzzyParams_fasmc_simple" pkg="smm_control" type="updateFuzzyParams_fasmc_simple" output="screen" /> -->
 
     <!-- Adaptive Parameters -->
-    <node name="updateParams_fasmc_simple" pkg="smm_control" type="updateParams_fasmc_simple" output="screen" />  
+    <!--<node name="updateParams_fasmc_simple" pkg="smm_control" type="updateParams_fasmc_simple" output="screen" />  -->
 
     <!-- Robust torque term -->
-    <node name="updateRobustTorque_fasmc_simple" pkg="smm_control" type="updateRobustTorque_fasmc_simple" output="screen" />
+    <!--<node name="updateRobustTorque_fasmc_simple" pkg="smm_control" type="updateRobustTorque_fasmc_simple" output="screen" /> -->
 
     <!-- Dynamic Model torque term -->  
-    <node name="updateDynamicsTorque_fasmc_simple" pkg="smm_control" type="updateDynamicsTorque_fasmc_simple" output="screen" />
+    <!--<node name="updateDynamicsTorque_fasmc_simple" pkg="smm_control" type="updateDynamicsTorque_fasmc_simple" output="screen" /> -->
 
     <!-- Add fasmc torques-->
-    <node name="updateTorqueCommand_fasmc_simple" pkg="smm_control" type="updateTorqueCommand_fasmc_simple" output="screen" />
+    <!--<node name="updateTorqueCommand_fasmc_simple" pkg="smm_control" type="updateTorqueCommand_fasmc_simple" output="screen" /> --> 
 
     <!-- Publish to robot effort controllers -->
-    <node name="robot_torque_command_publisher" pkg="smm_control" type="robot_torque_command_publisher" output="screen" />
+    <!--<node name="robot_torque_command_publisher" pkg="smm_control" type="robot_torque_command_publisher" output="screen" /> -->
 
     <!-- IV. DATA LOGGING -->
     <!-- Include launch file for data logging and real time monitoring -->
-    <include file="$(find smm_control)/launch/fasmc_data_monitor.launch">
+    <!--<include file="$(find smm_control)/launch/fasmc_data_monitor.launch">
         <arg name="run_name" value="$(arg run_name)"/>
-    </include>
+    </include> -->
      
 </launch>

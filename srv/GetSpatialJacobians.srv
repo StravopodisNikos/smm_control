@@ -1,0 +1,5 @@
+bool get_sp1_jacobian          # The Spatial Jacobian extracted from FIRST  "=" of eq.28 \in Mueller Kinematics Paper
+bool get_sp2_jacobian          # The Spatial Jacobian extracted from SECOND "=" of eq.28 \in Mueller Kinematics Paper
+---
+float32[18] sp1_jacobian        # 6x3 matrix, row-major
+float32[18] sp2_jacobian    # 6x3 matrix, row-major

@@ -77,6 +77,7 @@ add_message_files(
   FasmcAdaptiveParams.msg
   FasmcTorques.msg
   RobotTorques.msg
+  CustomTcpState.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -89,6 +90,7 @@ add_service_files(
   FILES
   GetJacobians.srv
   GetDynamics.srv
+  GetSpatialJacobians.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -216,9 +218,12 @@ add_executable(updateTorqueCommand_fasmc_simple src/updateTorqueCommand_fasmc_si
 add_executable(robot_torque_command_publisher src/robot_torque_command_publisher.cpp)
 ## RIDOSC
 add_executable(updateJointState_simple src/updateJointState_simple.cpp)
+add_executable(serverSpatialJacobians src/serverSpatialJacobians.cpp)
+add_executable(updateCartesianState_ridosc_simple src/updateCartesianState_ridosc_simple.cpp)
 
 ## BUILT-IN DYNAMICS AND SIMPLE GRAVITY COMPENSATION
 add_executable(publishSingleJointGoal src/publishSingleJointGoal.cpp)
+add_executable(publishSingleTcpGoal src/publishSingleTcpGoal.cpp)
 add_executable(stabilizeRobot src/stabilizeRobot.cpp)
 
 ## Rename C++ executable without prefix
@@ -255,9 +260,13 @@ add_dependencies(updateTorqueCommand_fasmc_simple ${${PROJECT_NAME}_EXPORTED_TAR
 add_dependencies(robot_torque_command_publisher ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 ## RIDOSC
 add_dependencies(updateJointState_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(serverSpatialJacobians ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(updateCartesianState_ridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
 
 ## BUILT-IN DYNAMICS AND SIMPLE GRAVITY COMPENSATION
 add_dependencies(publishSingleJointGoal ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(publishSingleTcpGoal ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(stabilizeRobot ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
@@ -367,6 +376,10 @@ target_link_libraries(publishSingleJointGoal
  ${catkin_LIBRARIES}
  robot_shared 
 )
+target_link_libraries(publishSingleTcpGoal
+ ${catkin_LIBRARIES}
+ robot_shared 
+)
 target_link_libraries(stabilizeRobot
  ${catkin_LIBRARIES}
  robot_shared 
@@ -376,6 +389,14 @@ target_link_libraries(updateJointState_simple
  ${catkin_LIBRARIES}
  robot_shared 
 )
+target_link_libraries(serverSpatialJacobians
+ ${catkin_LIBRARIES}
+ robot_shared 
+)
+target_link_libraries(updateCartesianState_ridosc_simple
+ ${catkin_LIBRARIES}
+ robot_shared 
+) 
 #############
 ## Install ##
 #############
