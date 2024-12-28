@@ -13,4 +13,6 @@ constexpr double UPDATE_JOINT_PATH_LOOP_RATE 		= 1.0;       //
 constexpr double UPDATE_SERVER_DYNAMICS_RATE 		= 100.0;     // 100
 constexpr double UPDATE_JOINT_STATE_RATE 		    = 1000.0;    // 1000
 
+constexpr double UPDATE_DESIRED_STATE_RATE          = 100.0;    // 1000
+
 #endif // TIMING_H

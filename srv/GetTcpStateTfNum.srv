@@ -1,0 +1,5 @@
+bool get_vel_num          # Flag to request velocity
+bool get_accel_num        # Flag to request acceleration
+---
+float32[3] vel_num 
+float32[3] accel_num 

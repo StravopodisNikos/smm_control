@@ -22,6 +22,8 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation # [29-7-24] Added for custom controllers messages
   dynamic_reconfigure
   kdl_parser
+  tf2
+  tf2_ros
 )
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -91,6 +93,7 @@ add_service_files(
   GetJacobians.srv
   GetDynamics.srv
   GetSpatialJacobians.srv
+  GetTcpStateTfNum.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -146,7 +149,7 @@ generate_dynamic_reconfigure_options(
 catkin_package(
 #  INCLUDE_DIRS include
   LIBRARIES idosc # [30-7-24] Added for using idosc class as ROS library
-  CATKIN_DEPENDS control_msgs controller_interface controller_manager geometry_msgs hardware_interface pluginlib roscpp rospy sensor_msgs smm_screws std_msgs message_runtime dynamic_reconfigure kdl_parser
+  CATKIN_DEPENDS control_msgs controller_interface controller_manager geometry_msgs hardware_interface pluginlib roscpp rospy sensor_msgs smm_screws std_msgs message_runtime dynamic_reconfigure kdl_parser tf2 tf2_ros
   #DEPENDS
 )
 
@@ -220,6 +223,11 @@ add_executable(robot_torque_command_publisher src/robot_torque_command_publisher
 add_executable(updateJointState_simple src/updateJointState_simple.cpp)
 add_executable(serverSpatialJacobians src/serverSpatialJacobians.cpp)
 add_executable(updateCartesianState_ridosc_simple src/updateCartesianState_ridosc_simple.cpp)
+add_executable(serverTcpStateTfNum src/serverTcpStateTfNum.cpp)
+add_executable(updateDesiredState_ridosc_simple src/updateDesiredState_ridosc_simple.cpp)
+add_executable(updateErrorState_ridosc_simple src/updateErrorState_ridosc_simple.cpp)
+add_executable(updateParams_ridosc_simple src/updateParams_ridosc_simple.cpp)
+add_executable(updateRobustTorque_ridosc_simple src/updateRobustTorque_ridosc_simple.cpp)
 
 ## BUILT-IN DYNAMICS AND SIMPLE GRAVITY COMPENSATION
 add_executable(publishSingleJointGoal src/publishSingleJointGoal.cpp)
@@ -262,7 +270,11 @@ add_dependencies(robot_torque_command_publisher ${${PROJECT_NAME}_EXPORTED_TARGE
 add_dependencies(updateJointState_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(serverSpatialJacobians ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(updateCartesianState_ridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
+add_dependencies(serverTcpStateTfNum ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(updateDesiredState_ridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(updateErrorState_ridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(updateParams_ridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(updateRobustTorque_ridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## BUILT-IN DYNAMICS AND SIMPLE GRAVITY COMPENSATION
 add_dependencies(publishSingleJointGoal ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -397,6 +409,26 @@ target_link_libraries(updateCartesianState_ridosc_simple
  ${catkin_LIBRARIES}
  robot_shared 
 ) 
+target_link_libraries(serverTcpStateTfNum
+ ${catkin_LIBRARIES}
+ robot_shared 
+) 
+target_link_libraries(updateDesiredState_ridosc_simple
+ ${catkin_LIBRARIES}
+ robot_shared 
+) 
+target_link_libraries(updateErrorState_ridosc_simple
+ ${catkin_LIBRARIES}
+ robot_shared 
+)
+target_link_libraries(updateParams_ridosc_simple
+ ${catkin_LIBRARIES}
+ robot_shared 
+)
+target_link_libraries(updateRobustTorque_ridosc_simple
+ ${catkin_LIBRARIES}
+ robot_shared 
+)
 #############
 ## Install ##
 #############
