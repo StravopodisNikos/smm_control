@@ -1,5 +1,5 @@
 #include <ros/ros.h>
-#include <smm_control/FasmcError.h>
+#include <smm_control/IdoscError.h>
 #include <geometry_msgs/Vector3.h>
 #include <vector>
 #include "smm_control/timing.h"
@@ -8,18 +8,19 @@
 std::vector<double> lambda_0(3, 0.01);  // Default values, overwritten by YAML
 ros::Publisher sliding_surface_pub;     // Publisher for the sliding surface
 
-// Callback for /fasmc_error_state
-void errorStateCallback(const smm_control::FasmcError::ConstPtr& msg) {
-    if (msg->position_error.size() != 3 || msg->velocity_error.size() != 3) {
-        ROS_ERROR("Expected 3 values for position and velocity errors.");
+// Callback for /idosc_error_state
+void errorStateCallback(const smm_control::IdoscError::ConstPtr& msg) {
+    // Check that the message contains valid data
+    if (!msg) {
+        ROS_ERROR("Received a null IdoscError message.");
         return;
     }
 
     // Calculate s = velocity_error + lambda_0 * position_error
     geometry_msgs::Vector3 s_msg;
-    s_msg.x = msg->velocity_error[0] + lambda_0[0] * msg->position_error[0];
-    s_msg.y = msg->velocity_error[1] + lambda_0[1] * msg->position_error[1];
-    s_msg.z = msg->velocity_error[2] + lambda_0[2] * msg->position_error[2];
+    s_msg.x = msg->twist_error.linear.x + lambda_0[0] * msg->pose_error.position.x;
+    s_msg.y = msg->twist_error.linear.y + lambda_0[1] * msg->pose_error.position.y;
+    s_msg.z = msg->twist_error.linear.z + lambda_0[2] * msg->pose_error.position.z;
 
     // Publish sliding surface message
     sliding_surface_pub.publish(s_msg);

@@ -15,11 +15,6 @@ std::array<double, 3> epsilon = {0.0, 0.0, 0.0};
 
 ros::Publisher torque_pub;
 
-// Callback for /fasmc_adaptive_params
-//void adaptiveParamsCallback(const smm_control::FasmcAdaptiveParams::ConstPtr& msg) {
-//    eta = msg->eta;
-//    epsilon = msg->epsilon;
-//}
 void adaptiveParamsCallback(const smm_control::FasmcAdaptiveParams::ConstPtr& msg) {
     for (size_t i = 0; i < 3; ++i) {
         eta[i] = msg->eta[i];
@@ -42,7 +37,7 @@ void calculateTorque() {
     // Calculate torque for each joint
     for (int i = 0; i < 3; ++i) {
         double s = (i == 0 ? sliding_surface.x : (i == 1 ? sliding_surface.y : sliding_surface.z));
-        torque_msg.torques[i] = eta[i] * std::tanh( gamma_h[i] * s) + epsilon[i] * s; // [29-10-24] based on book p.305
+        torque_msg.torques[i] = eta[i] * std::tanh( gamma_h[i] * s) + epsilon[i] * s; // based on book p.305
         //torque_msg.torques[i] = eta[i] * std::tanh(s) + epsilon[i] * s;             // no gamma
         //torque_msg.torques[i] =  eta[i] * std::copysign(1.0, s) + epsilon[i] * s;   // sign function
     }

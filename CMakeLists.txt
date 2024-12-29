@@ -94,6 +94,7 @@ add_service_files(
   GetDynamics.srv
   GetSpatialJacobians.srv
   GetTcpStateTfNum.srv
+  GetOperationalSpaceDynamics.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -227,7 +228,9 @@ add_executable(serverTcpStateTfNum src/serverTcpStateTfNum.cpp)
 add_executable(updateDesiredState_ridosc_simple src/updateDesiredState_ridosc_simple.cpp)
 add_executable(updateErrorState_ridosc_simple src/updateErrorState_ridosc_simple.cpp)
 add_executable(updateParams_ridosc_simple src/updateParams_ridosc_simple.cpp)
+add_executable(updateSlidingState_ridosc_simple src/updateSlidingState_ridosc_simple.cpp)
 add_executable(updateRobustTorque_ridosc_simple src/updateRobustTorque_ridosc_simple.cpp)
+add_executable(serverOperationalSpaceDynamics src/serverOperationalSpaceDynamics.cpp)
 
 ## BUILT-IN DYNAMICS AND SIMPLE GRAVITY COMPENSATION
 add_executable(publishSingleJointGoal src/publishSingleJointGoal.cpp)
@@ -274,9 +277,11 @@ add_dependencies(serverTcpStateTfNum ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catki
 add_dependencies(updateDesiredState_ridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(updateErrorState_ridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(updateParams_ridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(updateSlidingState_ridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(updateRobustTorque_ridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(serverOperationalSpaceDynamics ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-## BUILT-IN DYNAMICS AND SIMPLE GRAVITY COMPENSATION
+## BUILT-IN DYNAMICS AND SIMPLE GRAVITY COMPENSATION && DESIRED GOALs
 add_dependencies(publishSingleJointGoal ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(publishSingleTcpGoal ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(stabilizeRobot ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -425,7 +430,15 @@ target_link_libraries(updateParams_ridosc_simple
  ${catkin_LIBRARIES}
  robot_shared 
 )
+target_link_libraries(updateSlidingState_ridosc_simple
+ ${catkin_LIBRARIES}
+ robot_shared 
+)
 target_link_libraries(updateRobustTorque_ridosc_simple
+ ${catkin_LIBRARIES}
+ robot_shared 
+)
+target_link_libraries(serverOperationalSpaceDynamics
  ${catkin_LIBRARIES}
  robot_shared 
 )

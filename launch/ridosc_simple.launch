@@ -3,17 +3,18 @@
 <!-- [26-12-24] Resumed working. It implements the algorithm in MATLAB script smm_ridosc_test2.m-->
      
 <launch>
+    <!-- Define robot specific arguments -->
     <arg name="run_name" default="default_run" />
     <arg name="tcp_link_name" default="massage_tool" />
     <arg name="str_digit" default="3" />
     <param name="base_frame" value="base_plate" />
     <param name="tcp_frame" value="massage_tool" />
-
+    <!-- Include YAML file with RIDOSC parameters -->
+    <rosparam file="$(find smm_control)/config/yaml/ridosc/fixed_params.yaml" command="load"/>
     <!-- Include launch file Gazebo with robot and all controller settings -->
      <include file="$(find smm_control)/launch/idosc_gazebo_settings.launch"/> <!--use same settings for idosc/fasmc/ridosc -->
     
-    <!-- R-idosc SIMPLE IMPLEMENTATION -->
-    
+    <!-- R-idosc SIMPLE IMPLEMENTATION --> 
     <!-- I. PUBLISH DESIRED STATES -->
     <!-- Node that publishes to /tcp_desired_state -->
     <rosparam file="$(find smm_control)/config/yaml/paths/tspace_goal.yaml" command="load"/>
@@ -29,7 +30,7 @@
     <node name="updateJointState_simple" pkg="smm_control" type="updateJointState_simple" output="screen" />
 
     <!-- Analytical Dynamics using screws @ /joint_current_state -->
-    <node name="serverRobotDynamics" pkg="smm_control" type="serverRobotDynamics" output="screen" /> 
+    <node name="serverOperationalSpaceDynamics" pkg="smm_control" type="serverOperationalSpaceDynamics" output="screen"/>
 
     <!-- Analytical Jacobians using screws @ /joint_current_state -->
     <!-- tried something else-->
@@ -39,7 +40,6 @@
     <node name="serverTcpStateTfNum" pkg="smm_control" type="serverTcpStateTfNum" output="screen"/>
 
     <!-- III. RIDOSC -->
-
     <!-- Node that generates the topic /tcp_current_state -->
     <node name="updateCartesianState_ridosc_simple" pkg="smm_control" type="updateCartesianState_ridosc_simple" output="screen" >
         <param name="STR_DIGIT" value="$(arg str_digit)" />
@@ -49,7 +49,6 @@
     <node name="updateErrorState_ridosc_simple" pkg="smm_control" type="updateErrorState_ridosc_simple" output="screen" />
     
     <!-- Sliding state -->
-    <rosparam file="$(find smm_control)/config/yaml/ridosc/fixed_params.yaml" command="load"/> 
     <node name="updateSlidingState_ridosc_simple" pkg="smm_control" type="updateSlidingState_ridosc_simple" output="screen" />
 
     <!-- Fuzzy Parameters: Not used in ridosc! -->
@@ -59,12 +58,12 @@
     <node name="updateParams_ridosc_simple" pkg="smm_control" type="updateParams_ridosc_simple" output="screen" />
 
     <!-- Robust torque term -->
-    <!--<node name="updateRobustTorque_fasmc_simple" pkg="smm_control" type="updateRobustTorque_fasmc_simple" output="screen" /> -->
+    <node name="updateRobustTorque_ridosc_simple" pkg="smm_control" type="updateRobustTorque_ridosc_simple" output="screen" />
 
     <!-- Dynamic Model torque term -->  
-    <!--<node name="updateDynamicsTorque_fasmc_simple" pkg="smm_control" type="updateDynamicsTorque_fasmc_simple" output="screen" /> -->
+    <!--<node name="updateDynamicsTorque_ridosc_simple" pkg="smm_control" type="updateDynamicsTorque_ridosc_simple" output="screen" /> -->
 
-    <!-- Add fasmc torques-->
+    <!-- Add ridosc torques-->
     <!--<node name="updateTorqueCommand_fasmc_simple" pkg="smm_control" type="updateTorqueCommand_fasmc_simple" output="screen" /> --> 
 
     <!-- Publish to robot effort controllers -->
