@@ -9,9 +9,14 @@ Eigen::Matrix3f inverse_jacobian_matrix = Eigen::Matrix3f::Zero();
 Eigen::Matrix3f derivative_jacobian_matrix = Eigen::Matrix3f::Zero();
 std::mutex jacobian_mutex;  // Mutex for protecting Jacobian updates
 
+constexpr float BASE_LAMBDA_DLS = 0.005f;
+constexpr float JACOB_COND_THRES = 5.0f;
+
 /*
- *  [30-9-24] Calculates all task-space Jacobians. Don't change sequence of method calls!
- *            Implements rosservice. Here all operational jacobians are calculated
+ *  [30-9-24]  Calculates all task-space Jacobians. Don't change sequence of method calls!
+ *             Implements rosservice. Here all operational jacobians are calculated
+ *  [30-12-24] Modified inverse calculation for robustness to singularities. Added condition
+ *             number evaluation and DLS Inverse calculation
  */
 
 void JointStateCallback(const sensor_msgs::JointState::ConstPtr& joint_state, ScrewsKinematics& smm_robot_kin_solver) {
@@ -45,13 +50,36 @@ void JointStateCallback(const sensor_msgs::JointState::ConstPtr& joint_state, Sc
         ROS_WARN("[serverToolJacobians/JointStateCallback] Operational Jacobian pointer is null.");
     }
 
-    // Calculate the inverse of Operational Jacobian
-    smm_robot_kin_solver.inverseOperationalSpaceJacobian();
-    Eigen::Matrix3f* inv_jacobian_ptr = smm_robot_kin_solver.getInverseOperationalJacobian();
-    if (inv_jacobian_ptr != nullptr) {
-        inverse_jacobian_matrix = *inv_jacobian_ptr;  // Correct assignment
-    } else {
-        ROS_WARN("[serverToolJacobians/JointStateCallback] Inverse Operational Jacobian pointer is null.");
+    // Calculate the inverse of Operational Jacobian [DEPRECATED]
+    //smm_robot_kin_solver.inverseOperationalSpaceJacobian();
+    //Eigen::Matrix3f* inv_jacobian_ptr = smm_robot_kin_solver.getInverseOperationalJacobian();
+    //if (inv_jacobian_ptr != nullptr) {
+    //    inverse_jacobian_matrix = *inv_jacobian_ptr;  // Correct assignment
+    //} else {
+    //    ROS_WARN("[serverToolJacobians/JointStateCallback] Inverse Operational Jacobian pointer is null.");
+    //}
+
+    // Calculate the inverse Operational Jacobian [ENHANCED VERSION]
+    std::unique_ptr<Eigen::Matrix3f> inv_jacobian;
+    float jacob_cond_number = smm_robot_kin_solver.JacobianConditionNumber(op_jacobian_matrix);    
+    try {
+        if (jacob_cond_number < JACOB_COND_THRES) {
+            // Simple inverse
+            //ROS_INFO("[serverOperationalSpaceDynamcis/JointStateCallback] Condition number is below threshold. Using simple inverse.");
+            inv_jacobian = smm_robot_kin_solver.inverseOperationalSpaceJacobian_ptr();
+        } else {
+            // DLS inverse
+            ROS_WARN("[serverToolJacobians/JointStateCallback] Condition number exceeds threshold. Using Damped Least Squares (DLS) inverse.");
+            inv_jacobian = smm_robot_kin_solver.DLSInverseJacobian(op_jacobian_matrix, BASE_LAMBDA_DLS);
+        }
+
+        if (inv_jacobian) {
+            inverse_jacobian_matrix = *inv_jacobian; // Assign to local for further use
+        } else {
+            ROS_ERROR("[serverToolJacobians/JointStateCallback] Failed to compute Jacobian inverse. Pointer is null.");
+        }
+    } catch (const std::runtime_error& e) {
+        ROS_ERROR("[serverToolJacobians/JointStateCallback] Exception while computing Jacobian inverse: %s", e.what());
     }
 
     // Calculate the First Time Derivative of Operational Jacobian

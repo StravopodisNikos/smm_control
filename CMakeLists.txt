@@ -231,6 +231,7 @@ add_executable(updateParams_ridosc_simple src/updateParams_ridosc_simple.cpp)
 add_executable(updateSlidingState_ridosc_simple src/updateSlidingState_ridosc_simple.cpp)
 add_executable(updateRobustTorque_ridosc_simple src/updateRobustTorque_ridosc_simple.cpp)
 add_executable(serverOperationalSpaceDynamics src/serverOperationalSpaceDynamics.cpp)
+add_executable(updateDynamicsTorque_ridosc_simple src/updateDynamicsTorque_ridosc_simple.cpp)
 
 ## BUILT-IN DYNAMICS AND SIMPLE GRAVITY COMPENSATION
 add_executable(publishSingleJointGoal src/publishSingleJointGoal.cpp)
@@ -280,6 +281,7 @@ add_dependencies(updateParams_ridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} 
 add_dependencies(updateSlidingState_ridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(updateRobustTorque_ridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(serverOperationalSpaceDynamics ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(updateDynamicsTorque_ridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## BUILT-IN DYNAMICS AND SIMPLE GRAVITY COMPENSATION && DESIRED GOALs
 add_dependencies(publishSingleJointGoal ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -439,6 +441,10 @@ target_link_libraries(updateRobustTorque_ridosc_simple
  robot_shared 
 )
 target_link_libraries(serverOperationalSpaceDynamics
+ ${catkin_LIBRARIES}
+ robot_shared 
+)
+target_link_libraries(updateDynamicsTorque_ridosc_simple
  ${catkin_LIBRARIES}
  robot_shared 
 )
