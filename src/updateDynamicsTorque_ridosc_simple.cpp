@@ -1,8 +1,10 @@
 #include <ros/ros.h>
 #include "smm_screws/robot_shared.h"
+#include <sensor_msgs/JointState.h>
 #include <smm_control/CustomTcpState.h>
 #include <smm_control/IdoscCurrent.h>
 #include <smm_control/GetOperationalSpaceDynamics.h>
+#include <smm_control/GetJacobians.h>
 #include <smm_control/IdoscError.h>
 #include <smm_control/FasmcTorques.h>
 #include <Eigen/Dense>
@@ -18,20 +20,20 @@ std::vector<double> _k_p(3, 1.0);                // Initialized vector with P-ga
 std::vector<double> _k_d(3, 1.0);                // Initialized vector with D-gains
 std::vector<double> _d_c(3, 1.0);                // Initialized vector with damping coeffs  
 std::vector<double> _f_c(3, 1.0);                // Initialized vector with friction coeffs
-Eigen::Matrix3f _Kp = Eigen::Matrix3f::Identity(); // P gains
-Eigen::Matrix3f _Kd = Eigen::Matrix3f::Identity(); // D gains
+Eigen::Matrix3f _Kp = Eigen::Matrix3f::Identity();   // P gains
+Eigen::Matrix3f _Kd = Eigen::Matrix3f::Identity();   // D gains
 Eigen::Matrix3f _Damp = Eigen::Matrix3f::Identity(); // Damping coefficient matrix
-Eigen::Matrix3f _Fric = Eigen::Matrix3f::Identity();// Friction coefficient matrix
-
+Eigen::Matrix3f _Fric = Eigen::Matrix3f::Identity(); // Friction coefficient matrix
+Eigen::Matrix3f _Jop;                                // Tool Jacobian
 // Error state
-Eigen::Vector3f _e = Eigen::Vector3f::Zero();    // 
-Eigen::Vector3f _de = Eigen::Vector3f::Zero();   // 
-
+Eigen::Vector3f _e = Eigen::Vector3f::Zero();     // TCP position error
+Eigen::Vector3f _de = Eigen::Vector3f::Zero();    // TCP velocity error
 // Desired state
 Eigen::Vector3f _ddx_d = Eigen::Vector3f::Zero(); // Desired TCP acceleration loaded from yaml
-
 // Current state
 Eigen::Vector3f _dx = Eigen::Vector3f::Zero();    // Current TCP velocity
+Eigen::Vector3f _dq = Eigen::Vector3f::Zero();  // Current joint velocities
+
 
 ros::Publisher torque_pub;
 
@@ -75,6 +77,33 @@ bool getDynamicsFromService(ros::NodeHandle& nh, bool get_LambdaMatrix, bool get
     }
 }
 
+// Function to call the service and retrieve Jacobians
+bool getJacobiansFromService(ros::NodeHandle& nh, bool get_op, bool get_inv_op, bool get_dt_op) {
+    ros::ServiceClient client = nh.serviceClient<smm_control::GetJacobians>("GetOperationalJacobians");
+    smm_control::GetJacobians srv;
+
+    // Set flags in the request
+    srv.request.get_op_jacobian = get_op;
+    srv.request.get_inv_op_jacobian = get_inv_op;
+    srv.request.get_dt_op_jacobian = get_dt_op;
+
+    if (client.call(srv)) {
+        if (get_op) {
+            // Convert the flat array back to 3x3 matrix
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    _Jop(i, j) = srv.response.op_jacobian[i * 3 + j];
+                }
+            }
+            //ROS_INFO("[updateControlOutput_idosc_simple/getJacobiansFromService] Inverse Operational Jacobian retrieved.");
+        }
+        return true;
+    } else {
+        ROS_ERROR("[updateDynamicsTorque_ridosc_simple/getJacobiansFromService] Failed to call service GetOperationalJacobians.");
+        return false;
+    }
+}
+
 // Callback for joint states to retrieve joint accelerations
 void desiredStateCallback(const smm_control::CustomTcpState::ConstPtr& msg) {
     if (msg->acceleration.size() >= 3) {
@@ -86,7 +115,7 @@ void desiredStateCallback(const smm_control::CustomTcpState::ConstPtr& msg) {
     }
 }
 
-void currentStateCallback(const smm_control::IdoscCurrent::ConstPtr& msg) {
+void currentTcpStateCallback(const smm_control::IdoscCurrent::ConstPtr& msg) {
     if (!msg) {
         ROS_ERROR("Received a null IdoscError message.");
         return;
@@ -94,6 +123,16 @@ void currentStateCallback(const smm_control::IdoscCurrent::ConstPtr& msg) {
     _dx << msg->twist_cur.linear.x,
            msg->twist_cur.linear.y,
            msg->twist_cur.linear.z;
+}
+
+void currentJointStateCallback(const sensor_msgs::JointState::ConstPtr& msg) {
+    if (msg->velocity.size() >= 3) {
+        _dq << static_cast<float>(msg->velocity[0]), 
+               static_cast<float>(msg->velocity[1]), 
+               static_cast<float>(msg->velocity[2]);
+    } else {
+        ROS_WARN("[updateDynamicsTorque_ridosc_simple/currentJointStateCallback] Expected at least 3 joint velocities, received %zu", msg->velocity.size());
+    }
 }
 
 void errorStateCallback(const smm_control::IdoscError::ConstPtr& msg) {
@@ -115,8 +154,12 @@ void computeJointEffort(ros::NodeHandle& nh) {
         ROS_ERROR("Failed to retrieve dynamic matrices.");
         return;
     }
-
-    //_u = _M * (_ddqd + lambda_0.asDiagonal() * velocity_error) + (_C * _dq + _G) - ( _B * _dq ) - ( _F * _dq.array().sign().matrix() ); 
+    if (!getJacobiansFromService(nh, true, false, false)) {
+        ROS_ERROR("Failed to retrieve jacobian matrices.");
+        return;
+    }
+    
+    _u = _Jop.transpose() * ( _Lambda * (_ddx_d + _Kd * _de + _Kp * _e) + _Gamma * _dx + _Fg - ( _Damp * _dq ) - ( _Fric * _dq.array().sign().matrix()) );
 
     smm_control::FasmcTorques torque_msg;
     torque_msg.torques[0] = _u[0];
@@ -124,8 +167,7 @@ void computeJointEffort(ros::NodeHandle& nh) {
     torque_msg.torques[2] = _u[2];
     torque_pub.publish(torque_msg);
 
-    ROS_INFO("[updateDynamicsTorque_ridosc_simple] Dynamic Model Torques: [%f, %f, %f]", torque_msg.torques[0],torque_msg.torques[0], torque_msg.torques[2]);
-    
+    ROS_INFO("[updateDynamicsTorque_ridosc_simple] Dynamic Model Torques: [%f, %f, %f]", torque_msg.torques[0],torque_msg.torques[1], torque_msg.torques[2]);
 }
 
 bool buildDiagonalMatrix(Eigen::Matrix3f* matrix_ptr, const std::vector<double>& diag_values) {
@@ -221,7 +263,8 @@ int main(int argc, char** argv) {
 
     ros::Subscriber desired_state_sub = nh.subscribe("/tcp_desired_state", 10, desiredStateCallback);
     ros::Subscriber error_state_sub = nh.subscribe("/ridos_error_state", 10, errorStateCallback);
-    ros::Subscriber current_state_sub = nh.subscribe("/tcp_current_state", 10, currentStateCallback);
+    ros::Subscriber current_tcp_state_sub = nh.subscribe("/tcp_current_state", 10, currentTcpStateCallback);
+    ros::Subscriber current_joint_state_sub = nh.subscribe("/joint_current_state", 10, currentJointStateCallback);
 
     torque_pub = nh.advertise<smm_control::FasmcTorques>("/ridosc_dyn_term", 10);
 
