@@ -2,6 +2,7 @@
 #include <sensor_msgs/JointState.h>
 #include "smm_screws/robot_shared.h"
 #include "smm_control/GetJacobians.h"  // Include the service header
+#include "smm_control/timing.h"
 #include <mutex>
 
 Eigen::Matrix3f op_jacobian_matrix = Eigen::Matrix3f::Zero();
@@ -10,7 +11,7 @@ Eigen::Matrix3f derivative_jacobian_matrix = Eigen::Matrix3f::Zero();
 std::mutex jacobian_mutex;  // Mutex for protecting Jacobian updates
 
 constexpr float BASE_LAMBDA_DLS = 0.005f;
-constexpr float JACOB_COND_THRES = 5.0f;
+constexpr float JACOB_COND_THRES = 10.0f;
 
 /*
  *  [30-9-24]  Calculates all task-space Jacobians. Don't change sequence of method calls!
@@ -111,7 +112,7 @@ bool sendJacobians(smm_control::GetJacobians::Request &req, smm_control::GetJaco
                 res.op_jacobian[i * 3 + j] = op_jacobian_matrix(i, j);
             }
         }
-        //ROS_INFO("[serverToolJacobians/sendJacobians] Operational Jacobian sent.");
+        ROS_INFO("[serverToolJacobians/sendJacobians] Operational Jacobian sent.");
     }
 
     // If client requests inverse operational Jacobian
@@ -121,7 +122,7 @@ bool sendJacobians(smm_control::GetJacobians::Request &req, smm_control::GetJaco
                 res.inv_op_jacobian[i * 3 + j] = inverse_jacobian_matrix(i, j);
             }
         }
-        //ROS_INFO("[serverToolJacobians/sendJacobians] Inverse Operational Jacobian sent.");
+        ROS_INFO("[serverToolJacobians/sendJacobians] Inverse Operational Jacobian sent.");
     }
 
     // If client requests time derivative of operational Jacobian
@@ -131,7 +132,7 @@ bool sendJacobians(smm_control::GetJacobians::Request &req, smm_control::GetJaco
                 res.dt_op_jacobian[i * 3 + j] = derivative_jacobian_matrix(i, j);
             }
         }
-        //ROS_INFO("[serverToolJacobians/sendJacobians] Time Derivative of Operational Jacobian sent.");
+        ROS_INFO("[serverToolJacobians/sendJacobians] Time Derivative of Operational Jacobian sent.");
     }
 
     return true;
@@ -154,7 +155,7 @@ int main(int argc, char **argv) {
     ScrewsKinematics& smm_robot_kin_solver = my_shared_lib.get_screws_kinematics_solver();
 
     // Subscriber to gazebo robot joint states
-    ros::Subscriber joint_state_sub = nh.subscribe<sensor_msgs::JointState>("/joint_current_state", 10, 
+    ros::Subscriber joint_state_sub = nh.subscribe<sensor_msgs::JointState>("/smm_ros_gazebo/joint_states", 10, 
         boost::bind(JointStateCallback, _1, boost::ref(smm_robot_kin_solver))
     );
 
@@ -162,7 +163,7 @@ int main(int argc, char **argv) {
     ros::ServiceServer service = nh.advertiseService("GetOperationalJacobians", sendJacobians);
 
     // Run in loop
-    ros::Rate loop_rate(1000);
+    ros::Rate loop_rate(UPDATE_SERVER_JACOBIANS_RATE);
     while (ros::ok()) {
         ros::spinOnce();
         loop_rate.sleep();

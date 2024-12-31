@@ -95,7 +95,7 @@ bool getJacobiansFromService(ros::NodeHandle& nh, bool get_op, bool get_inv_op, 
                     _Jop(i, j) = srv.response.op_jacobian[i * 3 + j];
                 }
             }
-            //ROS_INFO("[updateControlOutput_idosc_simple/getJacobiansFromService] Inverse Operational Jacobian retrieved.");
+            ROS_INFO_STREAM("[updateDynamicsTorque_ridosc_simple/getJacobiansFromService] TCP Jacobian:\n" << _Jop);
         }
         return true;
     } else {
@@ -148,28 +148,6 @@ void errorStateCallback(const smm_control::IdoscError::ConstPtr& msg) {
            msg->twist_error.linear.z;
 }
 
-// Function to compute controller output
-void computeJointEffort(ros::NodeHandle& nh) {
-    if (!getDynamicsFromService(nh, true, true, true)) {
-        ROS_ERROR("Failed to retrieve dynamic matrices.");
-        return;
-    }
-    if (!getJacobiansFromService(nh, true, false, false)) {
-        ROS_ERROR("Failed to retrieve jacobian matrices.");
-        return;
-    }
-    
-    _u = _Jop.transpose() * ( _Lambda * (_ddx_d + _Kd * _de + _Kp * _e) + _Gamma * _dx + _Fg - ( _Damp * _dq ) - ( _Fric * _dq.array().sign().matrix()) );
-
-    smm_control::FasmcTorques torque_msg;
-    torque_msg.torques[0] = _u[0];
-    torque_msg.torques[1] = _u[1];
-    torque_msg.torques[2] = _u[2];
-    torque_pub.publish(torque_msg);
-
-    ROS_INFO("[updateDynamicsTorque_ridosc_simple] Dynamic Model Torques: [%f, %f, %f]", torque_msg.torques[0],torque_msg.torques[1], torque_msg.torques[2]);
-}
-
 bool buildDiagonalMatrix(Eigen::Matrix3f* matrix_ptr, const std::vector<double>& diag_values) {
     // Check if the pointer is null
     if (matrix_ptr == nullptr) {
@@ -193,63 +171,98 @@ bool buildDiagonalMatrix(Eigen::Matrix3f* matrix_ptr, const std::vector<double>&
 
 // Function to load parameters from the YAML file
 bool loadParameters(ros::NodeHandle& nh) {
-    if (nh.getParam("/_k_p", _k_p)) {
+    if (nh.getParam("/k_p",_k_p)) {
         if (_k_p.size() != 3) {
             ROS_ERROR("_k_p should contain exactly 3 values.");
             return false;
         }
-        ROS_INFO("Loaded _k_p from parameter server.");
+        ROS_INFO("Loaded k_p from parameter server.");
         if (!buildDiagonalMatrix(&_Kp, _k_p)) {
             ROS_ERROR("Setting Kp matrix failed.");
             return false;
         }
     } else {
-        ROS_ERROR("Failed to load _k_p from parameter server.");
+        ROS_ERROR("Failed to load k_p from parameter server.");
         return false;
     }
-    if (nh.getParam("/_k_d", _k_d)) {
+    if (nh.getParam("/k_d", _k_d)) {
         if (_k_d.size() != 3) {
-            ROS_ERROR("_k_d should contain exactly 3 values.");
+            ROS_ERROR("k_d should contain exactly 3 values.");
             return false;
         }
-        ROS_INFO("Loaded _k_d from parameter server.");
+        ROS_INFO("Loaded k_d from parameter server.");
         if (!buildDiagonalMatrix(&_Kd, _k_d)) {
             ROS_ERROR("Setting Kd matrix failed.");
             return false;
         }
     } else {
-        ROS_ERROR("Failed to load _k_d from parameter server.");
+        ROS_ERROR("Failed to load k_d from parameter server.");
         return false;
     }
-    if (nh.getParam("/_d_c", _d_c)) {
+    if (nh.getParam("/d_c", _d_c)) {
         if (_d_c.size() != 3) {
-            ROS_ERROR("_d_c should contain exactly 3 values.");
+            ROS_ERROR("d_c should contain exactly 3 values.");
             return false;
         }
-        ROS_INFO("Loaded _d_c from parameter server.");
+        ROS_INFO("Loaded d_c from parameter server.");
         if (!buildDiagonalMatrix(&_Damp, _d_c)) {
             ROS_ERROR("Setting Dc matrix failed.");
             return false;
         }
     } else {
-        ROS_ERROR("Failed to load _d_c from parameter server.");
+        ROS_ERROR("Failed to load d_c from parameter server.");
         return false;
     }
-    if (nh.getParam("/_f_c", _f_c)) {
+    if (nh.getParam("/f_c", _f_c)) {
         if (_f_c.size() != 3) {
-            ROS_ERROR("_f_c should contain exactly 3 values.");
+            ROS_ERROR("f_c should contain exactly 3 values.");
             return false;
         }
-        ROS_INFO("Loaded _f_c from parameter server.");
+        ROS_INFO("Loaded f_c from parameter server.");
         if (!buildDiagonalMatrix(&_Fric, _f_c)) {
             ROS_ERROR("Setting Fc matrix failed.");
             return false;
         }
     } else {
-        ROS_ERROR("Failed to load _f_c from parameter server.");
+        ROS_ERROR("Failed to load f_c from parameter server.");
         return false;
     }
     return true;
+}
+
+// Function to compute controller output
+void computeJointEffort(ros::NodeHandle& nh) {
+    if (!getDynamicsFromService(nh, true, true, true)) {
+        ROS_ERROR("Failed to retrieve dynamic matrices.");
+        return;
+    }
+
+    if (!getJacobiansFromService(nh, true, false, false)) {
+        ROS_ERROR("Failed to retrieve jacobian matrices.");
+        return;
+    }
+    
+    // Print the values of _Jop before performing calculations
+    ROS_INFO_STREAM("[updateDynamicsTorque_ridosc_simple/computeJointEffort] _Jop Matrix:\n"
+                    << _Jop(0, 0) << " " << _Jop(0, 1) << " " << _Jop(0, 2) << "\n"
+                    << _Jop(1, 0) << " " << _Jop(1, 1) << " " << _Jop(1, 2) << "\n"
+                    << _Jop(2, 0) << " " << _Jop(2, 1) << " " << _Jop(2, 2));
+
+
+    //_u = _Jop.transpose() * ( _Lambda * (_ddx_d + _Kd * _de + _Kp * _e) + _Gamma * _dx + _Fg - ( _Damp * _dq ) - ( _Fric * _dq.array().sign().matrix()) );
+    _u = _Jop.transpose() * ( _Lambda * (_ddx_d + _Kd * _de + _Kp * _e) + _Gamma * _dx + _Fg );
+
+    smm_control::FasmcTorques torque_msg;
+    torque_msg.torques[0] = _u[0];
+    torque_msg.torques[1] = _u[1];
+    torque_msg.torques[2] = _u[2];
+
+    torque_pub.publish(torque_msg);
+
+    ROS_INFO_STREAM("[updateDynamicsTorque_ridosc_simple/computeJointEffort] Dynamic Model Torques: [" 
+                << torque_msg.torques[0] << ", " 
+                << torque_msg.torques[1] << ", " 
+                << torque_msg.torques[2] << "]");
 }
 
 int main(int argc, char** argv) {
@@ -262,7 +275,7 @@ int main(int argc, char** argv) {
     }
 
     ros::Subscriber desired_state_sub = nh.subscribe("/tcp_desired_state", 10, desiredStateCallback);
-    ros::Subscriber error_state_sub = nh.subscribe("/ridos_error_state", 10, errorStateCallback);
+    ros::Subscriber error_state_sub = nh.subscribe("/ridosc_error_state", 10, errorStateCallback);
     ros::Subscriber current_tcp_state_sub = nh.subscribe("/tcp_current_state", 10, currentTcpStateCallback);
     ros::Subscriber current_joint_state_sub = nh.subscribe("/joint_current_state", 10, currentJointStateCallback);
 

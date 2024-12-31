@@ -33,8 +33,7 @@
     <node name="serverOperationalSpaceDynamics" pkg="smm_control" type="serverOperationalSpaceDynamics" output="screen"/>
 
     <!-- Analytical Jacobians using screws @ /joint_current_state -->
-    <!-- tried something else-->
-    <!--<node name="serverSpatialJacobians" pkg="smm_control" type="serverSpatialJacobians" output="screen" /> -->
+    <node name="serverToolJacobians" pkg="smm_control" type="serverToolJacobians" output="screen" />
 
     <!-- Service that computes TCP velocity and acceleration numerically from tf position data-->
     <node name="serverTcpStateTfNum" pkg="smm_control" type="serverTcpStateTfNum" output="screen"/>
@@ -57,17 +56,17 @@
     <!-- Adaptive Parameters -->
     <node name="updateParams_ridosc_simple" pkg="smm_control" type="updateParams_ridosc_simple" output="screen" />
 
+    <!-- Dynamic Model torque term -->  
+    <node name="updateDynamicsTorque_ridosc_simple" pkg="smm_control" type="updateDynamicsTorque_ridosc_simple" output="screen" />
+
     <!-- Robust torque term -->
     <node name="updateRobustTorque_ridosc_simple" pkg="smm_control" type="updateRobustTorque_ridosc_simple" output="screen" />
 
-    <!-- Dynamic Model torque term -->  
-    <!--<node name="updateDynamicsTorque_ridosc_simple" pkg="smm_control" type="updateDynamicsTorque_ridosc_simple" output="screen" /> -->
-
     <!-- Add ridosc torques-->
-    <!--<node name="updateTorqueCommand_fasmc_simple" pkg="smm_control" type="updateTorqueCommand_fasmc_simple" output="screen" /> --> 
+    <node name="updateTorqueCommand_ridosc_simple" pkg="smm_control" type="updateTorqueCommand_ridosc_simple" output="screen" /> 
 
     <!-- Publish to robot effort controllers -->
-    <!--<node name="robot_torque_command_publisher" pkg="smm_control" type="robot_torque_command_publisher" output="screen" /> -->
+    <node name="robot_torque_command_publisher" pkg="smm_control" type="robot_torque_command_publisher" output="screen" /> 
 
     <!-- IV. DATA LOGGING -->
     <!-- Include launch file for data logging and real time monitoring -->

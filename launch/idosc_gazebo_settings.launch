@@ -28,9 +28,9 @@
     <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find smm_ros_gazebo_pkg)/xacro/smm_ros_gazebo.xacro'" />
     
     <!-- Spawn the robot in gazebo @ initial configuration-->
-    <arg name="j1_init_pos" value="0.4178" />
-    <arg name="j2_init_pos" value="0.6866" /> 
-    <arg name="j3_init_pos" value="0.3692" /> 
+    <arg name="j1_init_pos" value="0.7000" />
+    <arg name="j2_init_pos" value="-0.100" /> 
+    <arg name="j3_init_pos" value="0.7000" /> 
 	<node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
 	    args="-urdf -model smm_ros_gazebo -param robot_description -J base_plate__base_link $(arg j1_init_pos) -J active_module_a_1__active_module_b_1 $(arg j2_init_pos) -J active_module_a_2__active_module_b_2 $(arg j3_init_pos)"/> 
 

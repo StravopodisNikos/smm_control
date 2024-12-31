@@ -19,7 +19,7 @@ Eigen::Matrix3f inverse_dt_jacobian_matrix = Eigen::Matrix3f::Zero();
 std::mutex jacobian_mutex;  // Mutex for protecting Jacobian updates
 
 constexpr float BASE_LAMBDA_DLS = 0.005f;
-constexpr float JACOB_COND_THRES = 5.0f;
+constexpr float JACOB_COND_THRES = 10.0f;
 /*
  *  [29-12-24] Calculates all robot dynamic matrices in operational space, implementing screw theory tools!
  */
@@ -112,11 +112,6 @@ void JointStateCallback(const sensor_msgs::JointState::ConstPtr& joint_state,  S
     // III. Calculate Operational Space Dynamic matrices
     // III.1. Mass and Gravity matrices @ TCP
     Lambda_Matrix = inverse_jacobian_matrix.transpose() * Mass_Matrix * inverse_jacobian_matrix;
-    //if ((derivative_jacobian_matrix.array() != 0).all()) {
-    //    Gamma_Matrix = inverse_jacobian_matrix.transpose() * (Coriolis_Matrix * inverse_jacobian_matrix + Mass_Matrix * derivative_jacobian_matrix.inverse() );
-    //} else {
-    //    Gamma_Matrix = inverse_jacobian_matrix.transpose() * (Coriolis_Matrix * inverse_jacobian_matrix );
-    //}
     Fg_Vector = inverse_jacobian_matrix.transpose() * Gravity_Vector;
 
     // III.2 The Gamma matrix should account for the conditioning of the First Time Derivative of the Jacobian
