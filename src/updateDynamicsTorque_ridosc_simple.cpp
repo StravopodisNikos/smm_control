@@ -249,8 +249,9 @@ void computeJointEffort(ros::NodeHandle& nh) {
                     << _Jop(2, 0) << " " << _Jop(2, 1) << " " << _Jop(2, 2));
 
 
-    //_u = _Jop.transpose() * ( _Lambda * (_ddx_d + _Kd * _de + _Kp * _e) + _Gamma * _dx + _Fg - ( _Damp * _dq ) - ( _Fric * _dq.array().sign().matrix()) );
-    _u = _Jop.transpose() * ( _Lambda * (_ddx_d + _Kd * _de + _Kp * _e) + _Gamma * _dx + _Fg );
+    _u = _Jop.transpose() * ( _Lambda * (_ddx_d + _Kd * _de + _Kp * _e) + _Gamma * _dx + _Fg - ( _Damp * _dq ) - ( _Fric * _dq.array().sign().matrix()) );
+    //_u = _Jop.transpose() * ( _Lambda * (_ddx_d + _Kd * _de + _Kp * _e) + _Gamma * _dx );    
+    //_u = _Jop.transpose() * ( _Lambda * (_ddx_d + _Kd * _de + _Kp * _e) + _Gamma * _dx + _Fg );
 
     smm_control::FasmcTorques torque_msg;
     torque_msg.torques[0] = _u[0];

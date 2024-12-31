@@ -24,6 +24,7 @@ find_package(catkin REQUIRED COMPONENTS
   kdl_parser
   tf2
   tf2_ros
+  visualization_msgs
 )
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -150,7 +151,7 @@ generate_dynamic_reconfigure_options(
 catkin_package(
 #  INCLUDE_DIRS include
   LIBRARIES idosc # [30-7-24] Added for using idosc class as ROS library
-  CATKIN_DEPENDS control_msgs controller_interface controller_manager geometry_msgs hardware_interface pluginlib roscpp rospy sensor_msgs smm_screws std_msgs message_runtime dynamic_reconfigure kdl_parser tf2 tf2_ros
+  CATKIN_DEPENDS control_msgs controller_interface controller_manager geometry_msgs hardware_interface pluginlib roscpp rospy sensor_msgs smm_screws std_msgs message_runtime dynamic_reconfigure kdl_parser tf2 tf2_ros visualization_msgs
   #DEPENDS
 )
 
@@ -239,6 +240,9 @@ add_executable(publishSingleJointGoal src/publishSingleJointGoal.cpp)
 add_executable(publishSingleTcpGoal src/publishSingleTcpGoal.cpp)
 add_executable(stabilizeRobot src/stabilizeRobot.cpp)
 
+## Visual debugging tools
+add_executable(visualizeTcpGoal src/visualizeTcpGoal.cpp)
+
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -289,6 +293,9 @@ add_dependencies(updateTorqueCommand_ridosc_simple ${${PROJECT_NAME}_EXPORTED_TA
 add_dependencies(publishSingleJointGoal ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(publishSingleTcpGoal ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(stabilizeRobot ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+## Visual debugging tools
+add_dependencies(visualizeTcpGoal ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
@@ -454,6 +461,8 @@ target_link_libraries(updateTorqueCommand_ridosc_simple
  ${catkin_LIBRARIES}
  robot_shared 
 )
+target_link_libraries(visualizeTcpGoal ${catkin_LIBRARIES})
+
 #############
 ## Install ##
 #############

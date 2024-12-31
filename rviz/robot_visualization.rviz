@@ -1,0 +1,207 @@
+Panels:
+  - Class: rviz/Displays
+    Help Height: 70
+    Name: Displays
+    Property Tree Widget:
+      Expanded:
+        - /MarkerArray1
+        - /Marker1
+        - /Marker2
+        - /Marker3
+        - /Marker3/Namespaces1
+      Splitter Ratio: 0.5
+    Tree Height: 616
+Preferences:
+  PromptSaveOnExit: true
+Toolbars:
+  toolButtonStyle: 2
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Alpha: 0.5
+      Cell Size: 1
+      Class: rviz/Grid
+      Color: 160; 160; 164
+      Enabled: true
+      Line Style:
+        Line Width: 0.029999999329447746
+        Value: Lines
+      Name: Grid
+      Normal Cell Count: 0
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Plane: XY
+      Plane Cell Count: 10
+      Reference Frame: base_plate
+      Value: true
+    - Alpha: 1
+      Class: rviz/RobotModel
+      Collision Enabled: false
+      Enabled: true
+      Links:
+        All Links Enabled: true
+        Expand Joint Details: false
+        Expand Link Details: false
+        Expand Tree: false
+        Link Tree Style: Links in Alphabetic Order
+        active_module_a_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        active_module_a_2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        active_module_b_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        active_module_b_2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        base_plate:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        force_sensor:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        massage_tool:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        metalink_1_pseudo1_a:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        metalink_1_pseudo1_b:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        metalink_2_pseudo1_a:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        metalink_2_pseudo1_b:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        metalink_2_pseudo2_a:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        metalink_2_pseudo2_b:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        world:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+      Name: Robot Model
+      Robot Description: robot_description
+      TF Prefix: ""
+      Update Interval: 0
+      Value: true
+      Visual Enabled: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /visualization_twists
+      Name: MarkerArray
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /visualization_tcp_pos
+      Name: Marker
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /visualization_tcp_vel
+      Name: Marker
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /tcp_goal_pos_marker
+      Name: Marker
+      Namespaces:
+        tcp_goal: true
+      Queue Size: 100
+      Value: true
+  Enabled: true
+  Global Options:
+    Background Color: 48; 48; 48
+    Default Light: true
+    Fixed Frame: base_plate
+    Frame Rate: 30
+  Name: Visualization Manager
+  Tools:
+    - Class: rviz/Interact
+      Hide Inactive Objects: true
+    - Class: rviz/MoveCamera
+    - Class: rviz/Select
+    - Class: rviz/Measure
+  Value: true
+  Views:
+    Current:
+      Class: rviz/Orbit
+      Distance: 1.8793339729309082
+      Enable Stereo Rendering:
+        Stereo Eye Separation: 0.05999999865889549
+        Stereo Focal Distance: 1
+        Swap Stereo Eyes: false
+        Value: false
+      Field of View: 0.7853981852531433
+      Focal Point:
+        X: -0.008283507078886032
+        Y: -0.011250204406678677
+        Z: -8.149072527885437e-10
+      Focal Shape Fixed Size: true
+      Focal Shape Size: 0.05000000074505806
+      Invert Z Axis: false
+      Name: Current View
+      Near Clip Distance: 0.009999999776482582
+      Pitch: 1.2247967720031738
+      Target Frame: <Fixed Frame>
+      Yaw: 5.023496627807617
+    Saved: ~
+Window Geometry:
+  Displays:
+    collapsed: false
+  Height: 837
+  Hide Left Dock: false
+  Hide Right Dock: false
+  QMainWindow State: 000000ff00000000fd0000000100000000000001af000002ebfc0200000001fb000000100044006900730070006c006100790073010000003d000002eb000000c900ffffff000001ad000002eb00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  Width: 866
+  X: 782
+  Y: 114

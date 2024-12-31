@@ -35,9 +35,13 @@ void calculateEtaEpsilon() {
         if (abs_position_error < 0.1) {
             eta_epsilon_msg.eta[i] = eta_0[i] - alpha[i] * abs_position_error;
             eta_epsilon_msg.epsilon[i] = epsilon_0[i] - beta[i] * abs_position_error;
+            //eta_epsilon_msg.eta[i] = eta_0[i];
+            //eta_epsilon_msg.epsilon[i] = epsilon_0[i];
         } else {
             eta_epsilon_msg.eta[i] = eta_0[i] + alpha[i] * abs_position_error;
             eta_epsilon_msg.epsilon[i] = epsilon_0[i] + beta[i] * abs_position_error;
+            //eta_epsilon_msg.eta[i] = eta_0[i];
+            //eta_epsilon_msg.epsilon[i] = epsilon_0[i];
         }
     }
 

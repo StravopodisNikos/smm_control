@@ -112,7 +112,7 @@ void JointStateCallback(const sensor_msgs::JointState::ConstPtr& joint_state,  S
     // III. Calculate Operational Space Dynamic matrices
     // III.1. Mass and Gravity matrices @ TCP
     Lambda_Matrix = inverse_jacobian_matrix.transpose() * Mass_Matrix * inverse_jacobian_matrix;
-    Fg_Vector = inverse_jacobian_matrix.transpose() * Gravity_Vector;
+    Fg_Vector = inverse_jacobian_matrix.transpose() * (Gravity_Vector);
 
     // III.2 The Gamma matrix should account for the conditioning of the First Time Derivative of the Jacobian
     float dtjacob_cond_number = smm_robot_kin_solver.JacobianConditionNumber(derivative_jacobian_matrix);
@@ -180,7 +180,7 @@ bool sendDynamics(smm_control::GetOperationalSpaceDynamics::Request &req, smm_co
     // If client requests Gravity Vector
     if (req.get_Fg) {
         for (int i = 0; i < 3; i++) {
-            res.Fg[i] = -Fg_Vector(i);
+            res.Fg[i] = Fg_Vector(i);
         }
         //ROS_INFO("[serverOperationalSpaceDynamcis/sendDynamics] Gravity vector sent.");
     }

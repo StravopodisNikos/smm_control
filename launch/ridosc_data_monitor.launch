@@ -1,0 +1,21 @@
+<?xml version="1.0" ?>
+<!-- [31-12-24] Called from [ridosc_simple.launch] -->
+<!--           - plots data and creates rosbag files -->
+     
+<launch>
+    <arg name="run_name" default="default_run" />
+
+    <!-- ROSBAGS -->
+    <node pkg="rosbag" type="record" name="record_error_state" args="record -O $(find smm_control)/rosbags/$(arg run_name)/ridosc_error_state.bag /ridosc_error_state"/> 
+
+    <node pkg="rosbag" type="record" name="record_torques" args="record -O $(find smm_control)/rosbags/$(arg run_name)/ridosc_torques.bag /robot_torque_command"/>     
+
+    <node pkg="rosbag" type="record" name="record_dyn_term" args="record -O $(find smm_control)/rosbags/$(arg run_name)/ridosc_dyn_torques.bag /ridosc_dyn_term"/> 
+
+    <node pkg="rosbag" type="record" name="record_smc_term" args="record -O $(find smm_control)/rosbags/$(arg run_name)/ridosc_smc_torques.bag /ridosc_robust_term"/> 
+
+    <node pkg="rosbag" type="record" name="record_slide_surface" args="record -O $(find smm_control)/rosbags/$(arg run_name)/ridosc_slide_surf.bag /ridosc_sliding_surface"/>
+
+    <node pkg="rosbag" type="record" name="record_adaptive_params" args="record -O $(find smm_control)/rosbags/$(arg run_name)/ridosc_adaptive_params.bag /ridosc_adaptive_params"/> 
+
+</launch>

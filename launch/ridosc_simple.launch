@@ -3,8 +3,9 @@
 <!-- [26-12-24] Resumed working. It implements the algorithm in MATLAB script smm_ridosc_test2.m-->
      
 <launch>
-    <!-- Define robot specific arguments -->
+    <!-- Define folder name for rosbags -->
     <arg name="run_name" default="default_run" />
+    <!-- Define robot specific arguments -->
     <arg name="tcp_link_name" default="massage_tool" />
     <arg name="str_digit" default="3" />
     <param name="base_frame" value="base_plate" />
@@ -12,7 +13,7 @@
     <!-- Include YAML file with RIDOSC parameters -->
     <rosparam file="$(find smm_control)/config/yaml/ridosc/fixed_params.yaml" command="load"/>
     <!-- Include launch file Gazebo with robot and all controller settings -->
-     <include file="$(find smm_control)/launch/idosc_gazebo_settings.launch"/> <!--use same settings for idosc/fasmc/ridosc -->
+    <include file="$(find smm_control)/launch/idosc_gazebo_settings.launch"/> <!--use same settings for idosc/fasmc/ridosc -->
     
     <!-- R-idosc SIMPLE IMPLEMENTATION --> 
     <!-- I. PUBLISH DESIRED STATES -->
@@ -70,8 +71,10 @@
 
     <!-- IV. DATA LOGGING -->
     <!-- Include launch file for data logging and real time monitoring -->
-    <!--<include file="$(find smm_control)/launch/fasmc_data_monitor.launch">
+    <include file="$(find smm_control)/launch/ridosc_data_monitor.launch">
         <arg name="run_name" value="$(arg run_name)"/>
-    </include> -->
-     
+    </include>
+
+    <!-- V. RviZ Debugger-->
+    <include file="$(find smm_control)/launch/ridosc_visualization_simple.launch"/> <!--use same settings for idosc/fasmc/ridosc -->
 </launch>
