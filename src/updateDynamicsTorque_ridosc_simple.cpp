@@ -14,6 +14,7 @@
 // Globals
 Eigen::Matrix3f _Lambda;                         // Mass Matrix @ TCP loaded from service
 Eigen::Matrix3f _Gamma;                          // Coriolis Matrix @ TCP loaded from service 
+Eigen::Vector3f _GammaVector;
 Eigen::Vector3f _Fg;                             // Gravity Vector @ TCP loaded from service 
 Eigen::Vector3f _u;                              // Control effort vector
 std::vector<double> _k_p(3, 1.0);                // Initialized vector with P-gains
@@ -44,7 +45,7 @@ bool getDynamicsFromService(ros::NodeHandle& nh, bool get_LambdaMatrix, bool get
  
     // Set flags in the request
     srv.request.get_Lambda = get_LambdaMatrix;
-    srv.request.get_Gamma_OSD = get_GammaMatrix;
+    srv.request.get_Gamma_OSD_Vector = get_GammaMatrix;
     srv.request.get_Fg = get_FgVector;
 
     if (client.call(srv)) {
@@ -56,14 +57,21 @@ bool getDynamicsFromService(ros::NodeHandle& nh, bool get_LambdaMatrix, bool get
             }
             ROS_INFO_STREAM("[updateDynamicsTorque_ridosc_simple/getDynamicsFromService] Lambda Matrix:\n" << _Lambda);
         }
-        if (get_GammaMatrix) {
+        /*if (get_GammaMatrix) {
             for (int i = 0; i < 3; i++) {
                 for (int j = 0; j < 3; j++) {
                     _Gamma(i, j) = srv.response.Gamma_OSD[i * 3 + j];
                 }
             }
             ROS_INFO_STREAM("[updateDynamicsTorque_ridosc_simple/getDynamicsFromService] Gamma Matrix:\n" << _Gamma);
-        }
+        }*/
+        if (get_GammaMatrix) {
+            for (int i = 0; i < 3; i++) {
+                _GammaVector(i) = srv.response.Gamma_OSD_Vector[i];
+            }
+            ROS_INFO_STREAM("[updateDynamicsTorque_ridosc_simple/getDynamicsFromService] TCP Gamma Vector:\n" << _GammaVector);
+        }   
+
         if (get_FgVector) {
             for (int i = 0; i < 3; i++) {
                 _Fg(i) = srv.response.Fg[i];
@@ -248,8 +256,9 @@ void computeJointEffort(ros::NodeHandle& nh) {
                     << _Jop(1, 0) << " " << _Jop(1, 1) << " " << _Jop(1, 2) << "\n"
                     << _Jop(2, 0) << " " << _Jop(2, 1) << " " << _Jop(2, 2));
 
+    _u = _Jop.transpose() * ( _Lambda * (_ddx_d + _Kd * _de + _Kp * _e) + _GammaVector + _Fg  ) - ( _Damp * _dq ) - ( _Fric * _dq.array().sign().matrix());
 
-    _u = _Jop.transpose() * ( _Lambda * (_ddx_d + _Kd * _de + _Kp * _e) + _Gamma * _dx + _Fg - ( _Damp * _dq ) - ( _Fric * _dq.array().sign().matrix()) );
+    //_u = _Jop.transpose() * ( _Lambda * (_ddx_d + _Kd * _de + _Kp * _e) + _Gamma * _dx + _Fg  ) - ( _Damp * _dq ) - ( _Fric * _dq.array().sign().matrix());
     //_u = _Jop.transpose() * ( _Lambda * (_ddx_d + _Kd * _de + _Kp * _e) + _Gamma * _dx );    
     //_u = _Jop.transpose() * ( _Lambda * (_ddx_d + _Kd * _de + _Kp * _e) + _Gamma * _dx + _Fg );
 

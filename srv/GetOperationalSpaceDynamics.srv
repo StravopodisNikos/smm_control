@@ -1,7 +1,7 @@
 bool get_Lambda       
-bool get_Gamma_OSD     
+bool get_Gamma_OSD_Vector     
 bool get_Fg       
 ---
 float32[9] Lambda        # 3x3 mass matrix @ tcp, row-major
-float32[9] Gamma_OSD   # 3x3 coriolis matrix @ tcp, row-major
+float32[3] Gamma_OSD_Vector   # 3x3 coriolis matrix @ tcp, row-major
 float32[3] Fg          # 3x1 gravity vector @ tcp
