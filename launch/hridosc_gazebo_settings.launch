@@ -1,0 +1,54 @@
+<?xml version="1.0" ?>
+<!-- [2-1-25] Gazebo settings for hridosc implementation -->
+
+<launch>
+    <!-- Params of preference -->
+    <arg name="paused" default="true"/>
+    <arg name="use_sim_time" default="true"/>
+    <arg name="gui" default="true"/>
+    <arg name="headless" default="false"/>
+    <arg name="debug" default="false"/>
+
+    <!-- Start Gazebo with empty_world.launch -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="debug" value="$(arg debug)" />
+        <arg name="gui" value="$(arg gui)" />
+        <arg name="paused" value="$(arg paused)"/>
+        <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+        <arg name="headless" value="$(arg headless)"/>
+        <arg name="verbose" value="true"/>
+    </include>
+    
+    <!-- Set Gazebo physics properties dynamically -->
+    <!-- Load the physics settings from YAML -->
+    <rosparam command="load" file="$(find smm_ros_gazebo_pkg)/config/yaml/physics.yaml"/>
+
+    <!-- Load the robot 3D model -->
+    <!-- Added xacro input for robot model-->	
+    <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find smm_ros_gazebo_pkg)/xacro/smm_ros_gazebo.xacro'" />
+    
+    <!-- Spawn the robot in gazebo @ initial configuration-->
+    <arg name="j1_init_pos" value="0.25" />
+    <arg name="j2_init_pos" value="0.25" /> 
+    <arg name="j3_init_pos" value="0.10" /> 
+	<node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+	    args="-urdf -model smm_ros_gazebo -param robot_description -J base_plate__base_link $(arg j1_init_pos) -J active_module_a_1__active_module_b_1 $(arg j2_init_pos) -J active_module_a_2__active_module_b_2 $(arg j3_init_pos)"/> 
+
+    <!-- load the controllers -->
+    <!-- First load the controller parameter file. This file defines the standard pid controllers -->
+    <rosparam file="$(find smm_ros_gazebo_pkg)/config/yaml/smm_ros_gazebo_controllers.yaml" command="load"/>
+    <!-- Spawn the controllers in gazebo-->
+    <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+        output="screen" ns="smm_ros_gazebo" args="joint_state_controller
+                        joint1_effort_controller
+                        joint2_effort_controller
+                        joint3_effort_controller"/>
+
+    <!-- Node to publish Gazebo robot joint states -->
+    <!--<node name="joint_state_publisher_gui" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" /> -->
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
+        respawn="false" output="screen">
+        <remap from="/joint_states" to="/smm_ros_gazebo/joint_states" />
+    </node>
+
+</launch>

@@ -234,6 +234,10 @@ add_executable(updateRobustTorque_ridosc_simple src/updateRobustTorque_ridosc_si
 add_executable(serverOperationalSpaceDynamics src/serverOperationalSpaceDynamics.cpp)
 add_executable(updateDynamicsTorque_ridosc_simple src/updateDynamicsTorque_ridosc_simple.cpp)
 add_executable(updateTorqueCommand_ridosc_simple src/updateTorqueCommand_ridosc_simple.cpp)
+## HRIDOSC
+add_executable(updateParams_hridosc_simple src/updateParams_hridosc_simple.cpp)
+add_executable(updateRobustTorque_hridosc_simple src/updateRobustTorque_hridosc_simple.cpp)
+add_executable(updateTorqueCommand_hridosc_simple src/updateTorqueCommand_hridosc_simple.cpp)
 
 ## BUILT-IN DYNAMICS AND SIMPLE GRAVITY COMPENSATION
 add_executable(publishSingleJointGoal src/publishSingleJointGoal.cpp)
@@ -288,6 +292,10 @@ add_dependencies(updateRobustTorque_ridosc_simple ${${PROJECT_NAME}_EXPORTED_TAR
 add_dependencies(serverOperationalSpaceDynamics ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(updateDynamicsTorque_ridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(updateTorqueCommand_ridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+## HRIDOSC
+add_dependencies(updateParams_hridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(updateRobustTorque_hridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(updateTorqueCommand_hridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## BUILT-IN DYNAMICS AND SIMPLE GRAVITY COMPENSATION && DESIRED GOALs
 add_dependencies(publishSingleJointGoal ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -462,6 +470,19 @@ target_link_libraries(updateTorqueCommand_ridosc_simple
  robot_shared 
 )
 target_link_libraries(visualizeTcpGoal ${catkin_LIBRARIES})
+## HRIDOSC
+target_link_libraries(updateParams_hridosc_simple
+ ${catkin_LIBRARIES}
+ robot_shared 
+)
+target_link_libraries(updateRobustTorque_hridosc_simple
+ ${catkin_LIBRARIES}
+ robot_shared 
+)
+target_link_libraries(updateTorqueCommand_hridosc_simple
+ ${catkin_LIBRARIES}
+ robot_shared 
+)
 
 #############
 ## Install ##

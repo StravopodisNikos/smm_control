@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+<!-- [2-1-25] Called from [hridosc_simple.launch] -->
+<!--           - plots data and creates rosbag files -->
+     
+<launch>
+    <arg name="run_name" default="default_run" />
+
+    <!-- ROSBAGS -->
+    <node pkg="rosbag" type="record" name="record_x_error_state" args="record -O $(find smm_control)/rosbags/$(arg run_name)/hridosc_x_error_state.bag /ridosc_error_state"/> 
+    <node pkg="rosbag" type="record" name="record_q_error_state" args="record -O $(find smm_control)/rosbags/$(arg run_name)/hridosc_q_error_state.bag /fasmc_error_state"/> 
+
+    <node pkg="rosbag" type="record" name="record_torques" args="record -O $(find smm_control)/rosbags/$(arg run_name)/hridosc_torques.bag /robot_torque_command"/>     
+
+    <node pkg="rosbag" type="record" name="record_dyn_term" args="record -O $(find smm_control)/rosbags/$(arg run_name)/hridosc_dyn_torques.bag /ridosc_dyn_term"/> 
+
+    <node pkg="rosbag" type="record" name="record_smc_term" args="record -O $(find smm_control)/rosbags/$(arg run_name)/hridosc_smc_torques.bag /hridosc_robust_term"/> 
+
+    <node pkg="rosbag" type="record" name="record_slide_surface" args="record -O $(find smm_control)/rosbags/$(arg run_name)/hridosc_q_slide_surf.bag /fasmc_sliding_surface"/>
+
+    <node pkg="rosbag" type="record" name="record_adaptive_params" args="record -O $(find smm_control)/rosbags/$(arg run_name)/hridosc_adaptive_params.bag /hridosc_adaptive_params"/> 
+
+</launch>

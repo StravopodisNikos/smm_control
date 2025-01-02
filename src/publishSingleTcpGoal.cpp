@@ -20,19 +20,19 @@ bool loadParameters(ros::NodeHandle& nh) {
     }
 
     // Load position data
-    if (!nh.getParam("/positions/position", position_data) || position_data.size() != 3) {
+    if (!nh.getParam("/cartesian_positions/position", position_data) || position_data.size() != 3) {
         ROS_ERROR("[publishSingleTcpGoal/loadParameters] Failed to load position data or incorrect size.");
         return false;
     }
 
     // Load velocity data
-    if (!nh.getParam("/velocities/velocity", velocity_data) || velocity_data.size() != 3) {
+    if (!nh.getParam("/cartesian_velocities/velocity", velocity_data) || velocity_data.size() != 3) {
         ROS_ERROR("[publishSingleTcpGoal/loadParameters] Failed to load velocity data or incorrect size.");
         return false;
     }
 
     // Load acceleration data
-    if (!nh.getParam("/accelerations/acceleration", acceleration_data) || acceleration_data.size() != 3) {
+    if (!nh.getParam("/cartesian_accelerations/acceleration", acceleration_data) || acceleration_data.size() != 3) {
         ROS_ERROR("[publishSingleTcpGoal/loadParameters] Failed to load acceleration data or incorrect size.");
         return false;
     }

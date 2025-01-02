@@ -13,7 +13,7 @@ boost::array<double, 3> position_error = {0.0, 0.0, 0.0};
 
 ros::Publisher adaptive_params_pub;
 
-// Callback for /fasmc_error_state
+// Callback for /ridosc_error_state
 void errorStateCallback(const smm_control::IdoscError::ConstPtr& msg) {
     // Extract position error from the pose_error field
     position_error[0] = msg->pose_error.position.x;

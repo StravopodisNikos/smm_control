@@ -4,18 +4,19 @@
 #include <smm_control/CustomTcpState.h>
 #include <smm_control/GetJacobians.h>
 #include <Eigen/Dense>
+#include "smm_control/timing.h"
 
 class IKNode {
 public:
-    IKNode() : nh_(), loop_rate_(50), J(Eigen::Matrix3f::Zero()), desired_position_received_(false) {
+    IKNode() : nh_(), loop_rate_(IKP_LOOP_RATE), desired_position_received_(false) {
         // Subscriber to desired TCP state
-        desired_tcp_state_sub_ = nh_.subscribe("/tcp_desired_state", 1, &IKNode::tcpStateCallback, this);
-
-        // Publisher for joint positions
-        joint_state_pub_ = nh_.advertise<sensor_msgs::JointState>("/ik_joint_states", 1);
-
-        // Service client for Jacobian retrieval
-        jacobian_client_ = nh_.serviceClient<smm_control::GetJacobians>("GetOperationalJacobians");
+        desired_tcp_state_sub_ = nh_.subscribe("/tcp_desired_state", 1, &IKNode::tcpDesStateCallback, this);     // get x_tcp_d
+        // Subscriber to current TCP state
+        current_tcp_state_sub_ = nh_.subscribe("/tcp_current_state", 1, &IKNode::tcpCurStateCallback, this);     // get x_tcp
+        // Subscriber to current joint state
+        current_joint_state_sub_ = nh_.subscribe("/joint_current_state", 1, &IKNode::jointCurStateCallback, this); // get q   
+        // Publisher for desired joint positions
+        joint_state_pub_ = nh_.advertise<sensor_msgs::JointState>("/joint_desired_state", 1); 
 
         ROS_INFO("IKNode initialized.");
     }
@@ -23,12 +24,6 @@ public:
     void run() {
         while (ros::ok()) {
             ros::spinOnce();
-
-            // Retrieve the Jacobian
-            if (!getJacobianFromService()) {
-                ROS_WARN_THROTTLE(5, "Unable to retrieve Jacobian. Retrying...");
-                continue;
-            }
 
             // Perform IK if a valid desired position is available
             if (desired_position_received_) {
@@ -46,41 +41,24 @@ public:
 private:
     ros::NodeHandle nh_;
     ros::Subscriber desired_tcp_state_sub_;
+    ros::Subscriber current_tcp_state_sub_;
+    ros::Subscriber current_joint_state_sub_;
     ros::Publisher joint_state_pub_;
-    ros::ServiceClient jacobian_client_;
     ros::Rate loop_rate_;
 
-    Eigen::Matrix3f J;  // Jacobian matrix
+    Eigen::Matrix3f J;
+    Eigen::Vector3f current_position_;
     Eigen::Vector3f desired_position_;
     bool desired_position_received_;
 
     // Callback for desired TCP state
-    void tcpStateCallback(const smm_control::CustomTcpState::ConstPtr& msg) {
+    void tcpDesStateCallback(const smm_control::CustomTcpState::ConstPtr& msg) {
         desired_position_ << msg->position[0], msg->position[1], msg->position[2];
         desired_position_received_ = true;
         ROS_INFO_STREAM("Received desired position: [" << desired_position_.transpose() << "]");
     }
 
-    // Retrieve Jacobian from service
-    bool getJacobianFromService() {
-        smm_control::GetJacobians srv;
-        srv.request.get_op = true;
 
-        if (!jacobian_client_.call(srv)) {
-            ROS_ERROR("[IKNode] Failed to call Jacobian service.");
-            return false;
-        }
-
-        // Convert flat array to 3x3 matrix
-        for (int i = 0; i < 3; ++i) {
-            for (int j = 0; j < 3; ++j) {
-                J(i, j) = srv.response.op_jacobian[i * 3 + j];
-            }
-        }
-
-        ROS_INFO_STREAM("[IKNode] Retrieved Jacobian:\n" << J);
-        return true;
-    }
 
     // Perform inverse kinematics using iterative Newton-Raphson method
     bool computeInverseKinematics(const Eigen::Vector3f& x_tcp_d, const Eigen::Vector3f& x_tcp_init,
@@ -91,7 +69,7 @@ private:
 
         for (int i = 0; i < max_iter; ++i) {
             // Compute forward kinematics (current TCP position)
-            Eigen::Vector3f x_current = x_tcp_init + J * q_guess;
+            Eigen::Vector3f x_current = x_tcp_init + J * q_guess; // add my custom forward kinematics 
 
             // Compute error in TCP position
             x_error = x_tcp_d - x_current;
@@ -99,14 +77,16 @@ private:
             // Check convergence
             if (x_error.norm() < tolerance) {
                 q_d = q_guess;
+                // print total time for convergence (add the appropriate commands in any other place)
                 return true; // Converged successfully
             }
 
             // Compute the joint position update
-            delta_q = J.completeOrthogonalDecomposition().pseudoInverse() * x_error;
+            delta_q = J.completeOrthogonalDecomposition().pseudoInverse() * x_error; // we will get the inverse from the service
+            float dt = 1.0 / loop_rate_.expectedCycleTime().toSec(); // also in the main use a loop rate specified by IKP_LOOP_RATE ct
 
             // Update guess
-            q_guess += delta_q;
+            q_guess += delta_q * dt ; // here use the dt
         }
 
         ROS_WARN("Inverse Kinematics did not converge within max iterations.");

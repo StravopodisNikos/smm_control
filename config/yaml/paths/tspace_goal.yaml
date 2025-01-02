@@ -1,8 +1,8 @@
-positions:  # tcp cartesian positions {px,py,pz} in [m]
+cartesian_positions:  # tcp cartesian positions {px,py,pz} in [m]
   position: [0.2114, -0.3801, 0.3275]   # initial:  -0.1221 -0.3773 0.3772
 
-velocities:  # tcp cartesian velocities {vx,vy,vz} in [m/s]
+cartesian_velocities:  # tcp cartesian velocities {vx,vy,vz} in [m/s]
   velocity: [0.0000, 0.0000, 0.0000]
 
-accelerations:  # tcp cartesian accelerations {ax,ay,az} in [m/s2]
+cartesian_accelerations:  # tcp cartesian accelerations {ax,ay,az} in [m/s2]
   acceleration: [0.0000, 0.0000, 0.0000]
