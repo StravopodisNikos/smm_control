@@ -1,0 +1,12 @@
+<launch>
+    <!-- Start the Rviz visualization -->
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find smm_control)/rviz/robot_visualization.rviz" output="screen" />
+
+    <!-- Start the TCP goal position visualization node -->
+    <node name="visualizeTcpGoal" pkg="smm_control" type="visualizeTcpGoal" output="screen" />
+
+    <node name="visualizeTcpStates" pkg="smm_control" type="visualizeTcpStates" output="screen" />
+
+    <!-- Start the joint visualization node -->
+    <!--<node name="joint_visualization_node" pkg="smm_control" type="joint_visualization_node" output="screen" /> -->
+</launch>

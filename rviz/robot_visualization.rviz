@@ -9,8 +9,9 @@ Panels:
         - /Marker2
         - /Marker3
         - /Marker3/Namespaces1
+        - /WrenchStamped1
       Splitter Ratio: 0.5
-    Tree Height: 616
+    Tree Height: 795
 Preferences:
   PromptSaveOnExit: true
 Toolbars:
@@ -131,7 +132,7 @@ Visualization Manager:
       Marker Topic: /visualization_twists
       Name: MarkerArray
       Namespaces:
-        {}
+        twists: true
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
@@ -139,17 +140,17 @@ Visualization Manager:
       Marker Topic: /visualization_tcp_pos
       Name: Marker
       Namespaces:
-        {}
+        tcp_pos: true
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
-      Enabled: true
+      Enabled: false
       Marker Topic: /visualization_tcp_vel
       Name: Marker
       Namespaces:
         {}
       Queue Size: 100
-      Value: true
+      Value: false
     - Class: rviz/Marker
       Enabled: true
       Marker Topic: /tcp_goal_pos_marker
@@ -158,6 +159,21 @@ Visualization Manager:
         tcp_goal: true
       Queue Size: 100
       Value: true
+    - Alpha: 0.5
+      Arrow Width: 0.10000000149011612
+      Class: rviz/WrenchStamped
+      Enabled: false
+      Force Arrow Scale: 0.02500000037252903
+      Force Color: 204; 51; 51
+      Hide Small Values: true
+      History Length: 1
+      Name: WrenchStamped
+      Queue Size: 1
+      Topic: /force_torque_wrench
+      Torque Arrow Scale: 0.02500000037252903
+      Torque Color: 204; 204; 51
+      Unreliable: false
+      Value: false
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -175,7 +191,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 1.8793339729309082
+      Distance: 0.775793731212616
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -191,17 +207,17 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.2247967720031738
+      Pitch: 0.634797215461731
       Target Frame: <Fixed Frame>
-      Yaw: 5.023496627807617
+      Yaw: 5.443502902984619
     Saved: ~
 Window Geometry:
   Displays:
     collapsed: false
-  Height: 837
+  Height: 1016
   Hide Left Dock: false
   Hide Right Dock: false
-  QMainWindow State: 000000ff00000000fd0000000100000000000001af000002ebfc0200000001fb000000100044006900730070006c006100790073010000003d000002eb000000c900ffffff000001ad000002eb00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
-  Width: 866
-  X: 782
-  Y: 114
+  QMainWindow State: 000000ff00000000fd0000000100000000000001af0000039efc0200000001fb000000100044006900730070006c006100790073010000003d0000039e000000c900ffffff000005950000039e00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  Width: 1866
+  X: 54
+  Y: 27

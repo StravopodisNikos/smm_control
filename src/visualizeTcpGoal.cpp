@@ -34,13 +34,13 @@ private:
         marker_.action = visualization_msgs::Marker::ADD;
         marker_.pose.position = position;
         marker_.pose.orientation.w = 1.0;
-        marker_.scale.x = 0.01;  // Diameter of the sphere
-        marker_.scale.y = 0.01;
-        marker_.scale.z = 0.01;
+        marker_.scale.x = 0.005;  // Diameter of the sphere
+        marker_.scale.y = 0.005;
+        marker_.scale.z = 0.005;
         marker_.color.r = 1.0;  // Red color
         marker_.color.g = 0.0;
         marker_.color.b = 0.0;
-        marker_.color.a = 1.0;  // Fully opaque
+        marker_.color.a = 0.5;  // 50% opaque
 
         // Publish the marker
         marker_pub_.publish(marker_);

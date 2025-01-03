@@ -3,6 +3,7 @@
 #include <sensor_msgs/JointState.h>
 #include "smm_screws/robot_shared.h"
 #include "smm_control/IdoscCurrent.h" // uses the same with idosc controller  
+#include "smm_control/timing.h"
 
 Eigen::Vector3f tcp_vel; // dxe X(1:3)
 Eigen::Vector3f tcp_pos; // xe  X(4:6)
@@ -37,21 +38,16 @@ void idosc_simple_JointStateCallback(const sensor_msgs::JointState::ConstPtr& jo
 
 int main(int argc, char **argv) {
     ros::init(argc, argv, "updateCartesianState_ridosc_simple");
-    ros::NodeHandle nh("~");
-
-    // Parse the STR_DIGIT argument
-    int str_digit;
-    if (!nh.getParam("STR_DIGIT", str_digit)) {
-        ROS_ERROR("[updateCartesianState_ridosc_simple] Failed to get STR_DIGIT parameter.");
-        return -1;
-    }
-
-    // Debug statement
-    ROS_INFO("[updateCartesianState_ridosc_simple] Initializing robot structure with STR_DIGIT: %d", str_digit);
+    ros::NodeHandle nh;
 
     // Initialize the robot structure
+    int str_digit_loc;
+    if (!nh.getParam("/str_digit", str_digit_loc)) {
+        ROS_ERROR("[updateCartesianState_ridosc_simple] Failed to get str_digit parameter.");
+        return -1;
+    }
     RobotAbstractBase* robot_ptr = nullptr;
-    switch (str_digit) {
+    switch (str_digit_loc) {
         case 2:
             robot_ptr = new Structure2Pseudos();
             break;
@@ -62,7 +58,7 @@ int main(int argc, char **argv) {
         //    robot_ptr = new Structure4Pseudos();
         //    break;
         default:
-            ROS_ERROR("[updateCartesianState_ridosc_simple] Invalid STR_DIGIT value. Must be 2, 3, or 4.");
+            ROS_ERROR("[updateCartesianState_ridosc_simple] Invalid str_digit value. Must be 2, 3, or 4.");
             return -1;
     }
 
@@ -90,7 +86,7 @@ int main(int argc, char **argv) {
     ros::Publisher idosc_cartesian_current_state_pub = nh.advertise<smm_control::IdoscCurrent>("/tcp_current_state", 10);
 
     // Run in loop
-    ros::Rate loop_rate(1000);
+    ros::Rate loop_rate(UPDATE_CARTESIAN_CURRENT_STATE_RATE);
     while (ros::ok()) {
         // Create and populate the IdoscCurrent message
         smm_control::IdoscCurrent idosc_msg;

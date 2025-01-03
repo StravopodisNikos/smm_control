@@ -143,19 +143,38 @@ int main(int argc, char **argv) {
     ros::NodeHandle nh;
 
     // Initialize the robot structure
-    RobotAbstractBase* robot_ptr = new Structure3Pseudos();
+    int str_digit_loc;
+    if (!nh.getParam("/str_digit", str_digit_loc)) {
+        ROS_ERROR("[serverOperationalSpaceMatrices] Failed to get str_digit parameter.");
+        return -1;
+    }
+    RobotAbstractBase* robot_ptr = nullptr;
+    switch (str_digit_loc) {
+        case 2:
+            robot_ptr = new Structure2Pseudos();
+            break;
+        case 3:
+            robot_ptr = new Structure3Pseudos();
+            break;
+        //case 4:
+        //    robot_ptr = new Structure4Pseudos();
+        //    break;
+        default:
+            ROS_ERROR("[serverOperationalSpaceMatrices] Invalid str_digit value. Must be 2, 3, or 4.");
+            return -1;
+    }
 
-    // Create an instance of your shared library with NodeHandle
     robot_shared my_shared_lib(robot_ptr, nh);
     if (!my_shared_lib.initializeSharedLib()) {
-        //ROS_ERROR("[serverToolJacobians] Failed to initialize shared library.");
+        ROS_ERROR("[serverOperationalSpaceMatrices] Failed to initialize shared library.");
         return -1;
     }
 
+    // Initialize the smm_screws solver
     ScrewsKinematics& smm_robot_kin_solver = my_shared_lib.get_screws_kinematics_solver();
 
-    // Subscriber to gazebo robot joint states
-    ros::Subscriber joint_state_sub = nh.subscribe<sensor_msgs::JointState>("/smm_ros_gazebo/joint_states", 10, 
+    // Subscriber to gazebo robot joint states: /smm_ros_gazebo/joint_states // joint_current_state
+    ros::Subscriber joint_state_sub = nh.subscribe<sensor_msgs::JointState>("/joint_current_state", 10, 
         boost::bind(JointStateCallback, _1, boost::ref(smm_robot_kin_solver))
     );
 

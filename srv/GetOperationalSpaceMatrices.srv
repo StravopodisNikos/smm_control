@@ -1,0 +1,9 @@
+bool get_op_jacobian          
+bool get_Lambda       
+bool get_Gamma_OSD_Vector     
+bool get_Fg       
+---
+float32[9] op_jacobian        # 3x3 operational Jacobian, row-major
+float32[9] Lambda             # 3x3 mass matrix @ tcp, row-major
+float32[3] Gamma_OSD_Vector   # 3x1 coriolis vector @ tcp
+float32[3] Fg                 # 3x1 gravity vector @ tcp

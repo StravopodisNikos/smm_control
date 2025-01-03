@@ -28,7 +28,7 @@ constexpr float JACOB_COND_THRES = 10.0f;
 
 void JointStateCallback(const sensor_msgs::JointState::ConstPtr& joint_state,  ScrewsKinematics& smm_robot_kin_solver, ScrewsDynamics& smm_robot_dyn_solver) {
     if (joint_state->position.size() < DOF || joint_state->velocity.size() < DOF) {
-        ROS_WARN("[serverOperationalSpaceDynamcis/JointStateCallback] Expected 3 joint positions and velocities, received %zu positions and %zu velocities", 
+        ROS_WARN("[serverOperationalSpaceDynamics/JointStateCallback] Expected 3 joint positions and velocities, received %zu positions and %zu velocities", 
                   joint_state->position.size(), joint_state->velocity.size());
         return;
     }
@@ -72,7 +72,7 @@ void JointStateCallback(const sensor_msgs::JointState::ConstPtr& joint_state,  S
         // Access the matrix
         op_jacobian_matrix = *op_jacobian;
     } catch (const std::exception& e) {
-        ROS_ERROR("[serverOperationalSpaceDynamcis/JointStateCallback] Failed to compute Operational Jacobian: %s", e.what());
+        ROS_ERROR("[serverOperationalSpaceDynamics/JointStateCallback] Failed to compute Operational Jacobian: %s", e.what());
     }
 
     // II.4. Evaluate the Condition Number of the Operational Jacobian
@@ -83,21 +83,21 @@ void JointStateCallback(const sensor_msgs::JointState::ConstPtr& joint_state,  S
     try {
         if (jacob_cond_number < JACOB_COND_THRES) {
             // Simple inverse
-            //ROS_INFO("[serverOperationalSpaceDynamcis/JointStateCallback] Condition number is below threshold. Using simple inverse.");
+            //ROS_INFO("[serverOperationalSpaceDynamics/JointStateCallback] Condition number is below threshold. Using simple inverse.");
             inv_jacobian = smm_robot_kin_solver.inverseOperationalSpaceJacobian_ptr();
         } else {
             // DLS inverse
-            ROS_WARN("[serverOperationalSpaceDynamcis/JointStateCallback] Condition number exceeds threshold. Using Damped Least Squares (DLS) inverse.");
+            ROS_WARN("[serverOperationalSpaceDynamics/JointStateCallback] Condition number exceeds threshold. Using Damped Least Squares (DLS) inverse.");
             inv_jacobian = smm_robot_kin_solver.DLSInverseJacobian(op_jacobian_matrix, BASE_LAMBDA_DLS);
         }
 
         if (inv_jacobian) {
             inverse_jacobian_matrix = *inv_jacobian; // Assign to local for further use
         } else {
-            ROS_ERROR("[serverOperationalSpaceDynamcis/JointStateCallback] Failed to compute Jacobian inverse. Pointer is null.");
+            ROS_ERROR("[serverOperationalSpaceDynamics/JointStateCallback] Failed to compute Jacobian inverse. Pointer is null.");
         }
     } catch (const std::runtime_error& e) {
-        ROS_ERROR("[serverOperationalSpaceDynamcis/JointStateCallback] Exception while computing Jacobian inverse: %s", e.what());
+        ROS_ERROR("[serverOperationalSpaceDynamics/JointStateCallback] Exception while computing Jacobian inverse: %s", e.what());
     }
 
     // II.6 Calculate the First Time Derivative of Operational jacobian
@@ -110,13 +110,13 @@ void JointStateCallback(const sensor_msgs::JointState::ConstPtr& joint_state,  S
         // Access the matrix
         derivative_jacobian_matrix = *dt_jacobian;
     } catch (const std::exception& e) {
-        ROS_ERROR("[serverOperationalSpaceDynamcis/JointStateCallback] Failed to compute Derivative Operational Jacobian: %s", e.what());
+        ROS_ERROR("[serverOperationalSpaceDynamics/JointStateCallback] Failed to compute Derivative Operational Jacobian: %s", e.what());
     }
 
     // III. Calculate Operational Space Dynamic matrices
     // III.1. Mass and Gravity matrices @ TCP
     Lambda_Matrix = inverse_jacobian_matrix.transpose() * Mass_Matrix * inverse_jacobian_matrix;
-    Fg_Vector = inverse_jacobian_matrix.transpose() * (Gravity_Vector);
+    Fg_Vector = inverse_jacobian_matrix.transpose() * (Gravity_Vector); // [2-1-25] Never put a "minus" sign in G. Never. Never.
 
     // III.2 The Gamma matrix should account for the conditioning of the First Time Derivative of the Jacobian
     float dtjacob_cond_number = smm_robot_kin_solver.JacobianConditionNumber(derivative_jacobian_matrix);
@@ -125,11 +125,11 @@ void JointStateCallback(const sensor_msgs::JointState::ConstPtr& joint_state,  S
     try {
         if (dtjacob_cond_number < JACOB_COND_THRES) {
             // Simple inverse
-            //ROS_INFO("[serverOperationalSpaceDynamcis/JointStateCallback] Condition number is below threshold. Using simple inverse.");
+            //ROS_INFO("[serverOperationalSpaceDynamics/JointStateCallback] Condition number is below threshold. Using simple inverse.");
             inverse_dt_jacobian_matrix = derivative_jacobian_matrix.inverse();
         } else {
             // DLS inverse
-            ROS_WARN("[serverOperationalSpaceDynamcis/JointStateCallback] Condition number exceeds threshold. Using Damped Least Squares (DLS) inverse.");
+            ROS_WARN("[serverOperationalSpaceDynamics/JointStateCallback] Condition number exceeds threshold. Using Damped Least Squares (DLS) inverse.");
             inv_dt_jacobian = smm_robot_kin_solver.DLSInverseJacobian(derivative_jacobian_matrix, BASE_LAMBDA_DLS);
             if (inv_dt_jacobian) {
                 inverse_dt_jacobian_matrix = *inv_dt_jacobian;
@@ -140,10 +140,10 @@ void JointStateCallback(const sensor_msgs::JointState::ConstPtr& joint_state,  S
 
         // Compute Gamma matrix
         //Gamma_Matrix = inverse_jacobian_matrix.transpose() * (Coriolis_Matrix * inverse_jacobian_matrix + Mass_Matrix * inverse_dt_jacobian_matrix);
-        Gamma_Vector = inverse_jacobian_matrix.transpose() * Coriolis_Matrix * dq_Vector -  Lambda_Matrix * inverse_dt_jacobian_matrix * dq_Vector;
+        Gamma_Vector = inverse_jacobian_matrix.transpose() * Coriolis_Matrix * dq_Vector -  Lambda_Matrix * derivative_jacobian_matrix * dq_Vector;
     } catch (const std::runtime_error& e) {
-        ROS_ERROR("[serverOperationalSpaceDynamcis/JointStateCallback] Exception while computing DtJacobian inverse: %s", e.what());
-        ROS_WARN("[serverOperationalSpaceDynamcis/JointStateCallback] Fallback: Neglecting Mass * inverse_dt_jacobian term.");
+        ROS_ERROR("[serverOperationalSpaceDynamics/JointStateCallback] Exception while computing DtJacobian inverse: %s", e.what());
+        ROS_WARN("[serverOperationalSpaceDynamics/JointStateCallback] Fallback: Neglecting Mass * inverse_dt_jacobian term.");
 
         // Fallback calculation of Gamma matrix
         //Gamma_Matrix = inverse_jacobian_matrix.transpose() * (Coriolis_Matrix * inverse_jacobian_matrix);
@@ -170,7 +170,7 @@ bool sendDynamics(smm_control::GetOperationalSpaceDynamics::Request &req, smm_co
                 res.Lambda[i * 3 + j] = Lambda_Matrix(i, j);
             }
         }
-        //ROS_INFO("[serverOperationalSpaceDynamcis/sendDynamics] Mass Matrix sent.");
+        //ROS_INFO("[serverOperationalSpaceDynamics/sendDynamics] Mass Matrix sent.");
     }
 
     // If client requests Coriolis Matrix
@@ -180,13 +180,13 @@ bool sendDynamics(smm_control::GetOperationalSpaceDynamics::Request &req, smm_co
                 res.Gamma_OSD[i * 3 + j] = Gamma_Matrix(i, j);
             }
         }
-        //ROS_INFO("[serverOperationalSpaceDynamcis/sendDynamics] Coriolis Matrix sent.");
+        //ROS_INFO("[serverOperationalSpaceDynamics/sendDynamics] Coriolis Matrix sent.");
     }*/
     if (req.get_Gamma_OSD_Vector) {
         for (int i = 0; i < 3; i++) {
             res.Gamma_OSD_Vector[i] = Gamma_Vector(i);
         }
-        //ROS_INFO("[serverOperationalSpaceDynamcis/sendDynamics] Coriolis vector sent.");
+        //ROS_INFO("[serverOperationalSpaceDynamics/sendDynamics] Coriolis vector sent.");
     }
 
     // If client requests Gravity Vector
@@ -194,31 +194,53 @@ bool sendDynamics(smm_control::GetOperationalSpaceDynamics::Request &req, smm_co
         for (int i = 0; i < 3; i++) {
             res.Fg[i] = Fg_Vector(i);
         }
-        //ROS_INFO("[serverOperationalSpaceDynamcis/sendDynamics] Gravity vector sent.");
+        //ROS_INFO("[serverOperationalSpaceDynamics/sendDynamics] Gravity vector sent.");
     }
 
     return true;
 }
 
 int main(int argc, char **argv) {
-    ros::init(argc, argv, "serverOperationalSpaceDynamcis");
+    ros::init(argc, argv, "serverOperationalSpaceDynamics");
     ros::NodeHandle nh;
 
     // Initialize the robot structure
-    RobotAbstractBase* robot_ptr = new Structure3Pseudos();
-
+    int str_digit_loc;
+    if (!nh.getParam("/str_digit", str_digit_loc)) {
+        ROS_ERROR("[serverOperationalSpaceMatrices] Failed to get str_digit parameter.");
+        return -1;
+    }
+    RobotAbstractBase* robot_ptr = nullptr;
+    switch (str_digit_loc) {
+        case 2:
+            robot_ptr = new Structure2Pseudos();
+            break;
+        case 3:
+            robot_ptr = new Structure3Pseudos();
+            break;
+        //case 4:
+        //    robot_ptr = new Structure4Pseudos();
+        //    break;
+        default:
+            ROS_ERROR("[serverOperationalSpaceMatrices] Invalid str_digit value. Must be 2, 3, or 4.");
+            return -1;
+    }
     // Create an instance of your shared library with NodeHandle
     robot_shared my_shared_lib(robot_ptr, nh);
     if (!my_shared_lib.initializeSharedLib()) {
-        ROS_ERROR("[serverOperationalSpaceDynamcis] Failed to initialize shared library.");
+        ROS_ERROR("[serverOperationalSpaceDynamics] Failed to initialize shared library.");
         return -1;
     }
+
+    // Initialize the shared library for robot analytical solvers using screws
     ScrewsDynamics& smm_robot_dyn_solver = my_shared_lib.get_screws_dynamics_solver(); 
     ScrewsKinematics& smm_robot_kin_solver = my_shared_lib.get_screws_kinematics_solver();
 
-   ros::Subscriber joint_state_sub = nh.subscribe<sensor_msgs::JointState>("/smm_ros_gazebo/joint_states", 10, 
+    // GET JOINT DATA FROM: joint_current_state // /smm_ros_gazebo/joint_states
+   ros::Subscriber joint_state_sub = nh.subscribe<sensor_msgs::JointState>("/joint_current_state", 10, 
         boost::bind(JointStateCallback, _1, boost::ref(smm_robot_kin_solver), boost::ref(smm_robot_dyn_solver))
     );
+
     // Advertise the Operational Space Dynamics service
     ros::ServiceServer service = nh.advertiseService("GetOperationalSpaceDynamics", sendDynamics);
 

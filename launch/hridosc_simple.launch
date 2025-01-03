@@ -7,7 +7,10 @@
     <arg name="run_name" default="hridosc_default_run" />
     <!-- Define robot specific arguments -->
     <arg name="tcp_link_name" default="massage_tool" />
-    <arg name="str_digit" default="3" />
+    <arg name="str_digit_glob" default="3" />
+
+    <!-- Define global parameters-->
+    <param name="str_digit" value="$(arg str_digit_glob)" />
     <param name="base_frame" value="base_plate" />
     <param name="tcp_frame" value="massage_tool" />
     <!-- Include YAML file with RIDOSC parameters -->
@@ -31,24 +34,28 @@
     <!-- Node that publishes to /ridosc_desired_state -->
     <node name="updateDesiredState_ridosc_simple" pkg="smm_control" type="updateDesiredState_ridosc_simple" output="screen" />
 
+    <!-- I.3. Node that publishes an external force to TCP [just for test] -->
+    <!--<rosparam file="$(find smm_control)/config/yaml/hridosc/wrench_params.yaml" command="load" />-->
+    <!--<node name="ext_force_torque_publisher" pkg="smm_control" type="ext_force_torque_publisher" output="screen"/>-->
+
     <!-- II. ROBOT DATA -->
     <!-- Node that generates the topic /joint_current_state -->
     <node name="updateJointState_simple" pkg="smm_control" type="updateJointState_simple" output="screen" />
 
     <!-- Analytical Dynamics using screws @ /joint_current_state -->
-    <node name="serverOperationalSpaceDynamics" pkg="smm_control" type="serverOperationalSpaceDynamics" output="screen"/>
+    <node name="serverOperationalSpaceMatrices" pkg="smm_control" type="serverOperationalSpaceMatrices" output="screen"/>
 
     <!-- Analytical Jacobians using screws @ /joint_current_state -->
     <node name="serverToolJacobians" pkg="smm_control" type="serverToolJacobians" output="screen" />
 
     <!-- Service that computes TCP velocity and acceleration numerically from tf position data-->
-    <node name="serverTcpStateTfNum" pkg="smm_control" type="serverTcpStateTfNum" output="screen"/>
+    <!--<node name="serverTcpStateTfNum" pkg="smm_control" type="serverTcpStateTfNum" output="screen"/>-->
 
     <!-- III. H-RIDOSC -->
     <!-- Node that generates the topic /tcp_current_state -->
-    <node name="updateCartesianState_ridosc_simple" pkg="smm_control" type="updateCartesianState_ridosc_simple" output="screen" >
-        <param name="STR_DIGIT" value="$(arg str_digit)" />
-    </node>
+    <node name="updateCartesianState_ridosc_simple" pkg="smm_control" type="updateCartesianState_ridosc_simple" output="screen"/>
+        <!--<param name="STR_DIGIT" value="$(arg str_digit_glob)" />
+    </node>-->
 
     <!-- Node that publishes to /ridosc_error_state -->
     <node name="updateErrorState_ridosc_simple" pkg="smm_control" type="updateErrorState_ridosc_simple" output="screen" />
@@ -84,5 +91,5 @@
     </include>
 
     <!-- V. RviZ Debugger-->
-    <include file="$(find smm_control)/launch/ridosc_visualization_simple.launch"/> <!--use same settings for idosc/fasmc/ridosc -->
+    <include file="$(find smm_control)/launch/hridosc_visualization_simple.launch"/> 
 </launch>

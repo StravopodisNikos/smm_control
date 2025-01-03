@@ -3,8 +3,9 @@
 #include <sensor_msgs/JointState.h>
 #include <smm_control/CustomTcpState.h>
 #include <smm_control/IdoscCurrent.h>
-#include <smm_control/GetOperationalSpaceDynamics.h>
-#include <smm_control/GetJacobians.h>
+//#include <smm_control/GetOperationalSpaceDynamics.h>
+//#include <smm_control/GetJacobians.h>
+#include <smm_control/GetOperationalSpaceMatrices.h>
 #include <smm_control/IdoscError.h>
 #include <smm_control/FasmcTorques.h>
 #include <Eigen/Dense>
@@ -39,13 +40,14 @@ Eigen::Vector3f _dq = Eigen::Vector3f::Zero();  // Current joint velocities
 ros::Publisher torque_pub;
 
 // Function to call the service and retrieve Dynamic matrices
-bool getDynamicsFromService(ros::NodeHandle& nh, bool get_LambdaMatrix, bool get_GammaMatrix, bool get_FgVector) {
-    ros::ServiceClient client = nh.serviceClient<smm_control::GetOperationalSpaceDynamics>("GetOperationalSpaceDynamics");
-    smm_control::GetOperationalSpaceDynamics srv;
+bool getDynamicsFromService(ros::NodeHandle& nh, bool get_JacobianMatrix, bool get_LambdaMatrix, bool get_GammaVector, bool get_FgVector) {
+    ros::ServiceClient client = nh.serviceClient<smm_control::GetOperationalSpaceMatrices>("GetOperationalSpaceMatrices");
+    smm_control::GetOperationalSpaceMatrices srv;
  
     // Set flags in the request
+    srv.request.get_op_jacobian = get_JacobianMatrix;
     srv.request.get_Lambda = get_LambdaMatrix;
-    srv.request.get_Gamma_OSD_Vector = get_GammaMatrix;
+    srv.request.get_Gamma_OSD_Vector = get_GammaVector;
     srv.request.get_Fg = get_FgVector;
 
     if (client.call(srv)) {
@@ -55,38 +57,38 @@ bool getDynamicsFromService(ros::NodeHandle& nh, bool get_LambdaMatrix, bool get
                     _Lambda(i, j) = srv.response.Lambda[i * 3 + j];
                 }
             }
-            ROS_INFO_STREAM("[updateDynamicsTorque_ridosc_simple/getDynamicsFromService] Lambda Matrix:\n" << _Lambda);
+            //ROS_INFO_STREAM("[updateDynamicsTorque_ridosc_simple/getDynamicsFromService] Lambda Matrix:\n" << _Lambda);
         }
-        /*if (get_GammaMatrix) {
+        if (get_JacobianMatrix) {
             for (int i = 0; i < 3; i++) {
                 for (int j = 0; j < 3; j++) {
-                    _Gamma(i, j) = srv.response.Gamma_OSD[i * 3 + j];
+                    _Jop(i, j) = srv.response.op_jacobian[i * 3 + j];
                 }
             }
-            ROS_INFO_STREAM("[updateDynamicsTorque_ridosc_simple/getDynamicsFromService] Gamma Matrix:\n" << _Gamma);
-        }*/
-        if (get_GammaMatrix) {
+            //ROS_INFO_STREAM("[updateDynamicsTorque_ridosc_simple/getDynamicsFromService] Operational Jacobian Matrix:\n" << _Gamma);
+        }
+        if (get_GammaVector) {
             for (int i = 0; i < 3; i++) {
                 _GammaVector(i) = srv.response.Gamma_OSD_Vector[i];
             }
-            ROS_INFO_STREAM("[updateDynamicsTorque_ridosc_simple/getDynamicsFromService] TCP Gamma Vector:\n" << _GammaVector);
+           // ROS_INFO_STREAM("[updateDynamicsTorque_ridosc_simple/getDynamicsFromService] TCP Gamma Vector:\n" << _GammaVector);
         }   
 
         if (get_FgVector) {
             for (int i = 0; i < 3; i++) {
                 _Fg(i) = srv.response.Fg[i];
             }
-            ROS_INFO_STREAM("[updateDynamicsTorque_ridosc_simple/getDynamicsFromService] TCP Gravity Vector:\n" << _Fg);
+            //ROS_INFO_STREAM("[updateDynamicsTorque_ridosc_simple/getDynamicsFromService] TCP Gravity Vector:\n" << _Fg);
         }
         return true;        
     } else {
-        ROS_ERROR("[updateDynamicsTorque_ridosc_simple/getDynamicsFromService] Failed to call service GetOperationalSpaceDynamics.");
+        ROS_ERROR("[updateDynamicsTorque_ridosc_simple/getDynamicsFromService] Failed to call service serverOperationalSpaceDynamics.");
         return false;
     }
 }
 
 // Function to call the service and retrieve Jacobians
-bool getJacobiansFromService(ros::NodeHandle& nh, bool get_op, bool get_inv_op, bool get_dt_op) {
+/*bool getJacobiansFromService(ros::NodeHandle& nh, bool get_op, bool get_inv_op, bool get_dt_op) {
     ros::ServiceClient client = nh.serviceClient<smm_control::GetJacobians>("GetOperationalJacobians");
     smm_control::GetJacobians srv;
 
@@ -110,7 +112,7 @@ bool getJacobiansFromService(ros::NodeHandle& nh, bool get_op, bool get_inv_op, 
         ROS_ERROR("[updateDynamicsTorque_ridosc_simple/getJacobiansFromService] Failed to call service GetOperationalJacobians.");
         return false;
     }
-}
+}*/
 
 // Callback for joint states to retrieve joint accelerations
 void desiredStateCallback(const smm_control::CustomTcpState::ConstPtr& msg) {
@@ -240,21 +242,21 @@ bool loadParameters(ros::NodeHandle& nh) {
 
 // Function to compute controller output
 void computeJointEffort(ros::NodeHandle& nh) {
-    if (!getDynamicsFromService(nh, true, true, true)) {
-        ROS_ERROR("Failed to retrieve dynamic matrices.");
+    if (!getDynamicsFromService(nh, true, true, true, true)) {
+        ROS_ERROR("Failed to retrieve operational space matrices.");
         return;
     }
 
-    if (!getJacobiansFromService(nh, true, false, false)) {
+    /*if (!getJacobiansFromService(nh, true, false, false)) {
         ROS_ERROR("Failed to retrieve jacobian matrices.");
         return;
-    }
+    }*/
     
     // Print the values of _Jop before performing calculations
-    ROS_INFO_STREAM("[updateDynamicsTorque_ridosc_simple/computeJointEffort] _Jop Matrix:\n"
+   /* ROS_INFO_STREAM("[updateDynamicsTorque_ridosc_simple/computeJointEffort] _Jop Matrix:\n"
                     << _Jop(0, 0) << " " << _Jop(0, 1) << " " << _Jop(0, 2) << "\n"
                     << _Jop(1, 0) << " " << _Jop(1, 1) << " " << _Jop(1, 2) << "\n"
-                    << _Jop(2, 0) << " " << _Jop(2, 1) << " " << _Jop(2, 2));
+                    << _Jop(2, 0) << " " << _Jop(2, 1) << " " << _Jop(2, 2));*/
 
     _u = _Jop.transpose() * ( _Lambda * (_ddx_d + _Kd * _de + _Kp * _e) + _GammaVector + _Fg  ) - ( _Damp * _dq ) - ( _Fric * _dq.array().sign().matrix());
 

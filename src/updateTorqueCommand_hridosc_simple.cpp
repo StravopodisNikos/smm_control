@@ -11,13 +11,13 @@ smm_control::FasmcTorques dyn_term;
 bool received_robust_term = false;
 bool received_dyn_term = false;
 
-// Callback for /fasmc_robust_term
+// Callback for /hridosc_robust_term
 void robustTermCallback(const smm_control::FasmcTorques::ConstPtr& msg) {
     robust_term = *msg;
     received_robust_term = true;
 }
 
-// Callback for /fasmc_dyn_term
+// Callback for /ridosc_dyn_term
 void dynTermCallback(const smm_control::FasmcTorques::ConstPtr& msg) {
     dyn_term = *msg;
     received_dyn_term = true;
@@ -31,7 +31,7 @@ void publishCombinedTorque(ros::Publisher& torque_pub) {
         // Add the torque values from robust_term and dyn_term
         for (int i = 0; i < 3; ++i) {
             combined_torque_msg.torques[i] = robust_term.torques[i] + dyn_term.torques[i];
-            //combined_torque_msg.torques[i] = robust_term.torques[i];
+            //combined_torque_msg.torques[i] = robust_term.torques[i]; // just for testing contribution...
         }
 
         // Publish the combined torques

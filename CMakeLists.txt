@@ -96,6 +96,7 @@ add_service_files(
   GetSpatialJacobians.srv
   GetTcpStateTfNum.srv
   GetOperationalSpaceDynamics.srv
+  GetOperationalSpaceMatrices.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -234,6 +235,7 @@ add_executable(updateRobustTorque_ridosc_simple src/updateRobustTorque_ridosc_si
 add_executable(serverOperationalSpaceDynamics src/serverOperationalSpaceDynamics.cpp)
 add_executable(updateDynamicsTorque_ridosc_simple src/updateDynamicsTorque_ridosc_simple.cpp)
 add_executable(updateTorqueCommand_ridosc_simple src/updateTorqueCommand_ridosc_simple.cpp)
+add_executable(serverOperationalSpaceMatrices src/serverOperationalSpaceMatrices.cpp)
 ## HRIDOSC
 add_executable(updateParams_hridosc_simple src/updateParams_hridosc_simple.cpp)
 add_executable(updateRobustTorque_hridosc_simple src/updateRobustTorque_hridosc_simple.cpp)
@@ -246,6 +248,10 @@ add_executable(stabilizeRobot src/stabilizeRobot.cpp)
 
 ## Visual debugging tools
 add_executable(visualizeTcpGoal src/visualizeTcpGoal.cpp)
+add_executable(visualizeTcpStates src/visualizeTcpStates.cpp)
+
+## ENVIRONMENT INTERACTION
+add_executable(ext_force_torque_publisher src/ext_force_torque_publisher.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -292,18 +298,20 @@ add_dependencies(updateRobustTorque_ridosc_simple ${${PROJECT_NAME}_EXPORTED_TAR
 add_dependencies(serverOperationalSpaceDynamics ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(updateDynamicsTorque_ridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(updateTorqueCommand_ridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(serverOperationalSpaceMatrices ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 ## HRIDOSC
 add_dependencies(updateParams_hridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(updateRobustTorque_hridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(updateTorqueCommand_hridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
 ## BUILT-IN DYNAMICS AND SIMPLE GRAVITY COMPENSATION && DESIRED GOALs
 add_dependencies(publishSingleJointGoal ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(publishSingleTcpGoal ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(stabilizeRobot ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
 ## Visual debugging tools
 add_dependencies(visualizeTcpGoal ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(visualizeTcpStates ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+## ENVIRONMENT INTERACTION
+add_dependencies(ext_force_torque_publisher ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
@@ -469,7 +477,10 @@ target_link_libraries(updateTorqueCommand_ridosc_simple
  ${catkin_LIBRARIES}
  robot_shared 
 )
-target_link_libraries(visualizeTcpGoal ${catkin_LIBRARIES})
+target_link_libraries(serverOperationalSpaceMatrices
+ ${catkin_LIBRARIES}
+ robot_shared 
+)
 ## HRIDOSC
 target_link_libraries(updateParams_hridosc_simple
  ${catkin_LIBRARIES}
@@ -483,6 +494,15 @@ target_link_libraries(updateTorqueCommand_hridosc_simple
  ${catkin_LIBRARIES}
  robot_shared 
 )
+## VISUAL DEBUGGING TOOLS
+target_link_libraries(visualizeTcpGoal ${catkin_LIBRARIES})
+target_link_libraries(visualizeTcpStates
+ ${catkin_LIBRARIES}
+ robot_shared 
+)
+
+## ENVIRONMENT INTERACTION
+target_link_libraries(ext_force_torque_publisher ${catkin_LIBRARIES})
 
 #############
 ## Install ##

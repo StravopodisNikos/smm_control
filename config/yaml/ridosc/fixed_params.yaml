@@ -1,10 +1,11 @@
+# SMC params are extracted from the hridosc/fixed_params.yaml
 #lambda_0: [9.0, 9.0, 9.0]    # fixed coeff for position error contribution in sliding state
 #eta_0: [8.0, 10.0, 8.0]       # adaptive smc coeff for "sign(s)"" contribution is smc torque signal
 #epsilon_0: [1.0, 5.0, 1.00]  # adaptive smc coeff for "s" contribution in smc torque signal
 #alpha: [0.5, 0.5, 0.5]     # fixed coeff for adaptive eta
 #beta: [0.5, 0.5, 0.5]      # fixed coeff for adaptive epsilon
 #gamma_h: [0.95, 0.95, 0.95]      # fixed coeff for tanh
-k_p: [150.0, 150.0, 150.0]    # P-gain for feedforward term in dyn(smooth) torque signal
-k_d: [20.0, 20.0, 20.0]       # D-gain for feedforward term in dyn(smooth) torque signal
+k_p: [50.0, 90.0, 50.0]    # P-gain for feedforward term in dyn(smooth) torque signal
+k_d: [40.0, 45.0, 40.0]       # D-gain for feedforward term in dyn(smooth) torque signal
 d_c: [10.0, 10.0, 10.0]          # Damping coeff term in dyn(smooth) torque signal (should be equal or close to xacro coeffs in joints)
 f_c: [20.0, 20.0, 20.0]          # Friction coeff term in dyn(smooth) torque signal (should be equal or close to xacro coeffs in joints)
