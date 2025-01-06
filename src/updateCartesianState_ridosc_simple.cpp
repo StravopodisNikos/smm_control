@@ -13,7 +13,7 @@ void idosc_simple_JointStateCallback(const sensor_msgs::JointState::ConstPtr& jo
                                 ScrewsKinematics& smm_robot_kin_solver, 
                                 ScrewsVisualization& smm_robot_viz_solver) {
     if (joint_state->position.size() < DOF || joint_state->velocity.size() < DOF) {
-        ROS_WARN("[updateCartesianState_idosc_simple/idosc_simple_JointStateCallback] Expected 3 joint positions and velocities, received %zu positions and %zu velocities", 
+        ROS_WARN("[updateCartesianState_ridosc_simple/idosc_simple_JointStateCallback] Expected 3 joint positions and velocities, received %zu positions and %zu velocities", 
                   joint_state->position.size(), joint_state->velocity.size());
         return;
     }

@@ -1,5 +1,5 @@
 cartesian_positions:  # tcp cartesian positions {px,py,pz} in [m]
-  position: [0.2114, -0.3801, 0.3275]   # initial:  -0.1221 -0.3773 0.3772
+  position: [0.1944, -0.3815, 0.3373]   # initial:  -0.1221 -0.3773 0.3772
 
 cartesian_velocities:  # tcp cartesian velocities {vx,vy,vz} in [m/s]
   velocity: [0.0000, 0.0000, 0.0000]

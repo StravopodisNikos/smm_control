@@ -16,6 +16,7 @@
     <!-- Include YAML file with RIDOSC parameters -->
     <rosparam file="$(find smm_control)/config/yaml/hridosc/fixed_params.yaml" command="load"/>
     <rosparam file="$(find smm_control)/config/yaml/ridosc/fixed_params.yaml" command="load"/>
+    
     <!-- Include launch file Gazebo with robot and all controller settings -->
     <include file="$(find smm_control)/launch/hridosc_gazebo_settings.launch"/> <!--use same settings for idosc/fasmc/ridosc -->
     
@@ -54,8 +55,6 @@
     <!-- III. H-RIDOSC -->
     <!-- Node that generates the topic /tcp_current_state -->
     <node name="updateCartesianState_ridosc_simple" pkg="smm_control" type="updateCartesianState_ridosc_simple" output="screen"/>
-        <!--<param name="STR_DIGIT" value="$(arg str_digit_glob)" />
-    </node>-->
 
     <!-- Node that publishes to /ridosc_error_state -->
     <node name="updateErrorState_ridosc_simple" pkg="smm_control" type="updateErrorState_ridosc_simple" output="screen" />

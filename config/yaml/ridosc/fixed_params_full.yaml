@@ -1,0 +1,10 @@
+lambda_0: [17.5, 17.50, 17.5]    # fixed coeff for position error contribution in sliding state
+eta_0: [4.0, 3.0, 2.5]       # adaptive smc coeff for "sign(s)"" contribution is smc torque signal
+epsilon_0: [8.0, 10.0, 5.00]  # adaptive smc coeff for "s" contribution in smc torque signal
+alpha: [0.1, 0.1, 0.1]     # fixed coeff for adaptive eta
+beta: [0.1, 0.1, 0.1]      # fixed coeff for adaptive epsilon
+gamma_h: [0.95, 0.95, 0.95]      # fixed coeff for tanh
+k_p: [20.0, 20.0, 20.0]    # P-gain for feedforward term in dyn(smooth) torque signal
+k_d: [10.0, 10.0, 10.0]       # D-gain for feedforward term in dyn(smooth) torque signal
+d_c: [10.0, 15.0, 10.0]          # Damping coeff term in dyn(smooth) torque signal (should be equal or close to xacro coeffs in joints)
+f_c: [20.0, 20.0, 20.0]          # Friction coeff term in dyn(smooth) torque signal (should be equal or close to xacro coeffs in joints)
