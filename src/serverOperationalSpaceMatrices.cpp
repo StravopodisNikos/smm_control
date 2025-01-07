@@ -4,6 +4,7 @@
 #include "smm_control/GetOperationalSpaceMatrices.h"  // Include the service header
 #include "smm_control/timing.h"
 #include <mutex>
+#include <std_msgs/Float32.h>
 
 Eigen::Matrix3f Mass_Matrix;            // Mass Matrix @ {q,dq}
 Eigen::Matrix3f Coriolis_Matrix;        // Coriolis Matrix @ {q,dq}
@@ -18,13 +19,14 @@ Eigen::Matrix3f op_jacobian_matrix = Eigen::Matrix3f::Zero();
 Eigen::Matrix3f inverse_jacobian_matrix = Eigen::Matrix3f::Zero();
 Eigen::Matrix3f derivative_jacobian_matrix = Eigen::Matrix3f::Zero();
 std::mutex jacobian_mutex;  // Mutex for protecting Jacobian updates
+float jacob_cond_number;
 
 constexpr float BASE_LAMBDA_DLS = 0.005f;
 constexpr float JACOB_COND_THRES = 10.0f;
 /*
  *  [29-12-24] Calculates all robot dynamic matrices in operational space, implementing screw theory tools!
  */
-void JointStateCallback(const sensor_msgs::JointState::ConstPtr& joint_state,  ScrewsKinematics& smm_robot_kin_solver, ScrewsDynamics& smm_robot_dyn_solver) {
+void JointStateCallback(const sensor_msgs::JointState::ConstPtr& joint_state,  ScrewsKinematics& smm_robot_kin_solver, ScrewsDynamics& smm_robot_dyn_solver, ros::Publisher& jacobian_cond_pub) {
     if (joint_state->position.size() < DOF || joint_state->velocity.size() < DOF) {
         ROS_WARN("[serverOperationalSpaceMatrices/JointStateCallback] Expected 3 joint positions and velocities, received %zu positions and %zu velocities", 
                   joint_state->position.size(), joint_state->velocity.size());
@@ -74,7 +76,12 @@ void JointStateCallback(const sensor_msgs::JointState::ConstPtr& joint_state,  S
     }
 
     // II.4. Evaluate the Condition Number of the Operational Jacobian
-    float jacob_cond_number = smm_robot_kin_solver.JacobianConditionNumber(op_jacobian_matrix);
+    jacob_cond_number = smm_robot_kin_solver.JacobianConditionNumber(op_jacobian_matrix);
+    
+    // Publish the Condition Number to topic /jacobian_condition_number
+    std_msgs::Float32 cond_msg;
+    cond_msg.data = jacob_cond_number;
+    jacobian_cond_pub.publish(cond_msg);
 
     // II.5. Calculate the inverse Operational Jacobian
     std::unique_ptr<Eigen::Matrix3f> inv_jacobian;
@@ -206,10 +213,13 @@ int main(int argc, char **argv) {
     // Initialize smm_screws solvers     
     ScrewsDynamics& smm_robot_dyn_solver = my_shared_lib.get_screws_dynamics_solver(); 
     ScrewsKinematics& smm_robot_kin_solver = my_shared_lib.get_screws_kinematics_solver();
+    
+    // Publisher for Jacobian condition number
+    ros::Publisher jacobian_cond_pub = nh.advertise<std_msgs::Float32>("/jacobian_condition_number", 10);
 
     // Get joint data from topic: joint_current_state || No: /smm_ros_gazebo/joint_states
-   ros::Subscriber joint_state_sub = nh.subscribe<sensor_msgs::JointState>("/joint_current_state", 10, 
-        boost::bind(JointStateCallback, _1, boost::ref(smm_robot_kin_solver), boost::ref(smm_robot_dyn_solver))
+    ros::Subscriber joint_state_sub = nh.subscribe<sensor_msgs::JointState>("/joint_current_state", 10, 
+        boost::bind(JointStateCallback, _1, boost::ref(smm_robot_kin_solver), boost::ref(smm_robot_dyn_solver), boost::ref(jacobian_cond_pub))
     );
 
     // Advertise the Operational Space Dynamics service

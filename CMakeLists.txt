@@ -81,6 +81,7 @@ add_message_files(
   FasmcTorques.msg
   RobotTorques.msg
   CustomTcpState.msg
+  RidoscAdaptiveParams.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -237,14 +238,17 @@ add_executable(serverOperationalSpaceDynamics src/serverOperationalSpaceDynamics
 add_executable(updateDynamicsTorque_ridosc_simple src/updateDynamicsTorque_ridosc_simple.cpp)
 add_executable(updateTorqueCommand_ridosc_simple src/updateTorqueCommand_ridosc_simple.cpp)
 add_executable(serverOperationalSpaceMatrices src/serverOperationalSpaceMatrices.cpp)
+add_executable(updateUnParams_ridosc_simple src/updateUncertaintyParams_ridosc_simple.cpp)
 ## HRIDOSC
 add_executable(updateParams_hridosc_simple src/updateParams_hridosc_simple.cpp)
 add_executable(updateRobustTorque_hridosc_simple src/updateRobustTorque_hridosc_simple.cpp)
 add_executable(updateTorqueCommand_hridosc_simple src/updateTorqueCommand_hridosc_simple.cpp)
-
 ## UNCERTAINTY DYNAMICS
 add_executable(updateUncertaintyFactor src/updateUncertaintyFactor.cpp)
 add_executable(serverUncertaintyMatrices src/serverUncertainOperationalSpaceMatrices.cpp)
+add_executable(updateDtLambda src/updateDtLambda.cpp)
+add_executable(updateInverseLambda src/updateInverseLambda.cpp)
+
 
 ## BUILT-IN DYNAMICS AND SIMPLE GRAVITY COMPENSATION
 add_executable(publishSingleJointGoal src/publishSingleJointGoal.cpp)
@@ -304,13 +308,17 @@ add_dependencies(serverOperationalSpaceDynamics ${${PROJECT_NAME}_EXPORTED_TARGE
 add_dependencies(updateDynamicsTorque_ridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(updateTorqueCommand_ridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(serverOperationalSpaceMatrices ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(updateUnParams_ridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 ## HRIDOSC
 add_dependencies(updateParams_hridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(updateRobustTorque_hridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(updateTorqueCommand_hridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+## URIDOSC
 ## UNCERTAINTY DYNAMICS
 add_dependencies(updateUncertaintyFactor ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(serverUncertaintyMatrices ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(updateDtLambda ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(updateInverseLambda ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 ## BUILT-IN DYNAMICS AND SIMPLE GRAVITY COMPENSATION && DESIRED GOALs
 add_dependencies(publishSingleJointGoal ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(publishSingleTcpGoal ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -489,6 +497,10 @@ target_link_libraries(serverOperationalSpaceMatrices
  ${catkin_LIBRARIES}
  robot_shared 
 )
+target_link_libraries(updateUnParams_ridosc_simple
+ ${catkin_LIBRARIES}
+ robot_shared 
+)
 ## HRIDOSC
 target_link_libraries(updateParams_hridosc_simple
  ${catkin_LIBRARIES}
@@ -502,12 +514,22 @@ target_link_libraries(updateTorqueCommand_hridosc_simple
  ${catkin_LIBRARIES}
  robot_shared 
 )
+## URIDOSC
+
 ## UNCERTAINTY DYNAMICS
 target_link_libraries(updateUncertaintyFactor
  ${catkin_LIBRARIES}
  robot_shared 
 )
 target_link_libraries(serverUncertaintyMatrices
+ ${catkin_LIBRARIES}
+ robot_shared 
+)
+target_link_libraries(updateDtLambda
+ ${catkin_LIBRARIES}
+ robot_shared 
+)
+target_link_libraries(updateInverseLambda
  ${catkin_LIBRARIES}
  robot_shared 
 )

@@ -22,5 +22,6 @@ constexpr double IKP_LOOP_RATE     		            = 1.0;       // 1
 
 constexpr double UPDATE_UNCERTAINTY_RATE            = 10.0;
 constexpr double UPDATE_UNCERTAINTY_DYNAMICS_RATE   = 10.0;
-
+constexpr double DT_LAMBDA_UPDATE_RATE              = 10.0;
+constexpr double INVERSE_LAMBDA_UPDATE_RATE         = 10.0;
 #endif // TIMING_H
