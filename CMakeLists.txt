@@ -243,22 +243,20 @@ add_executable(updateUnParams_ridosc_simple src/updateUncertaintyParams_ridosc_s
 add_executable(updateParams_hridosc_simple src/updateParams_hridosc_simple.cpp)
 add_executable(updateRobustTorque_hridosc_simple src/updateRobustTorque_hridosc_simple.cpp)
 add_executable(updateTorqueCommand_hridosc_simple src/updateTorqueCommand_hridosc_simple.cpp)
+## URIDOSC
+add_executable(updateRobustTorque_uridosc_simple src/updateRobustTorque_uridosc_simple.cpp)
 ## UNCERTAINTY DYNAMICS
 add_executable(updateUncertaintyFactor src/updateUncertaintyFactor.cpp)
 add_executable(serverUncertaintyMatrices src/serverUncertainOperationalSpaceMatrices.cpp)
 add_executable(updateDtLambda src/updateDtLambda.cpp)
 add_executable(updateInverseLambda src/updateInverseLambda.cpp)
-
-
 ## BUILT-IN DYNAMICS AND SIMPLE GRAVITY COMPENSATION
 add_executable(publishSingleJointGoal src/publishSingleJointGoal.cpp)
 add_executable(publishSingleTcpGoal src/publishSingleTcpGoal.cpp)
 add_executable(stabilizeRobot src/stabilizeRobot.cpp)
-
 ## Visual debugging tools
 add_executable(visualizeTcpGoal src/visualizeTcpGoal.cpp)
 add_executable(visualizeTcpStates src/visualizeTcpStates.cpp)
-
 ## ENVIRONMENT INTERACTION
 add_executable(ext_force_torque_publisher src/ext_force_torque_publisher.cpp)
 
@@ -314,6 +312,8 @@ add_dependencies(updateParams_hridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS}
 add_dependencies(updateRobustTorque_hridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(updateTorqueCommand_hridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 ## URIDOSC
+add_dependencies(updateRobustTorque_uridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
 ## UNCERTAINTY DYNAMICS
 add_dependencies(updateUncertaintyFactor ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(serverUncertaintyMatrices ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -515,7 +515,10 @@ target_link_libraries(updateTorqueCommand_hridosc_simple
  robot_shared 
 )
 ## URIDOSC
-
+target_link_libraries(updateRobustTorque_uridosc_simple
+ ${catkin_LIBRARIES}
+ robot_shared 
+)
 ## UNCERTAINTY DYNAMICS
 target_link_libraries(updateUncertaintyFactor
  ${catkin_LIBRARIES}

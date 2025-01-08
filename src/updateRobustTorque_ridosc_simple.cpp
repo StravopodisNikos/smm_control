@@ -1,6 +1,5 @@
 #include <ros/ros.h>
 #include <smm_control/FasmcAdaptiveParams.h>
-#include <smm_control/FasmcFuzzyParams.h>
 #include <smm_control/FasmcTorques.h>
 #include <geometry_msgs/Vector3.h>
 #include <cmath>
