@@ -37,7 +37,7 @@ int main(int argc, char** argv) {
     ros::NodeHandle nh;
 
     // Publisher for Lambda time derivative
-    ros::Publisher lambda_dot_pub = nh.advertise<std_msgs::Float64MultiArray>("/lambda_time_derivative", 10);
+    ros::Publisher lambda_dot_pub = nh.advertise<std_msgs::Float64MultiArray>("/dtLambda", 10);
 
     // Timing and rate
     ros::Rate loop_rate(DT_LAMBDA_UPDATE_RATE);
