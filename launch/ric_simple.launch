@@ -1,0 +1,95 @@
+<?xml version="1.0" ?>
+<!-- [8-1-25] Constructed for simulating a 3 DoF SMM, with 3 joint effort controllers && ric centralized node -->
+<!--          - [MATLAB] It implements the algorithm in MATLAB script smm_ric_test2.m. [PC] pc-laptop-win10 -->
+<!--          - R: Robust SMC.-->
+<!--          - ic: Impedance controller.-->
+
+<launch>
+    <!-- Define folder name for rosbags -->
+    <arg name="run_name" default="test_run" />
+    <!-- Define robot specific arguments -->
+    <arg name="tcp_link_name" default="massage_tool" />
+    <arg name="str_digit_glob" default="3" />
+
+    <!-- Define global parameters-->
+    <param name="impedance_mode" value="slow" />  <!-- supported: manual/slow/fast/safe-->
+    <param name="str_digit" value="$(arg str_digit_glob)" />
+    <param name="base_frame" value="base_plate" />
+    <param name="tcp_frame" value="massage_tool" />
+
+    <!-- Include YAML file with URIDOSC parameters -->
+    <rosparam file="$(find smm_control)/config/yaml/ridosc/adaptive_params.yaml" command="load"/>     <!-- Params related to controller -->
+    <rosparam file="$(find smm_control)/config/yaml/ridosc/dynamic_uncertainty.yaml" command="load"/> <!-- Params related to uncertainty modeling -->
+
+    <!-- Include launch file Gazebo with robot and all controller settings -->
+    <include file="$(find smm_control)/launch/idosc_gazebo_settings.launch"/> <!--use same settings for idosc/fasmc/ridosc/hridosc/uridosc -->
+    
+    <!-- R-idosc SIMPLE IMPLEMENTATION --> 
+    <!-- I. PUBLISH DESIRED STATES -->
+    <!-- Node that publishes to /tcp_desired_state -->
+    <rosparam file="$(find smm_control)/config/yaml/paths/tspace_goal.yaml" command="load"/>
+    <node name="publishSingleTcpGoal" pkg="smm_control" type="publishSingleTcpGoal" output="screen">
+        <param name="TCP_LINK_NAME" value="$(arg tcp_link_name)" />     
+    </node>
+    <!-- Node that handles the mismatch between tcp goal and ridosc desired state msg types -->
+    <!-- Node that publishes to /ridosc_desired_state -->
+    <node name="updateDesiredState_ridosc_simple" pkg="smm_control" type="updateDesiredState_ridosc_simple" output="screen" />
+
+    <!-- II. ROBOT DATA -->
+    <!-- Node that generates the topic /joint_current_state -->
+    <node name="updateJointState_simple" pkg="smm_control" type="updateJointState_simple" output="screen" />
+
+    <!-- Analytical Dynamics using screws @ /joint_current_state -->
+    <node name="serverOperationalSpaceMatrices" pkg="smm_control" type="serverOperationalSpaceMatrices" output="screen"/>
+
+    <!-- Analytical Jacobians using screws @ /joint_current_state -->
+    <node name="serverToolJacobians" pkg="smm_control" type="serverToolJacobians" output="screen" />
+
+    <!-- Modified Dynamics based on current uncertianty level -->
+    <node name="serverUncertaintyMatrices" pkg="smm_control" type="serverUncertaintyMatrices" output="screen" />
+
+    <!-- Service that computes TCP velocity and acceleration numerically from tf position data-->
+    <node name="serverTcpStateTfNum" pkg="smm_control" type="serverTcpStateTfNum" output="screen"/>
+
+    <!-- III. UNCERTAINTY COMPONENTS CALCULATION-->
+    <node name="updateUncertaintyFactor" pkg="smm_control" type="updateUncertaintyFactor" output="screen" />
+    <node name="updateDtLambda" pkg="smm_control" type="updateDtLambda" output="screen" />
+    <node name="updateInverseLambda" pkg="smm_control" type="updateInverseLambda" output="screen" />
+
+    <!-- IV. RIDOSC -->
+    <!-- Node that generates the topic /tcp_current_state -->
+    <node name="updateCartesianState_ridosc_simple" pkg="smm_control" type="updateCartesianState_ridosc_simple" output="screen"/>
+
+    <!-- Node that publishes to /ridosc_error_state -->
+    <node name="updateErrorState_ridosc_simple" pkg="smm_control" type="updateErrorState_ridosc_simple" output="screen" />
+    
+    <!-- Sliding state -->
+    <node name="updateSlidingState_ridosc_simple" pkg="smm_control" type="updateSlidingState_ridosc_simple" output="screen" />
+
+    <!-- Fuzzy Parameters: Not used in ridosc! -->
+    <!--<node name="updateFuzzyParams_fasmc_simple" pkg="smm_control" type="updateFuzzyParams_fasmc_simple" output="screen" /> -->
+
+    <!-- Adaptive Parameters based on current Uncertainty -->
+    <node name="updateUnParams_ridosc_simple" pkg="smm_control" type="updateUnParams_ridosc_simple" output="screen" />
+
+    <!-- Dynamic Model torque term -->  
+    <node name="updateDynamicsTorque_ridosc_simple" pkg="smm_control" type="updateDynamicsTorque_ridosc_simple" output="screen" />
+
+    <!-- Robust torque term -->
+    <node name="updateRobustTorque_uridosc_simple" pkg="smm_control" type="updateRobustTorque_uridosc_simple" output="screen" />
+
+    <!-- Add ridosc torques-->
+    <node name="updateTorqueCommand_ridosc_simple" pkg="smm_control" type="updateTorqueCommand_ridosc_simple" output="screen" /> 
+
+    <!-- Publish to robot effort controllers -->
+    <node name="robot_torque_command_publisher" pkg="smm_control" type="robot_torque_command_publisher" output="screen" /> 
+
+    <!-- V. DATA LOGGING -->
+    <!-- Include launch file for data logging and real time monitoring -->
+    <include file="$(find smm_control)/launch/uridosc_data_monitor.launch">
+        <arg name="run_name" value="$(arg run_name)"/>
+    </include>
+
+    <!-- VI. RviZ Debugger-->
+    <include file="$(find smm_control)/launch/ridosc_visualization_simple.launch"/> <!--use same settings for idosc/fasmc/ridosc/uridosc -->
+</launch>

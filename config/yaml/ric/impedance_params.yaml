@@ -1,0 +1,30 @@
+# Impedance available modes and parameters
+available_modes: 
+  - manual
+  - fast
+  - slow
+  - safe
+# Default Impedance system mode
+mode: "manual"
+# Impedance system parameters for each mode
+parameters:
+  manual:
+    description: "Manual mode for user-defined impedance settings"
+    m_m: [1.0, 1.0, 1.0]    # Low to high range for responsiveness,              #  (low) light-responsive -- > (high) heavy-sluggish robot
+    d_m: [1.0, 1.0, 1.0]    # Low to high for oscillatory vs. resistant behavior #  (low) faster acceleration, but oscillatory -- > (high) slow-resistant robot 
+    k_m: [1.0, 1.0, 1.0]    # Compliance to stiffness for accurate tracking      #  (low) compliant -- > (high) stiff-accurate tracking capability robot
+  fast:
+    description: "Fast response mode with moderate mass and low damping"
+    m_m: [5.0, 5.0, 5.0]
+    d_m: [5.0, 5.0, 5.0]
+    k_m: [500.0, 500.0, 500.0]
+  slow:
+    description: "Slow response mode for precise and heavy movements"
+    m_m: [10.0, 10.0, 10.0]
+    d_m: [100.0, 100.0, 100.0]
+    k_m: [1000.0, 1000.0, 1000.0]
+  safe:
+    description: "Safe response for human-robot interaction"
+    m_m: [1.0, 1.0, 1.0]
+    d_m: [15.0, 15.0, 15.0]
+    k_m: [10.0, 10.0, 10.0]

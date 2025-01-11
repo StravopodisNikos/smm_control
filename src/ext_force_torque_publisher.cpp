@@ -70,14 +70,12 @@ private:
         wrench_msg.header.stamp = ros::Time::now();
         wrench_msg.header.frame_id = link_name_;  // Target link frame
         wrench_msg.wrench = wrench_;
-
         wrench_pub_.publish(wrench_msg);
     }
 };
 
 int main(int argc, char** argv) {
     ros::init(argc, argv, "ext_force_torque_publisher");
-    //ros::NodeHandle nh("~");  // Use private NodeHandle for parameters
     ros::NodeHandle nh;
     ForceTorquePublisher force_torque_publisher(nh);
 
