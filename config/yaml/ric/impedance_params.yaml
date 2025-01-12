@@ -6,6 +6,7 @@ available_modes:
   - safe
 # Default Impedance system mode
 mode: "manual"
+# Switch between modes by updating the mode parameter in the parameter server: $ rosparam set /mode "fast"
 # Impedance system parameters for each mode
 parameters:
   manual:

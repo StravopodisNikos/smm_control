@@ -252,6 +252,9 @@ add_executable(updateDtLambda src/updateDtLambda.cpp)
 add_executable(updateInverseLambda src/updateInverseLambda.cpp)
 ## RIC
 add_executable(updateImpedanceTorque_ric_simple src/updateImpedanceTorque_ric_simple.cpp)
+add_executable(updateImpedanceAccel src/updateImpedanceAccel.cpp)
+add_executable(updateDynamicsTorque_ric_simple src/updateDynamicsTorque_ric_simple.cpp)
+add_executable(updateTorqueCommand_ric_simple src/updateTorqueCommand_ric_simple.cpp)
 ## BUILT-IN DYNAMICS AND SIMPLE GRAVITY COMPENSATION
 add_executable(publishSingleJointGoal src/publishSingleJointGoal.cpp)
 add_executable(publishSingleTcpGoal src/publishSingleTcpGoal.cpp)
@@ -317,7 +320,9 @@ add_dependencies(updateTorqueCommand_hridosc_simple ${${PROJECT_NAME}_EXPORTED_T
 add_dependencies(updateRobustTorque_uridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 ## RIC
 add_dependencies(updateImpedanceTorque_ric_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
+add_dependencies(updateImpedanceAccel ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(updateDynamicsTorque_ric_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(updateTorqueCommand_ric_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 ## UNCERTAINTY DYNAMICS
 add_dependencies(updateUncertaintyFactor ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(serverUncertaintyMatrices ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -525,6 +530,16 @@ target_link_libraries(updateRobustTorque_uridosc_simple
 )
 ## RIC
 target_link_libraries(updateImpedanceTorque_ric_simple
+ ${catkin_LIBRARIES}
+)
+target_link_libraries(updateImpedanceAccel
+ ${catkin_LIBRARIES}
+)
+target_link_libraries(updateDynamicsTorque_ric_simple
+ ${catkin_LIBRARIES}
+ robot_shared 
+)
+target_link_libraries(updateTorqueCommand_ric_simple
  ${catkin_LIBRARIES}
 )
 ## UNCERTAINTY DYNAMICS

@@ -10,9 +10,11 @@
     <!-- Define robot specific arguments -->
     <arg name="tcp_link_name" default="massage_tool" />
     <arg name="str_digit_glob" default="3" />
+    <arg name="imp_mode_glob" default="manual" />
 
     <!-- Define global parameters-->
-    <param name="impedance_mode" value="slow" />  <!-- supported: manual/slow/fast/safe-->
+    <param name="impedance_mode" value="$(arg imp_mode_glob)" />  <!-- supported: manual/slow/fast/safe-->
+    <!-- roslaunch smm_control ric_simple.launch mode:=fast -->
     <param name="str_digit" value="$(arg str_digit_glob)" />
     <param name="base_frame" value="base_plate" />
     <param name="tcp_frame" value="massage_tool" />
