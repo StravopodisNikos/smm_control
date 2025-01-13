@@ -271,10 +271,10 @@ void computeJointEffort(ros::NodeHandle& nh) {
 
     torque_pub.publish(torque_msg);
 
-    ROS_INFO_STREAM("[updateDynamicsTorque_ridosc_simple/computeJointEffort] Dynamic Model Torques: [" 
+    /*ROS_INFO_STREAM("[updateDynamicsTorque_ridosc_simple/computeJointEffort] Dynamic Model Torques: [" 
                 << torque_msg.torques[0] << ", " 
                 << torque_msg.torques[1] << ", " 
-                << torque_msg.torques[2] << "]");
+                << torque_msg.torques[2] << "]");*/
 }
 
 int main(int argc, char** argv) {

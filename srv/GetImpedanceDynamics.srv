@@ -1,0 +1,9 @@
+bool get_op_jacobian          
+bool get_Lambda_imp       
+bool get_Gamma_imp     
+bool get_Fg_imp       
+---
+float32[9] op_jacobian        # 3x3 operational Jacobian, row-major
+float32[9] Lambda_imp             # 3x3 mass matrix @ tcp, row-major
+float32[9] Gamma_imp   # 3x1 coriolis vector @ tcp
+float32[3] Fg_imp                 # 3x1 gravity vector @ tcp

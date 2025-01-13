@@ -30,10 +30,10 @@ void torquesCallback(const smm_control::RobotTorques::ConstPtr& msg, ros::Publis
     torque_msg.data = limitTorque(msg->torques[2]);
     pub3.publish(torque_msg);
 
-    ROS_INFO("[robot_effort_publisher/torquesCallback] Published torques - Joint 1: %f, Joint 2: %f, Joint 3: %f", 
+    /*ROS_INFO("[robot_effort_publisher/torquesCallback] Published torques - Joint 1: %f, Joint 2: %f, Joint 3: %f", 
          msg->torques[0], 
          msg->torques[1], 
-         msg->torques[2]);
+         msg->torques[2]);*/
 }
 
 int main(int argc, char** argv) {

@@ -77,14 +77,14 @@ int main(int argc, char** argv) {
             // Publish the error state
             error_state_pub.publish(error_state);
 
-            // Log the error state
+            /*// Log the error state
             ROS_INFO("[updateErrorState_ridosc_simple] Publishing error state: position error (x: %f, y: %f, z: %f), velocity error (x: %f, y: %f, z: %f)",
                      error_state.pose_error.position.x,
                      error_state.pose_error.position.y,
                      error_state.pose_error.position.z,
                      error_state.twist_error.linear.x,
                      error_state.twist_error.linear.y,
-                     error_state.twist_error.linear.z);
+                     error_state.twist_error.linear.z);*/
         }
 
         ros::spinOnce();

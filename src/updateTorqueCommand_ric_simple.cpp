@@ -38,7 +38,7 @@ void publishCombinedTorque(ros::Publisher& torque_pub) {
 
         // Add the torque values from robust_term and dyn_term
         for (int i = 0; i < 3; ++i) {
-            combined_torque_msg.torques[i] = robust_term.torques[i] + dyn_term.torques[i] + imp_term.torques[i];
+            combined_torque_msg.torques[i] = robust_term.torques[i] + dyn_term.torques[i]; // + imp_term.torques[i]; //removed imp term
         }
 
         // Publish the combined torques

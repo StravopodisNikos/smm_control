@@ -11,6 +11,9 @@
     <arg name="tcp_link_name" default="massage_tool" />
     <arg name="str_digit_glob" default="3" />
     <arg name="imp_mode_glob" default="manual" />
+    <!-- Define arguments for start delay and publish duration for external force @ TCP -->
+    <arg name="start_delay" default="0.2" /> <!-- Default value: 2 seconds -->
+    <arg name="publish_duration" default="1.5" /> <!-- Default value: 10 seconds -->
 
     <!-- Define global parameters-->
     <param name="impedance_mode" value="$(arg imp_mode_glob)" />  <!-- supported: manual/slow/fast/safe-->
@@ -19,17 +22,19 @@
     <param name="base_frame" value="base_plate" />
     <param name="tcp_frame" value="massage_tool" />
 
-    <!-- Include YAML file with URIDOSC parameters -->
-    <rosparam file="$(find smm_control)/config/yaml/ridosc/adaptive_params.yaml" command="load"/>     <!-- Params related to controller -->
-    <rosparam file="$(find smm_control)/config/yaml/ridosc/dynamic_uncertainty.yaml" command="load"/> <!-- Params related to uncertainty modeling -->
+    <!-- Include YAML file with RIC parameters -->
+    <rosparam file="$(find smm_control)/config/yaml/ric/adaptive_params.yaml" command="load"/>     <!-- Params for adaptive coeffs related to controller -->
+    <rosparam file="$(find smm_control)/config/yaml/ric/dynamic_uncertainty.yaml" command="load"/> <!-- Params related to uncertainty modeling -->
+    <rosparam file="$(find smm_control)/config/yaml/ric/impedance_params.yaml" command="load"/>    <!-- Params related to impedance controller -->
+    <rosparam file="$(find smm_control)/config/yaml/ric/wrench_params.yaml" command="load"/>       <!-- Params related to force/torque wrench modeling -->
 
     <!-- Include launch file Gazebo with robot and all controller settings -->
-    <include file="$(find smm_control)/launch/idosc_gazebo_settings.launch"/> <!--use same settings for idosc/fasmc/ridosc/hridosc/uridosc -->
+    <include file="$(find smm_control)/launch/ric_gazebo_settings.launch"/> <!--use same settings for idosc/fasmc/ridosc/hridosc/uridosc -->
     
-    <!-- R-idosc SIMPLE IMPLEMENTATION --> 
+    <!-- R-ic SIMPLE IMPLEMENTATION --> 
     <!-- I. PUBLISH DESIRED STATES -->
     <!-- Node that publishes to /tcp_desired_state -->
-    <rosparam file="$(find smm_control)/config/yaml/paths/tspace_goal.yaml" command="load"/>
+    <rosparam file="$(find smm_control)/config/yaml/paths/impedance_goal.yaml" command="load"/>
     <node name="publishSingleTcpGoal" pkg="smm_control" type="publishSingleTcpGoal" output="screen">
         <param name="TCP_LINK_NAME" value="$(arg tcp_link_name)" />     
     </node>
@@ -37,28 +42,34 @@
     <!-- Node that publishes to /ridosc_desired_state -->
     <node name="updateDesiredState_ridosc_simple" pkg="smm_control" type="updateDesiredState_ridosc_simple" output="screen" />
 
-    <!-- II. ROBOT DATA -->
+    <!-- II. ENVIRONMENT INTERACTION/EXTERNAL FORCES -->
+    <!--<node name="ext_force_torque_publisher" pkg="smm_control" type="ext_force_torque_publisher" output="screen" />-->
+    <node name="ext_wrench_publisher_time" pkg="smm_control" type="ext_wrench_publisher_time" output="screen" args="$(arg start_delay) $(arg publish_duration)" />
+
+    <!-- III. ROBOT DATA -->
     <!-- Node that generates the topic /joint_current_state -->
     <node name="updateJointState_simple" pkg="smm_control" type="updateJointState_simple" output="screen" />
 
     <!-- Analytical Dynamics using screws @ /joint_current_state -->
-    <node name="serverOperationalSpaceMatrices" pkg="smm_control" type="serverOperationalSpaceMatrices" output="screen"/>
+    <node name="serverOperationalSpaceMatrices" pkg="smm_control" type="serverOperationalSpaceMatrices" output="screen"/> <!-- Only for lambda! Must change-->
+    <node name="serverImpedanceDynamics" pkg="smm_control" type="serverImpedanceDynamics" output="screen" />
 
     <!-- Analytical Jacobians using screws @ /joint_current_state -->
     <node name="serverToolJacobians" pkg="smm_control" type="serverToolJacobians" output="screen" />
 
     <!-- Modified Dynamics based on current uncertianty level -->
-    <node name="serverUncertaintyMatrices" pkg="smm_control" type="serverUncertaintyMatrices" output="screen" />
+    <!--<node name="serverUncertaintyMatrices" pkg="smm_control" type="serverUncertaintyMatrices" output="screen" />-->
+    <node name="serverUncertaintyImpedance" pkg="smm_control" type="serverUncertaintyImpedance" output="screen" />
 
     <!-- Service that computes TCP velocity and acceleration numerically from tf position data-->
-    <node name="serverTcpStateTfNum" pkg="smm_control" type="serverTcpStateTfNum" output="screen"/>
+    <!--<node name="serverTcpStateTfNum" pkg="smm_control" type="serverTcpStateTfNum" output="screen"/>-->
 
     <!-- III. UNCERTAINTY COMPONENTS CALCULATION-->
     <node name="updateUncertaintyFactor" pkg="smm_control" type="updateUncertaintyFactor" output="screen" />
     <node name="updateDtLambda" pkg="smm_control" type="updateDtLambda" output="screen" />
     <node name="updateInverseLambda" pkg="smm_control" type="updateInverseLambda" output="screen" />
 
-    <!-- IV. RIDOSC -->
+    <!-- IV. RIC -->
     <!-- Node that generates the topic /tcp_current_state -->
     <node name="updateCartesianState_ridosc_simple" pkg="smm_control" type="updateCartesianState_ridosc_simple" output="screen"/>
 
@@ -72,26 +83,33 @@
     <!--<node name="updateFuzzyParams_fasmc_simple" pkg="smm_control" type="updateFuzzyParams_fasmc_simple" output="screen" /> -->
 
     <!-- Adaptive Parameters based on current Uncertainty -->
-    <node name="updateUnParams_ridosc_simple" pkg="smm_control" type="updateUnParams_ridosc_simple" output="screen" />
+    <!--<node name="updateUnParams_ridosc_simple" pkg="smm_control" type="updateUnParams_ridosc_simple" output="screen" />-->
+    <node name="updateUnParams_ric_simple" pkg="smm_control" type="updateUnParams_ric_simple" output="screen" />
+
+    <!-- Impedance accel signal -->  
+    <node name="updateImpedanceAccel" pkg="smm_control" type="updateImpedanceAccel" output="screen" />
 
     <!-- Dynamic Model torque term -->  
-    <node name="updateDynamicsTorque_ridosc_simple" pkg="smm_control" type="updateDynamicsTorque_ridosc_simple" output="screen" />
+    <node name="updateDynamicsTorque_ric_simple" pkg="smm_control" type="updateDynamicsTorque_ric_simple" output="screen" />
 
     <!-- Robust torque term -->
     <node name="updateRobustTorque_uridosc_simple" pkg="smm_control" type="updateRobustTorque_uridosc_simple" output="screen" />
 
+    <!-- Impedance torque term -->  
+    <node name="updateImpedanceTorque_ric_simple" pkg="smm_control" type="updateImpedanceTorque_ric_simple" output="screen" />
+
     <!-- Add ridosc torques-->
-    <node name="updateTorqueCommand_ridosc_simple" pkg="smm_control" type="updateTorqueCommand_ridosc_simple" output="screen" /> 
+    <node name="updateTorqueCommand_ric_simple" pkg="smm_control" type="updateTorqueCommand_ric_simple" output="screen" /> 
 
     <!-- Publish to robot effort controllers -->
     <node name="robot_torque_command_publisher" pkg="smm_control" type="robot_torque_command_publisher" output="screen" /> 
 
     <!-- V. DATA LOGGING -->
     <!-- Include launch file for data logging and real time monitoring -->
-    <include file="$(find smm_control)/launch/uridosc_data_monitor.launch">
+    <include file="$(find smm_control)/launch/ric_data_monitor.launch">
         <arg name="run_name" value="$(arg run_name)"/>
     </include>
 
     <!-- VI. RviZ Debugger-->
-    <include file="$(find smm_control)/launch/ridosc_visualization_simple.launch"/> <!--use same settings for idosc/fasmc/ridosc/uridosc -->
+    <include file="$(find smm_control)/launch/ridosc_visualization_simple.launch"/> 
 </launch>

@@ -1,5 +1,5 @@
 link_name: "massage_tool"  # tcp robot link
 wrench:
-  force: [0.0, -10.0, -10.0]    # Force in Newtons [Fx, Fy, Fz]
-  torque: [0.0, -10.0, -10.0]    # Torque in Nm [Tx, Ty, Tz]
-publish_rate: 10.0  # Rate in Hz
+  force: [0.00, 0.00, 1.00]    # Force in Newtons [Fx, Fy, Fz]
+  torque: [0.0, 0.0, 0.0]    # Torque in Nm [Tx, Ty, Tz]
+publish_rate: 50.0  # Rate in Hz

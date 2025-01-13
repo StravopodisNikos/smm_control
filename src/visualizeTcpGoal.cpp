@@ -44,8 +44,8 @@ private:
 
         // Publish the marker
         marker_pub_.publish(marker_);
-        ROS_INFO_STREAM("Published TCP Goal Marker at position: [" 
-                        << position.x << ", " << position.y << ", " << position.z << "]");
+        /*ROS_INFO_STREAM("Published TCP Goal Marker at position: [" 
+                        << position.x << ", " << position.y << ", " << position.z << "]");*/
     }
 };
 

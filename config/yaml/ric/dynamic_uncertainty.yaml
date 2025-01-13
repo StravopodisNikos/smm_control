@@ -1,0 +1,12 @@
+# mbs index
+mbs: 0.3525         # anatomy-specific index. Extracted from matlab: smm_ridosc_test2/calculate_mbs_star_simplified.m 
+# jacobian condition number limits
+kappa_min: 1.0      # Best Jacobian condition number limit
+kappa_max: 30.0     # Jacobian Ill-conditioning limit
+# uncertainty weight distribution between jacobian-structure
+w_jacob: 0.5        # Jacobian sensitivity
+w_mbs: 0.5          # anatomy structure mass-balance-index. RAAD 2022 paper proves the connection between mbs and dynamic uncertainty
+# operational space matrices sensitivity to uncertainty [uncertainty_coeffs struct in MATLAB]
+lambda_un: 0.25      # coefficient that determines how sensitive Lambda is to uncertainty
+gamma_un: 0.25      # coefficient that determines how sensitive Gamma is to uncertainty-lower than Lambda-as a bias
+fgrav_un: 0.1       # coefficient that determines how sensitive Gravity is to uncertainty-lowest-as a bias

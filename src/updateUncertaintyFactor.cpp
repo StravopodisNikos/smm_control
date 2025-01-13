@@ -55,7 +55,7 @@ bool getOperationalJacobian(ros::NodeHandle& nh, Eigen::Matrix3f& J) {
                 J(i, j) = srv.response.op_jacobian[i * 3 + j];
             }
         }
-        ROS_INFO_STREAM("Operational Jacobian successfully received:\n" << J);
+        //ROS_INFO_STREAM("Operational Jacobian successfully received:\n" << J);
         return true;
     } else {
         ROS_ERROR("Failed to call service GetOperationalJacobians.");
@@ -145,7 +145,7 @@ int main(int argc, char** argv) {
                 // Publish the uncertainty factor
                 uncertainty_pub.publish(uncertainty_msg);
 
-                ROS_INFO_STREAM("Published uncertainty factor: " << uncertainty_msg.data);
+                //ROS_INFO_STREAM("Published uncertainty factor: " << uncertainty_msg.data);
             }
         } catch (const std::exception& e) {
             ROS_ERROR_STREAM("Error computing uncertainty: " << e.what());

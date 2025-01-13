@@ -96,7 +96,7 @@ bool loadImpedanceParams(const ros::NodeHandle& nh, const std::string& mode) {
     _D_m = params.d_m.asDiagonal();
     _K_m = params.k_m.asDiagonal();
 
-    ROS_INFO_STREAM("Loaded impedance parameters for mode: " << mode);
+    //ROS_INFO_STREAM("Loaded impedance parameters for mode: " << mode);
     return true;
 }
 

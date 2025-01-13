@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
     }
 
     // Debug statement
-    ROS_INFO("[updateCartesianState_ridosc_simple] Initializing shared library");
+    //ROS_INFO("[updateCartesianState_ridosc_simple] Initializing shared library");
 
     // Create an instance of your shared library with NodeHandle
     robot_shared my_shared_lib(robot_ptr, nh);

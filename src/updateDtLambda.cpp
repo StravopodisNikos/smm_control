@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
         lambda_dot_pub.publish(lambda_dot_msg);
 
         // Debug output
-        ROS_INFO_STREAM("Lambda Time Derivative:\n" << lambda_dot);
+        //ROS_INFO_STREAM("Lambda Time Derivative:\n" << lambda_dot);
 
         // Update previous values
         previous_Lambda = current_Lambda;

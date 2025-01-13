@@ -4,7 +4,8 @@
 #include <smm_control/CustomTcpState.h>
 #include <smm_control/IdoscCurrent.h>
 #include <geometry_msgs/WrenchStamped.h>
-#include <smm_control/GetOperationalSpaceMatrices.h>
+#include <geometry_msgs/Vector3.h>
+#include <smm_control/GetImpedanceDynamics.h>
 #include <smm_control/IdoscError.h>
 #include <smm_control/FasmcTorques.h>
 #include <Eigen/Dense>
@@ -47,21 +48,21 @@ void impedanceAccelerationCallback(const geometry_msgs::Vector3::ConstPtr& msg) 
 }
 
 // Function to call the service and retrieve Dynamic matrices
-bool getDynamicsFromService(ros::NodeHandle& nh, bool get_JacobianMatrix, bool get_LambdaMatrix, bool get_GammaVector, bool get_FgVector) {
-    ros::ServiceClient client = nh.serviceClient<smm_control::GetOperationalSpaceMatrices>("GetOperationalSpaceMatrices");
-    smm_control::GetOperationalSpaceMatrices srv;
+bool getDynamicsFromService(ros::NodeHandle& nh, bool get_JacobianMatrix, bool get_LambdaMatrix, bool get_GammaMatrix, bool get_FgVector) {
+    ros::ServiceClient client = nh.serviceClient<smm_control::GetImpedanceDynamics>("GetImpedanceDynamics");
+    smm_control::GetImpedanceDynamics srv;
  
     // Set flags in the request
     srv.request.get_op_jacobian = get_JacobianMatrix;
-    srv.request.get_Lambda = get_LambdaMatrix;
-    srv.request.get_Gamma_OSD_Vector = get_GammaVector;
-    srv.request.get_Fg = get_FgVector;
+    srv.request.get_Lambda_imp = get_LambdaMatrix;
+    srv.request.get_Gamma_imp = get_GammaMatrix;
+    srv.request.get_Fg_imp = get_FgVector;
 
     if (client.call(srv)) {
         if (get_LambdaMatrix) {
             for (int i = 0; i < 3; i++) {
                 for (int j = 0; j < 3; j++) {
-                    _Lambda(i, j) = srv.response.Lambda[i * 3 + j];
+                    _Lambda(i, j) = srv.response.Lambda_imp[i * 3 + j];
                 }
             }
             //ROS_INFO_STREAM("[updateDynamicsTorque_ric_simple/getDynamicsFromService] Lambda Matrix:\n" << _Lambda);
@@ -72,18 +73,20 @@ bool getDynamicsFromService(ros::NodeHandle& nh, bool get_JacobianMatrix, bool g
                     _Jop(i, j) = srv.response.op_jacobian[i * 3 + j];
                 }
             }
-            //ROS_INFO_STREAM("[updateDynamicsTorque_ric_simple/getDynamicsFromService] Operational Jacobian Matrix:\n" << _Gamma);
+            //ROS_INFO_STREAM("[updateDynamicsTorque_ric_simple/getDynamicsFromService] Operational Jacobian Matrix:\n" << _Jop);
         }
-        if (get_GammaVector) {
+        if (get_GammaMatrix) {
             for (int i = 0; i < 3; i++) {
-                _GammaVector(i) = srv.response.Gamma_OSD_Vector[i];
+                for (int j = 0; j < 3; j++) {
+                    _Gamma(i, j) = srv.response.Gamma_imp[i * 3 + j];
+                }
             }
-           // ROS_INFO_STREAM("[updateDynamicsTorque_ric_simple/getDynamicsFromService] TCP Gamma Vector:\n" << _GammaVector);
-        }   
+            //ROS_INFO_STREAM("[updateDynamicsTorque_ric_simple/getDynamicsFromService] Gamma Matrix:\n" << _Gamma);
+        }
 
         if (get_FgVector) {
             for (int i = 0; i < 3; i++) {
-                _Fg(i) = srv.response.Fg[i];
+                _Fg(i) = srv.response.Fg_imp[i];
             }
             //ROS_INFO_STREAM("[updateDynamicsTorque_ric_simple/getDynamicsFromService] TCP Gravity Vector:\n" << _Fg);
         }
@@ -106,7 +109,7 @@ void extForceTorqueCallback(const geometry_msgs::WrenchStamped::ConstPtr& msg) {
 }
 
 // Callback for joint states to retrieve joint accelerations
-void desiredStateCallback(const smm_control::CustomTcpState::ConstPtr& msg) {
+/*void desiredStateCallback(const smm_control::CustomTcpState::ConstPtr& msg) {
     if (msg->acceleration.size() >= 3) {
         _ddx_d << static_cast<float>(msg->acceleration[0]), 
                  static_cast<float>(msg->acceleration[1]), 
@@ -114,7 +117,7 @@ void desiredStateCallback(const smm_control::CustomTcpState::ConstPtr& msg) {
     } else {
         ROS_WARN("[updateDynamicsTorque_ric_simple/desiredStateCallback] Expected at least 3 joint accelerations, received %zu", msg->acceleration.size());
     }
-}
+}*/
 
 void currentTcpStateCallback(const smm_control::IdoscCurrent::ConstPtr& msg) {
     if (!msg) {
@@ -135,7 +138,7 @@ void currentJointStateCallback(const sensor_msgs::JointState::ConstPtr& msg) {
         ROS_WARN("[updateDynamicsTorque_ric_simple/currentJointStateCallback] Expected at least 3 joint velocities, received %zu", msg->velocity.size());
     }
 }
-
+/*
 void errorStateCallback(const smm_control::IdoscError::ConstPtr& msg) {
     if (!msg) {
         ROS_ERROR("Received a null IdoscError message.");
@@ -147,7 +150,7 @@ void errorStateCallback(const smm_control::IdoscError::ConstPtr& msg) {
     _de << msg->twist_error.linear.x,
            msg->twist_error.linear.y,
            msg->twist_error.linear.z;
-}
+}*/
 
 bool buildDiagonalMatrix(Eigen::Matrix3f* matrix_ptr, const std::vector<double>& diag_values) {
     // Check if the pointer is null
@@ -210,7 +213,7 @@ void computeJointEffort(ros::NodeHandle& nh) {
         return;
     }
 
-    _u = _Jop.transpose() * ( _Lambda * _alpha_signal + _GammaVector + _Fg - _Ftask ) - ( _Damp * _dq ) - ( _Fric * _dq.array().sign().matrix());
+    _u = _Jop.transpose() * ( _Lambda * _alpha_signal + _Gamma * _dx  + _Fg - _Ftask ) - ( _Damp * _dq ) - ( _Fric * _dq.array().sign().matrix());
 
     smm_control::FasmcTorques torque_msg;
     torque_msg.torques[0] = _u[0];
@@ -229,8 +232,8 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    ros::Subscriber desired_state_sub = nh.subscribe("/tcp_desired_state", 10, desiredStateCallback);
-    ros::Subscriber error_state_sub = nh.subscribe("/ridosc_error_state", 10, errorStateCallback);
+    //ros::Subscriber desired_state_sub = nh.subscribe("/tcp_desired_state", 10, desiredStateCallback);
+    //ros::Subscriber error_state_sub = nh.subscribe("/ridosc_error_state", 10, errorStateCallback);
     ros::Subscriber current_tcp_state_sub = nh.subscribe("/tcp_current_state", 10, currentTcpStateCallback);
     ros::Subscriber current_joint_state_sub = nh.subscribe("/joint_current_state", 10, currentJointStateCallback);
     ros::Subscriber ext_force_torque_sub = nh.subscribe("/force_torque_wrench", 10, extForceTorqueCallback);

@@ -23,14 +23,14 @@ void combinedJointStateCallback(const sensor_msgs::JointState::ConstPtr& joint_s
                    static_cast<float>(joint_state->velocity[2])};
 
     // Debug statement
-    ROS_INFO("[visualizeTcpStates/combinedJointStateCallback] Updating joint states and velocities");
+    //ROS_INFO("[visualizeTcpStates/combinedJointStateCallback] Updating joint states and velocities");
 
     // Update joint states
     smm_robot_kin_solver.updateJointState(q, dq);
 
     // Extract and publish the TCP spatial position
     Eigen::Vector3f tcp_pos = smm_robot_kin_solver.updatePositionTCP(q);
-    ROS_INFO("[visualizeTcpStates/combinedJointStateCallback] TCP Position: x: %f, y: %f, z: %f", tcp_pos.x(), tcp_pos.y(), tcp_pos.z());
+    //ROS_INFO("[visualizeTcpStates/combinedJointStateCallback] TCP Position: x: %f, y: %f, z: %f", tcp_pos.x(), tcp_pos.y(), tcp_pos.z());
     smm_robot_viz_solver.publishTCPpos(tcp_pos);
 
     // Extract and publish the Active Twists
@@ -40,7 +40,7 @@ void combinedJointStateCallback(const sensor_msgs::JointState::ConstPtr& joint_s
     // Extract and publish the TCP spatial velocity
     smm_robot_kin_solver.SpatialJacobian_Tool_1(smm_robot_kin_solver.ptr2Jsp1);
     Eigen::Vector3f tcp_vel = smm_robot_kin_solver.updateSpatialVelocityTCP(q, dq);
-    ROS_INFO("[visualizeTcpStates/combinedJointStateCallback] TCP Velocity: x: %f, y: %f, z: %f", tcp_vel.x(), tcp_vel.y(), tcp_vel.z());
+    //ROS_INFO("[visualizeTcpStates/combinedJointStateCallback] TCP Velocity: x: %f, y: %f, z: %f", tcp_vel.x(), tcp_vel.y(), tcp_vel.z());
     smm_robot_viz_solver.publishTCPvel(tcp_pos,tcp_vel);
 }
 
@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
     ros::NodeHandle nh;
 
     // Debug statement
-    ROS_INFO("[visualizeTcpStates] Initializing robot structure");
+    //ROS_INFO("[visualizeTcpStates] Initializing robot structure");
 
     // Initialize the robot structure
     int str_digit_loc;
@@ -80,7 +80,7 @@ int main(int argc, char **argv) {
     }
 
     // Initialize the shared library for robot analytical solvers using screws
-    ROS_INFO("[visualizeTcpStates] Initialized Shared Library.");
+    //ROS_INFO("[visualizeTcpStates] Initialized Shared Library.");
     ScrewsKinematics& smm_robot_kin_solver = my_shared_lib.get_screws_kinematics_solver();
     ScrewsVisualization& smm_robot_viz_solver = my_shared_lib.get_screws_visualization_solver(); 
 

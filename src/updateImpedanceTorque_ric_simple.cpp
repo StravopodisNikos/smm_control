@@ -7,6 +7,7 @@
 #include <smm_control/GetTcpStateTfNum.h>
 #include <smm_control/IdoscError.h>
 #include <smm_control/FasmcTorques.h>
+#include <geometry_msgs/Vector3.h>
 #include <Eigen/Dense>
 #include <vector>
 #include <map>
@@ -25,7 +26,7 @@ Eigen::Vector3f _ddx = Eigen::Vector3f::Zero();
 Eigen::Vector3f _dx = Eigen::Vector3f::Zero();    // Current TCP velocity
 Eigen::Vector3f _dq = Eigen::Vector3f::Zero();  // Current joint velocities
 // Impedance torque vector
-Eigen::Vector3f _u;                              // Control effort vector
+Eigen::Vector3f _u  = Eigen::Vector3f::Zero();  // Control effort vector
 // msg with computed torques
 ros::Publisher torque_pub;
 // Struct to store impedance parameters
@@ -38,6 +39,7 @@ struct ImpedanceParams {
 Eigen::Matrix3f _M_m;
 Eigen::Matrix3f _D_m;
 Eigen::Matrix3f _K_m;
+Eigen::Vector3f _alpha_signal;                   // acceleration induced by impedance action
 
 // Function to request acceleration
 bool requestAcceleration(ros::NodeHandle& nh) {
@@ -154,18 +156,29 @@ bool loadImpedanceParams(const ros::NodeHandle& nh, const std::string& mode) {
     return true;
 }
 
+void impedanceAccelerationCallback(const geometry_msgs::Vector3::ConstPtr& msg) {
+    if (!msg) {
+        ROS_ERROR("[updateDynamicsTorque_ric_simple/impedanceAccelerationCallback] Received a null message on /imp_accel.");
+        return;
+    }
+    // Assign the received data to the Eigen vector
+    _alpha_signal << static_cast<float>(msg->x),
+                     static_cast<float>(msg->y),
+                     static_cast<float>(msg->z);
+}
+
 // Function to compute controller output
 void computeImpedanceTorque(ros::NodeHandle& nh) {
     if (!getOperationalJacobian(nh)) {
         ROS_ERROR("Failed to retrieve operational space jacobian.");
         return;
     }
-    if (!requestAcceleration(nh)) {
+    /*if (!requestAcceleration(nh)) {
         ROS_ERROR("Failed to retrieve current arithmetic tcp acceleration.");
         return;
-    }
+    }*/
 
-    _u = _Jop.transpose() * ( _M_m * ( _ddx_d - _ddx ) + _D_m * _de +  _K_m * _e);
+    _u = _Jop.transpose() * ( _M_m * ( _ddx_d - _alpha_signal ) + _D_m * _de +  _K_m * _e);
 
     smm_control::FasmcTorques torque_msg;
     torque_msg.torques[0] = _u[0];
@@ -195,6 +208,7 @@ int main(int argc, char** argv) {
     ros::Subscriber desired_state_sub = nh.subscribe("/tcp_desired_state", 10, desiredStateCallback);
     ros::Subscriber error_state_sub = nh.subscribe("/ridosc_error_state", 10, errorStateCallback);
     ros::Subscriber current_tcp_state_sub = nh.subscribe("/tcp_current_state", 10, currentTcpStateCallback);
+    ros::Subscriber imp_accel_sub = nh.subscribe("/imp_accel", 10, impedanceAccelerationCallback);
 
     torque_pub = nh.advertise<smm_control::FasmcTorques>("/ric_imp_term", 10);
 

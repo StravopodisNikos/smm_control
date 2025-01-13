@@ -112,7 +112,7 @@ bool sendJacobians(smm_control::GetJacobians::Request &req, smm_control::GetJaco
                 res.op_jacobian[i * 3 + j] = op_jacobian_matrix(i, j);
             }
         }
-        ROS_INFO("[serverToolJacobians/sendJacobians] Operational Jacobian sent.");
+        //ROS_INFO("[serverToolJacobians/sendJacobians] Operational Jacobian sent.");
     }
 
     // If client requests inverse operational Jacobian
@@ -122,7 +122,7 @@ bool sendJacobians(smm_control::GetJacobians::Request &req, smm_control::GetJaco
                 res.inv_op_jacobian[i * 3 + j] = inverse_jacobian_matrix(i, j);
             }
         }
-        ROS_INFO("[serverToolJacobians/sendJacobians] Inverse Operational Jacobian sent.");
+        //ROS_INFO("[serverToolJacobians/sendJacobians] Inverse Operational Jacobian sent.");
     }
 
     // If client requests time derivative of operational Jacobian
@@ -132,7 +132,7 @@ bool sendJacobians(smm_control::GetJacobians::Request &req, smm_control::GetJaco
                 res.dt_op_jacobian[i * 3 + j] = derivative_jacobian_matrix(i, j);
             }
         }
-        ROS_INFO("[serverToolJacobians/sendJacobians] Time Derivative of Operational Jacobian sent.");
+        //ROS_INFO("[serverToolJacobians/sendJacobians] Time Derivative of Operational Jacobian sent.");
     }
 
     return true;

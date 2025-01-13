@@ -99,6 +99,8 @@ add_service_files(
   GetOperationalSpaceDynamics.srv
   GetOperationalSpaceMatrices.srv
   GetUncertaintyDynamics.srv
+  GetImpedanceDynamics.srv
+  GetUncertaintyImpedanceDynamics.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -238,23 +240,26 @@ add_executable(serverOperationalSpaceDynamics src/serverOperationalSpaceDynamics
 add_executable(updateDynamicsTorque_ridosc_simple src/updateDynamicsTorque_ridosc_simple.cpp)
 add_executable(updateTorqueCommand_ridosc_simple src/updateTorqueCommand_ridosc_simple.cpp)
 add_executable(serverOperationalSpaceMatrices src/serverOperationalSpaceMatrices.cpp)
-add_executable(updateUnParams_ridosc_simple src/updateUncertaintyParams_ridosc_simple.cpp)
 ## HRIDOSC
 add_executable(updateParams_hridosc_simple src/updateParams_hridosc_simple.cpp)
 add_executable(updateRobustTorque_hridosc_simple src/updateRobustTorque_hridosc_simple.cpp)
 add_executable(updateTorqueCommand_hridosc_simple src/updateTorqueCommand_hridosc_simple.cpp)
 ## URIDOSC
 add_executable(updateRobustTorque_uridosc_simple src/updateRobustTorque_uridosc_simple.cpp)
+add_executable(updateUnParams_ridosc_simple src/updateUncertaintyParams_ridosc_simple.cpp)
 ## UNCERTAINTY DYNAMICS
 add_executable(updateUncertaintyFactor src/updateUncertaintyFactor.cpp)
 add_executable(serverUncertaintyMatrices src/serverUncertainOperationalSpaceMatrices.cpp)
 add_executable(updateDtLambda src/updateDtLambda.cpp)
 add_executable(updateInverseLambda src/updateInverseLambda.cpp)
+add_executable(serverUncertaintyImpedance src/serverUncertainImpedanceDynamics.cpp)
 ## RIC
 add_executable(updateImpedanceTorque_ric_simple src/updateImpedanceTorque_ric_simple.cpp)
 add_executable(updateImpedanceAccel src/updateImpedanceAccel.cpp)
 add_executable(updateDynamicsTorque_ric_simple src/updateDynamicsTorque_ric_simple.cpp)
 add_executable(updateTorqueCommand_ric_simple src/updateTorqueCommand_ric_simple.cpp)
+add_executable(serverImpedanceDynamics src/serverImpedanceDynamics.cpp)
+add_executable(updateUnParams_ric_simple src/updateUncertaintyParams_ric_simple.cpp)
 ## BUILT-IN DYNAMICS AND SIMPLE GRAVITY COMPENSATION
 add_executable(publishSingleJointGoal src/publishSingleJointGoal.cpp)
 add_executable(publishSingleTcpGoal src/publishSingleTcpGoal.cpp)
@@ -264,6 +269,7 @@ add_executable(visualizeTcpGoal src/visualizeTcpGoal.cpp)
 add_executable(visualizeTcpStates src/visualizeTcpStates.cpp)
 ## ENVIRONMENT INTERACTION
 add_executable(ext_force_torque_publisher src/ext_force_torque_publisher.cpp)
+add_executable(ext_wrench_publisher_time src/ext_wrench_publisher_time.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -311,23 +317,28 @@ add_dependencies(serverOperationalSpaceDynamics ${${PROJECT_NAME}_EXPORTED_TARGE
 add_dependencies(updateDynamicsTorque_ridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(updateTorqueCommand_ridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(serverOperationalSpaceMatrices ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_dependencies(updateUnParams_ridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 ## HRIDOSC
 add_dependencies(updateParams_hridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(updateRobustTorque_hridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(updateTorqueCommand_hridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 ## URIDOSC
 add_dependencies(updateRobustTorque_uridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(updateUnParams_ridosc_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
 ## RIC
 add_dependencies(updateImpedanceTorque_ric_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(updateImpedanceAccel ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(updateDynamicsTorque_ric_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(updateTorqueCommand_ric_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(serverImpedanceDynamics ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(updateUnParams_ric_simple ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
 ## UNCERTAINTY DYNAMICS
 add_dependencies(updateUncertaintyFactor ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(serverUncertaintyMatrices ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(updateDtLambda ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(updateInverseLambda ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(serverUncertaintyImpedance ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 ## BUILT-IN DYNAMICS AND SIMPLE GRAVITY COMPENSATION && DESIRED GOALs
 add_dependencies(publishSingleJointGoal ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(publishSingleTcpGoal ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -337,6 +348,7 @@ add_dependencies(visualizeTcpGoal ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_E
 add_dependencies(visualizeTcpStates ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 ## ENVIRONMENT INTERACTION
 add_dependencies(ext_force_torque_publisher ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(ext_wrench_publisher_time ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
@@ -506,10 +518,7 @@ target_link_libraries(serverOperationalSpaceMatrices
  ${catkin_LIBRARIES}
  robot_shared 
 )
-target_link_libraries(updateUnParams_ridosc_simple
- ${catkin_LIBRARIES}
- robot_shared 
-)
+
 ## HRIDOSC
 target_link_libraries(updateParams_hridosc_simple
  ${catkin_LIBRARIES}
@@ -528,6 +537,10 @@ target_link_libraries(updateRobustTorque_uridosc_simple
  ${catkin_LIBRARIES}
  robot_shared 
 )
+target_link_libraries(updateUnParams_ridosc_simple
+ ${catkin_LIBRARIES}
+ robot_shared 
+)
 ## RIC
 target_link_libraries(updateImpedanceTorque_ric_simple
  ${catkin_LIBRARIES}
@@ -541,6 +554,14 @@ target_link_libraries(updateDynamicsTorque_ric_simple
 )
 target_link_libraries(updateTorqueCommand_ric_simple
  ${catkin_LIBRARIES}
+)
+target_link_libraries(serverImpedanceDynamics
+ ${catkin_LIBRARIES}
+ robot_shared 
+)
+target_link_libraries(updateUnParams_ric_simple
+ ${catkin_LIBRARIES}
+ robot_shared 
 )
 ## UNCERTAINTY DYNAMICS
 target_link_libraries(updateUncertaintyFactor
@@ -559,6 +580,9 @@ target_link_libraries(updateInverseLambda
  ${catkin_LIBRARIES}
  robot_shared 
 )
+target_link_libraries(serverUncertaintyImpedance
+ ${catkin_LIBRARIES} 
+)
 ## VISUAL DEBUGGING TOOLS
 target_link_libraries(visualizeTcpGoal ${catkin_LIBRARIES})
 target_link_libraries(visualizeTcpStates
@@ -568,6 +592,7 @@ target_link_libraries(visualizeTcpStates
 
 ## ENVIRONMENT INTERACTION
 target_link_libraries(ext_force_torque_publisher ${catkin_LIBRARIES})
+target_link_libraries(ext_wrench_publisher_time ${catkin_LIBRARIES})
 
 #############
 ## Install ##

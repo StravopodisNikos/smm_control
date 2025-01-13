@@ -1,0 +1,26 @@
+<?xml version="1.0" ?>
+     
+<launch>
+    <arg name="run_name" default="default_run" />
+
+    <!-- ROSBAGS -->
+    <node pkg="rosbag" type="record" name="record_error_state" args="record -O $(find smm_control)/rosbags/$(arg run_name)/ric_error_state.bag /ridosc_error_state"/> 
+
+    <node pkg="rosbag" type="record" name="record_torques" args="record -O $(find smm_control)/rosbags/$(arg run_name)/ric_torques.bag /robot_torque_command"/>     
+
+    <node pkg="rosbag" type="record" name="record_dyn_term" args="record -O $(find smm_control)/rosbags/$(arg run_name)/ric_dyn_torques.bag /ric_dyn_term"/> 
+
+    <node pkg="rosbag" type="record" name="record_imp_term" args="record -O $(find smm_control)/rosbags/$(arg run_name)/ric_imp_torques.bag /ric_imp_term"/> 
+
+    <node pkg="rosbag" type="record" name="record_smc_term" args="record -O $(find smm_control)/rosbags/$(arg run_name)/ric_smc_torques.bag /ridosc_robust_term"/> 
+
+    <node pkg="rosbag" type="record" name="record_slide_surface" args="record -O $(find smm_control)/rosbags/$(arg run_name)/ri_slide_surf.bag /ridosc_sliding_surface"/>
+
+    <node pkg="rosbag" type="record" name="record_adaptive_params" args="record -O $(find smm_control)/rosbags/$(arg run_name)/ric_adaptive_params.bag /uridosc_adaptive_params"/> 
+
+    <node pkg="rosbag" type="record" name="record_inv_lambda_norm" args="record -O $(find smm_control)/rosbags/$(arg run_name)/ric_inv_lambda_norm.bag /inverse_lambda_norm"/>
+
+    <node pkg="rosbag" type="record" name="record_ext_wrench" args="record -O $(find smm_control)/rosbags/$(arg run_name)/ric_ext_wrench.bag /force_torque_wrench"/>
+
+    <node pkg="rosbag" type="record" name="record_j_cond" args="record -O $(find smm_control)/rosbags/$(arg run_name)/ric_lambda_cond_num.bag /lambda_condition_number"/>
+</launch>

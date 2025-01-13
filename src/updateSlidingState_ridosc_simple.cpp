@@ -26,7 +26,7 @@ void errorStateCallback(const smm_control::IdoscError::ConstPtr& msg) {
     sliding_surface_pub.publish(s_msg);
 
     // Debug output
-    ROS_INFO_STREAM("Sliding Surface s: [" << s_msg.x << ", " << s_msg.y << ", " << s_msg.z << "]");
+    //ROS_INFO_STREAM("Sliding Surface s: [" << s_msg.x << ", " << s_msg.y << ", " << s_msg.z << "]");
 }
 
 // Function to load parameters from the YAML file
