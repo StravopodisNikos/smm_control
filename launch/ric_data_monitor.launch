@@ -22,5 +22,7 @@
 
     <node pkg="rosbag" type="record" name="record_ext_wrench" args="record -O $(find smm_control)/rosbags/$(arg run_name)/ric_ext_wrench.bag /force_torque_wrench"/>
 
+    <node pkg="rosbag" type="record" name="record_imp_accel" args="record -O $(find smm_control)/rosbags/$(arg run_name)/ric_imp_accel.bag /imp_accel"/>
+
     <node pkg="rosbag" type="record" name="record_j_cond" args="record -O $(find smm_control)/rosbags/$(arg run_name)/ric_lambda_cond_num.bag /lambda_condition_number"/>
 </launch>

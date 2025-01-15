@@ -14,7 +14,7 @@ Eigen::Matrix3f Gamma_Matrix;           // Coriolis Matrix @ TCP
 Eigen::Matrix<float, 3, 1> Gamma_Vector;// Coriolis Vector @ TCP
 Eigen::Matrix<float, 3, 1> Fg_Vector;   // Gravity Vector @ TCP
 Eigen::Matrix<float, 3, 1> dq_Vector;   // Joint velocities
-
+Eigen::Vector3f bc = Eigen::Vector3f::Zero();
 Eigen::Matrix3f op_jacobian_matrix = Eigen::Matrix3f::Zero();
 Eigen::Matrix3f inverse_jacobian_matrix = Eigen::Matrix3f::Zero();
 Eigen::Matrix3f derivative_jacobian_matrix = Eigen::Matrix3f::Zero();
@@ -22,7 +22,7 @@ std::mutex jacobian_mutex;  // Mutex for protecting Jacobian updates
 float jacob_cond_number;
 
 constexpr float BASE_LAMBDA_DLS = 0.005f;
-constexpr float JACOB_COND_THRES = 10.0f;
+constexpr float JACOB_COND_THRES = 20.0f;
 /*
  *  [29-12-24] Calculates all robot dynamic matrices in operational space, implementing screw theory tools!
  */
@@ -52,7 +52,7 @@ void JointStateCallback(const sensor_msgs::JointState::ConstPtr& joint_state,  S
 
     // I.4. Calculate Coriolis Matrix
     Coriolis_Matrix = smm_robot_dyn_solver.CoriolisMatrix();
-
+    bc = smm_robot_dyn_solver.computeBetaCoriolis(smm_robot_dyn_solver.ChristoffelSymbols, dq_Vector);
     // I.5. Calculate Gravity Vector
     Gravity_Vector = smm_robot_dyn_solver.GravityVectorAnalytical();
 
@@ -123,7 +123,8 @@ void JointStateCallback(const sensor_msgs::JointState::ConstPtr& joint_state,  S
     Lambda_Matrix = inverse_jacobian_matrix.transpose() * Mass_Matrix * inverse_jacobian_matrix;
     Fg_Vector = inverse_jacobian_matrix.transpose() * (Gravity_Vector); // [2-1-25] Never put a "minus" sign in G. Never. Never.
     // III.2. Coriolis vectoer @ TCP
-    Gamma_Vector = inverse_jacobian_matrix.transpose() * Coriolis_Matrix * dq_Vector -  Lambda_Matrix * derivative_jacobian_matrix * dq_Vector;
+    //Gamma_Vector = inverse_jacobian_matrix.transpose() * Coriolis_Matrix * dq_Vector -  Lambda_Matrix * derivative_jacobian_matrix * dq_Vector;
+    Gamma_Vector = inverse_jacobian_matrix.transpose() * bc - Lambda_Matrix * derivative_jacobian_matrix * dq_Vector;
     return;
 }
 

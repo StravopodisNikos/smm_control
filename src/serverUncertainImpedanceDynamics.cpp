@@ -9,6 +9,7 @@
 Eigen::Matrix3f _Jop = Eigen::Matrix3f::Zero(); // not loaded here
 Eigen::Matrix3f _Lambda = Eigen::Matrix3f::Zero();
 Eigen::Matrix3f _Gamma = Eigen::Matrix3f::Zero();
+Eigen::Vector3f _GammaVector = Eigen::Vector3f::Zero();
 Eigen::Vector3f _Fg = Eigen::Vector3f::Zero();
 float uncertainty_factor = 1.0f; // Default uncertainty factor
 float lambda_uncertainty;
@@ -31,7 +32,7 @@ void setUncertaintyFactors() {
 }
 
 // Function to recalculate matrices based on uncertainty
-void applyUncertainty(Eigen::Matrix3f& Lambda, Eigen::Matrix3f& Gamma, Eigen::Vector3f& Fg) {
+void applyUncertainty(Eigen::Matrix3f& Lambda, Eigen::Vector3f& Gamma, Eigen::Vector3f& Fg) {
     Lambda *= (1 + lambda_uncertainty);
     Gamma  *= (1 + gamma_uncertainty);
     Fg     *= (1 + gravity_uncertainty);
@@ -66,9 +67,9 @@ bool getDynamicsFromService(ros::NodeHandle& nh, bool get_JacobianMatrix, bool g
         }
         if (get_GammaMatrix) {
             for (int i = 0; i < 3; i++) {
-                for (int j = 0; j < 3; j++) {
-                    _Gamma(i) = srv.response.Gamma_imp[i];
-                }
+                //for (int j = 0; j < 3; j++) {
+                    _GammaVector(i) = srv.response.Gamma_imp[i];
+                //}
             }
            // ROS_INFO_STREAM("[updateDynamicsTorque_ridosc_simple/getDynamicsFromService] TCP Gamma Vector:\n" << _GammaVector);
         }   
@@ -99,7 +100,7 @@ bool handleGetUncertaintyDynamics(smm_control::GetUncertaintyImpedanceDynamics::
 
     // set response to same matrices for initialization only
     Eigen::Matrix3f Lambda_uncertainty = _Lambda;
-    Eigen::Matrix3f Gamma_uncertainty = _Gamma;
+    Eigen::Vector3f Gamma_uncertainty = _GammaVector;
     Eigen::Vector3f Fg_uncertainty = _Fg;
 
     // modify response based on uncertainty
@@ -116,9 +117,10 @@ bool handleGetUncertaintyDynamics(smm_control::GetUncertaintyImpedanceDynamics::
     }
     if (req.get_Gamma_un) {
         for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                res.Gamma_un[i * 3 + j] = Gamma_uncertainty(i, j);
-            }
+            //for (int j = 0; j < 3; j++) {
+                //res.Gamma_un[i * 3 + j] = Gamma_uncertainty(i, j);
+                res.Gamma_un[i] = Gamma_uncertainty(i);
+            //}
         }
     }
     if (req.get_Fg_un) {

@@ -11,9 +11,10 @@ Eigen::Matrix3f Coriolis_Matrix;        // Coriolis Matrix @ {q,dq}
 Eigen::Matrix<float, 3, 1> Gravity_Vector; // Gravity Vector @ {q,dq}
 Eigen::Matrix3f Lambda_Matrix;          // Mass Matrix @ TCP
 Eigen::Matrix3f Gamma_Matrix;           // Coriolis Matrix @ TCP
+Eigen::Vector3f Gamma_Vector = Eigen::Vector3f::Zero();
 Eigen::Matrix<float, 3, 1> Fg_Vector;   // Gravity Vector @ TCP
 Eigen::Matrix<float, 3, 1> dq_Vector;   // Joint velocities
-
+Eigen::Vector3f bc = Eigen::Vector3f::Zero();
 Eigen::Matrix3f op_jacobian_matrix = Eigen::Matrix3f::Zero();
 Eigen::Matrix3f inverse_jacobian_matrix = Eigen::Matrix3f::Zero();
 Eigen::Matrix3f derivative_jacobian_matrix = Eigen::Matrix3f::Zero();
@@ -50,7 +51,8 @@ void JointStateCallback(const sensor_msgs::JointState::ConstPtr& joint_state,  S
     Mass_Matrix = smm_robot_dyn_solver.MassMatrix();
 
     // I.4. Calculate Coriolis Matrix
-    Coriolis_Matrix = smm_robot_dyn_solver.CoriolisMatrix();
+    Coriolis_Matrix = smm_robot_dyn_solver.CoriolisMatrix(); // returns Coriolis @ C-space && updates Christoffelsymbols
+    bc = smm_robot_dyn_solver.computeBetaCoriolis(smm_robot_dyn_solver.ChristoffelSymbols, dq_Vector); 
 
     // I.5. Calculate Gravity Vector
     Gravity_Vector = smm_robot_dyn_solver.GravityVectorAnalytical();
@@ -122,7 +124,8 @@ void JointStateCallback(const sensor_msgs::JointState::ConstPtr& joint_state,  S
     Lambda_Matrix = inverse_jacobian_matrix.transpose() * Mass_Matrix * inverse_jacobian_matrix;
     Fg_Vector = inverse_jacobian_matrix.transpose() * (Gravity_Vector); // [2-1-25] Never put a "minus" sign in G. Never. Never.
     // III.2. Coriolis matrix @ TCP
-    Gamma_Matrix = inverse_jacobian_matrix.transpose() * Coriolis_Matrix * inverse_jacobian_matrix -  Lambda_Matrix * derivative_jacobian_matrix * inverse_jacobian_matrix;
+    //Gamma_Matrix = inverse_jacobian_matrix.transpose() * Coriolis_Matrix * inverse_jacobian_matrix -  Lambda_Matrix * derivative_jacobian_matrix * inverse_jacobian_matrix; // De Luca
+    Gamma_Vector = inverse_jacobian_matrix.transpose() * bc - Lambda_Matrix * derivative_jacobian_matrix * dq_Vector;
     return;
 }
 
@@ -132,10 +135,10 @@ bool sendDynamics(smm_control::GetImpedanceDynamics::Request &req, smm_control::
     for (int i = 0; i < 9; i++) {
         res.Lambda_imp[i] = 0.0;
         res.op_jacobian[i] = 0.0;
-        res.Gamma_imp[i] = 0.0;
+        //res.Gamma_imp[i] = 0.0;
     }
     for (int i = 0; i < 3; i++) {
-        
+        res.Gamma_imp[i] = 0.0;
         res.Fg_imp[i] = 0.0;
     }
 
@@ -159,14 +162,14 @@ bool sendDynamics(smm_control::GetImpedanceDynamics::Request &req, smm_control::
         //ROS_INFO("[serverImpedanceDynamics/sendDynamics] Operational Jacobian matrix sent.");
     }
 
-    // If client requests Coriolis Vectoer
+    // If client requests Coriolis Vector
     if (req.get_Gamma_imp) {
         for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                res.Gamma_imp[i * 3 + j] = Gamma_Matrix(i, j);
-            }
+            //for (int j = 0; j < 3; j++) {
+                res.Gamma_imp[i] = Gamma_Vector(i); // for double for + matrix: i * 3 + j
+            //}
         }
-        //ROS_INFO("[serverImpedanceDynamics/sendDynamics] Mass Matrix sent.");
+        //ROS_INFO("[serverImpedanceDynamics/sendDynamics] Gamma vector sent.");
     }
 
     // If client requests Gravity Vector

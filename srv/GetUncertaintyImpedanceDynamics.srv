@@ -3,5 +3,5 @@ bool get_Gamma_un
 bool get_Fg_un       
 ---
 float32[9] Lambda_un  # 3x3 mass matrix @ tcp, row-major
-float32[9] Gamma_un   # 3x3 coriolis matrix @ tcp
+float32[3] Gamma_un   # 3x1 coriolis vector @ tcp
 float32[3] Fg_un      # 3x1 gravity vector @ tcp

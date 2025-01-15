@@ -77,9 +77,10 @@ bool getDynamicsFromService(ros::NodeHandle& nh, bool get_JacobianMatrix, bool g
         }
         if (get_GammaMatrix) {
             for (int i = 0; i < 3; i++) {
-                for (int j = 0; j < 3; j++) {
-                    _Gamma(i, j) = srv.response.Gamma_imp[i * 3 + j];
-                }
+                //for (int j = 0; j < 3; j++) {
+                    //_Gamma(i, j) = srv.response.Gamma_imp[i * 3 + j];
+                    _GammaVector(i) = srv.response.Gamma_imp[i];
+                //}
             }
             //ROS_INFO_STREAM("[updateDynamicsTorque_ric_simple/getDynamicsFromService] Gamma Matrix:\n" << _Gamma);
         }
@@ -213,7 +214,8 @@ void computeJointEffort(ros::NodeHandle& nh) {
         return;
     }
 
-    _u = _Jop.transpose() * ( _Lambda * _alpha_signal + _Gamma * _dx  + _Fg - _Ftask ) - ( _Damp * _dq ) - ( _Fric * _dq.array().sign().matrix());
+    //_u = _Jop.transpose() * ( _Lambda * _alpha_signal + _Gamma * _dx  + _Fg - _Ftask ) - ( _Damp * _dq ) - ( _Fric * _dq.array().sign().matrix());
+    _u = _Jop.transpose() * ( _Lambda * _alpha_signal + _GammaVector  + _Fg - _Ftask ) - ( _Damp * _dq ) - ( _Fric * _dq.array().sign().matrix());
 
     smm_control::FasmcTorques torque_msg;
     torque_msg.torques[0] = _u[0];

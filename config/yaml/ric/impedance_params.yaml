@@ -11,9 +11,9 @@ mode: "manual"
 parameters:
   manual:
     description: "Manual mode for user-defined impedance settings"
-    m_m: [3.0, 3.0, 3.0]    # Low to high range for responsiveness,              #  (low) light-responsive -- > (high) heavy-sluggish robot
-    d_m: [19.00, 19.00, 19.00]    # Low to high for oscillatory vs. resistant behavior #  (low) faster acceleration, but oscillatory -- > (high) slow-resistant robot 
-    k_m: [30.0, 30.0, 30.0]    # Compliance to stiffness for accurate tracking      #  (low) compliant -- > (high) stiff-accurate tracking capability robot
+    m_m: [1.0, 1.0, 1.0]    # Low to high range for responsiveness,              #  (low) light-responsive -- > (high) heavy-sluggish robot
+    d_m: [30.00, 30.00, 30.00]    # Low to high for oscillatory vs. resistant behavior #  (low) faster acceleration, but oscillatory -- > (high) slow-resistant robot 
+    k_m: [1.0, 1.0, 1.0]    # Compliance to stiffness for accurate tracking      #  (low) compliant -- > (high) stiff-accurate tracking capability robot
   fast:
     description: "Fast response mode with moderate mass and low damping"
     m_m: [5.0, 5.0, 5.0]

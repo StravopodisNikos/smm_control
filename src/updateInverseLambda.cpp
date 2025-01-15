@@ -13,7 +13,7 @@ float LambdaInverseNorm;
 Eigen::Matrix3f singular_values;
 Eigen::JacobiSVD<Eigen::Matrix3f> svd(Eigen::Matrix3f::Zero(), Eigen::ComputeFullU | Eigen::ComputeFullV);
 
-constexpr float LAMBDA_COND_THRES = 5.0f;
+constexpr float LAMBDA_COND_THRES = 20.0f;
 constexpr float DLS_LAMBDA = 0.005f;  // Damping factor for DLS inversion
 
 // Function to get the Lambda matrix from the service

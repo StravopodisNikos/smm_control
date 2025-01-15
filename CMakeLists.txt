@@ -25,6 +25,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf2
   tf2_ros
   visualization_msgs
+  smm_kdl_utils # [15-1-25] Added for kdl utilities for smm connection
 )
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -156,7 +157,9 @@ generate_dynamic_reconfigure_options(
 catkin_package(
 #  INCLUDE_DIRS include
   LIBRARIES idosc # [30-7-24] Added for using idosc class as ROS library
-  CATKIN_DEPENDS control_msgs controller_interface controller_manager geometry_msgs hardware_interface pluginlib roscpp rospy sensor_msgs smm_screws std_msgs message_runtime dynamic_reconfigure kdl_parser tf2 tf2_ros visualization_msgs
+  CATKIN_DEPENDS control_msgs 
+                 controller_interface 
+                 controller_manager geometry_msgs hardware_interface pluginlib roscpp rospy sensor_msgs smm_screws std_msgs message_runtime dynamic_reconfigure kdl_parser tf2 tf2_ros visualization_msgs smm_kdl_utils
   #DEPENDS
 )
 
@@ -270,7 +273,9 @@ add_executable(visualizeTcpStates src/visualizeTcpStates.cpp)
 ## ENVIRONMENT INTERACTION
 add_executable(ext_force_torque_publisher src/ext_force_torque_publisher.cpp)
 add_executable(ext_wrench_publisher_time src/ext_wrench_publisher_time.cpp)
+add_executable(test_smm_kdl_ikp src/test_smm_kdl_ikp.cpp)
 
+## KDL UTILS
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -349,6 +354,8 @@ add_dependencies(visualizeTcpStates ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin
 ## ENVIRONMENT INTERACTION
 add_dependencies(ext_force_torque_publisher ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(ext_wrench_publisher_time ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+## KDL UTILS
+add_dependencies(test_smm_kdl_ikp ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
@@ -594,6 +601,12 @@ target_link_libraries(visualizeTcpStates
 target_link_libraries(ext_force_torque_publisher ${catkin_LIBRARIES})
 target_link_libraries(ext_wrench_publisher_time ${catkin_LIBRARIES})
 
+
+## KDL UTILS
+target_link_libraries(test_smm_kdl_ikp
+  ${catkin_LIBRARIES}
+  smm_kin_tools
+)
 #############
 ## Install ##
 #############

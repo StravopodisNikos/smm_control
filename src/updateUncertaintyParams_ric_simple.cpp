@@ -15,10 +15,12 @@
 // Define matrices and vectors 
 Eigen::Matrix3f _Lambda;                         
 Eigen::Matrix3f _Gamma;
+Eigen::Vector3f _GammaVector;
 Eigen::Vector3f _Fg;   
 Eigen::Vector3f _n;                           
 Eigen::Matrix3f _LambdaUn;                         
 Eigen::Matrix3f _GammaUn;
+Eigen::Vector3f _GammaVectorUn;
 Eigen::Vector3f _FgUn;
 Eigen::Vector3f _nUn;           
 Eigen::Vector3f _ddx_d = Eigen::Vector3f::Zero();
@@ -102,9 +104,10 @@ bool getDynamicsFromService(ros::NodeHandle& nh, bool get_JacobianMatrix, bool g
         }
         if (get_GammaMatrix) {
             for (int i = 0; i < 3; i++) {
-                for (int j = 0; j < 3; j++) {
-                    _Gamma(i, j) = srv.response.Gamma_imp[i * 3 + j];
-                }
+                //for (int j = 0; j < 3; j++) {
+                    //_Gamma(i, j) = srv.response.Gamma_imp[i * 3 + j];
+                    _GammaVector(i) = srv.response.Gamma_imp[i];
+                //}
             }
            // ROS_INFO_STREAM("[updateUnParams_ric_simple/getDynamicsFromService] TCP Gamma Vector:\n" << _GammaVector);
         }   
@@ -114,7 +117,8 @@ bool getDynamicsFromService(ros::NodeHandle& nh, bool get_JacobianMatrix, bool g
             }
             //ROS_INFO_STREAM("[updateUnParams_ric_simple/getDynamicsFromService] TCP Gravity Vector:\n" << _Fg);
         }
-        _n = _Gamma * _dx + _Fg;
+        //_n = _Gamma * _dx + _Fg;
+        _n = _GammaVector + _Fg;
         return true;        
     } else {
         ROS_ERROR("[updateUnParams_ric_simple/getDynamicsFromService] Failed to call service serverOperationalSpaceDynamics.");
@@ -143,9 +147,10 @@ bool getUncertaintyDynamicsFromService(ros::NodeHandle& nh, bool get_LambdaUnMat
         }
         if (get_GammaUnmatrix) {
             for (int i = 0; i < 3; i++) {
-                for (int j = 0; j < 3; j++) {
-                    _GammaUn(i,j) = srv.response.Gamma_un[i * 3 + j];
-                }
+                //for (int j = 0; j < 3; j++) {
+                    //_GammaUn(i,j) = srv.response.Gamma_un[i * 3 + j];
+                    _GammaVectorUn(i) = srv.response.Gamma_un[i];
+                //}
             }
            // ROS_INFO_STREAM("[updateUnParams_ric_simple/getUncertaintyDynamicsFromService] TCP Gamma Matrix:\n" << _GammaUn);
         }   
@@ -155,7 +160,8 @@ bool getUncertaintyDynamicsFromService(ros::NodeHandle& nh, bool get_LambdaUnMat
             }
             //ROS_INFO_STREAM("[updateUnParams_ric_simple/getUncertaintyDynamicsFromService] TCP Gravity Vector:\n" << _FgUn);
         }
-        _nUn = _GammaUn * _dx + _FgUn;
+        //_nUn = _GammaUn * _dx + _FgUn;
+        _nUn = _GammaVectorUn + _FgUn;
         return true;        
     } else {
         ROS_ERROR("[updateUnParams_ric_simple/getUncertaintyDynamicsFromService] Failed to call service serverOperationalSpaceDynamics.");

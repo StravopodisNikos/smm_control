@@ -44,7 +44,7 @@ void publishCombinedTorque(ros::Publisher& torque_pub) {
         // Publish the combined torques
         torque_pub.publish(combined_torque_msg);
     } else {
-        ROS_WARN("[updateTorqueCommand_ric_simple/publishCombinedTorque] Waiting for both /ridosc_robust_term and /ridosc_dyn_term messages.");
+        ROS_WARN("[updateTorqueCommand_ric_simple/publishCombinedTorque] Waiting for both /ridosc_robust_term and /ric_dyn_term messages.");
     }
 }
 

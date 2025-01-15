@@ -1,15 +1,15 @@
 # Sliding State
-lambda_0: [4.5, 4.5, 4.5]     # fixed coeff for position error contribution in sliding state
+lambda_0: [2.5, 15.5, 15.5]     # fixed coeff for position error contribution in sliding state
 # Coeff for smc switching torque tanh function
 gamma_h: [0.9, 0.9, 0.9]       # fixed coeff for tanh
 # PD-Dynamic fixed parameters
-d_c: [2.0, 10.0, 10.0]           # Damping coeff term in dyn(smooth) torque signal (should be equal or close to xacro coeffs in joints)
+d_c: [0.1, 1.0, 1.0]           # Damping coeff term in dyn(smooth) torque signal (should be equal or close to xacro coeffs in joints)
 f_c: [2.0, 10.0, 10.0]           # Friction coeff term in dyn(smooth) torque signal (should be equal or close to xacro coeffs in joints)
 # Factor that sets the weight of VSS2 coefficients (the "<" in p.305 "Robot Manipulator Control-Theory and Practice")
-w_margin: 1.2    # must be > 1!
+w_margin: 1.1    # must be > 1!
 # SMC control vector coefficients' fixed parameters
-ki: [1.0, 1.0, 1.0]
-pi_limit: 5.0
-qi_limit: 5.0
+ki: [14.0, 15.0, 15.0]
+pi_limit: 25.0
+qi_limit: 50.0
 #pi_factor: 5.0     # || inv(Lambda) || will be used in run-time 
 #qi_factor: 5.0     # || inv(Lambda) || will be used in run-time 

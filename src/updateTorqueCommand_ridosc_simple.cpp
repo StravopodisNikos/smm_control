@@ -38,10 +38,12 @@ void publishCombinedTorque(ros::Publisher& torque_pub) {
         torque_pub.publish(combined_torque_msg);
 
         // Log the combined torques for debugging
+        /*
         ROS_INFO("[updateTorqueCommand_ridosc_simple/publishCombinedTorque] Final Torques: [%f, %f, %f]",
                  combined_torque_msg.torques[0],
                  combined_torque_msg.torques[1],
                  combined_torque_msg.torques[2]);
+        */
     } else {
         ROS_WARN("[updateTorqueCommand_ridosc_simple/publishCombinedTorque] Waiting for both /ridosc_robust_term and /ridosc_dyn_term messages.");
     }
