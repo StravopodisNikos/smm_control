@@ -1,0 +1,35 @@
+<?xml version="1.0" ?>
+<!-- [16-1-25] Constructed for testing numeric ikp using kdl, for a smm -->
+
+<launch>
+    <!-- Define args -->
+    <arg name="run_name" default="test_run" />
+    <arg name="str_digit_glob" default="3" />
+
+    <!-- set params -->
+    <param name="/use_sim_time" value="false" /> <!-- only for visualization -->
+    <param name="str_digit" value="$(arg str_digit_glob)" />
+    <param name="base_frame" value="base_plate" />
+    <param name="tcp_frame" value="massage_tool" />
+
+    <!-- Load the robot 3D model to param server-->
+    <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find smm_ros_gazebo_pkg)/xacro/smm_ros_gazebo.xacro'" />
+
+    <!-- Joint State Publisher -->
+    <node name="joint_state_publisher_gui" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" output="screen"/>
+    
+    <!-- Robot State Publisher -->
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" output="screen" />
+
+    <!-- TF Broadcaster (Optional for Static Frames) -->
+    <node name="static_tf" pkg="tf2_ros" type="static_transform_publisher" args="0 0 0 0 0 0 world base_plate" />
+    <!-- Publish single joint state node -->
+    <node name="publish_single_joint_state" pkg="smm_control" type="publish_single_joint_state" output="screen" />
+
+    <!-- RViz Visualization -->
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find smm_control)/rviz/kdl_ikp_visualization.rviz" output="screen" />
+
+    <!-- IKP node -->
+    <node name="test_smm_kdl_ikp" pkg="smm_control" type="test_smm_kdl_ikp" output="screen" />
+
+</launch>

@@ -273,9 +273,10 @@ add_executable(visualizeTcpStates src/visualizeTcpStates.cpp)
 ## ENVIRONMENT INTERACTION
 add_executable(ext_force_torque_publisher src/ext_force_torque_publisher.cpp)
 add_executable(ext_wrench_publisher_time src/ext_wrench_publisher_time.cpp)
-add_executable(test_smm_kdl_ikp src/test_smm_kdl_ikp.cpp)
-
 ## KDL UTILS
+add_executable(test_smm_kdl_ikp src/test_smm_kdl_ikp.cpp)
+add_executable(publish_single_joint_state src/publish_single_joint_state.cpp)
+
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -356,6 +357,7 @@ add_dependencies(ext_force_torque_publisher ${${PROJECT_NAME}_EXPORTED_TARGETS} 
 add_dependencies(ext_wrench_publisher_time ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 ## KDL UTILS
 add_dependencies(test_smm_kdl_ikp ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(publish_single_joint_state ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
@@ -601,11 +603,13 @@ target_link_libraries(visualizeTcpStates
 target_link_libraries(ext_force_torque_publisher ${catkin_LIBRARIES})
 target_link_libraries(ext_wrench_publisher_time ${catkin_LIBRARIES})
 
-
 ## KDL UTILS
 target_link_libraries(test_smm_kdl_ikp
   ${catkin_LIBRARIES}
   smm_kin_tools
+)
+target_link_libraries(publish_single_joint_state
+ ${catkin_LIBRARIES} 
 )
 #############
 ## Install ##
