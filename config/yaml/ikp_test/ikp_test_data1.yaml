@@ -1,0 +1,4 @@
+tcp_link_name: "massage_tool"
+base_link_name: "base_plate"
+# The TCP desired goal should be close to the initial guess!!!!
+des_tcp_pos: [0.3282, -0.3508, 0.3248]   # this is the target cartesian position for the TCP # 0.3282, -0.3508, 0.3248

@@ -12,6 +12,10 @@
     <param name="base_frame" value="base_plate" />
     <param name="tcp_frame" value="massage_tool" />
 
+    <!-- load params from yaml file-->
+    <rosparam file="$(find smm_kdl_utils)/config/yaml/ik_solver_params.yaml" command="load" />
+    <rosparam file="$(find smm_control)/config/yaml/ikp_test/ikp_test_data1.yaml" command="load" />
+
     <!-- Load the robot 3D model to param server-->
     <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find smm_ros_gazebo_pkg)/xacro/smm_ros_gazebo.xacro'" />
 
@@ -21,8 +25,9 @@
     <!-- Robot State Publisher -->
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" output="screen" />
 
-    <!-- TF Broadcaster (Optional for Static Frames) -->
+    <!-- TF Broadcaster for world-base_plate static frame -->
     <node name="static_tf" pkg="tf2_ros" type="static_transform_publisher" args="0 0 0 0 0 0 world base_plate" />
+    
     <!-- Publish single joint state node -->
     <node name="publish_single_joint_state" pkg="smm_control" type="publish_single_joint_state" output="screen" />
 
